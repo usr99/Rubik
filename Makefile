@@ -1,12 +1,13 @@
-TARGET	= rubik
-INC 	= ./include
-SRC		= ./src
-OBJDIR	= ./objs
-OBJS	= ${addprefix ${OBJDIR}, ${SRC:.c=.o}}
+TARGET	= rubik.out
+INC 	= ./include/
+SRCDIR	= ./src/
+SRC		= main.cpp
+OBJDIR	= ./objs/
+OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 CFLAGS	= -Wall -Wextra -Werror --std=c++98
 CC		= g++
 
-${OBJDIR}/%.o:	${SRC}/%.c
+${OBJDIR}%.o:	${SRCDIR}%.cpp
 	${CC} ${CFLAGS} -c $< -o $@
 
 ${TARGET}:		${OBJDIR} ${OBJS} ${INC}
