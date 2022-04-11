@@ -1,20 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   rubik.hpp                                          :+:      :+:    :+:   */
+/*   Solver.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/08 17:04:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/11 17:30:52 by mamartin         ###   ########.fr       */
+/*   Created: 2022/04/09 02:11:36 by mamartin          #+#    #+#             */
+/*   Updated: 2022/04/11 20:45:29 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RUBIK_HPP
-# define RUBIK_HPP
+#ifndef SOLVER_HPP
+# define SOLVER_HPP
 
-# include <iostream>
-# include <exception>
-# include <stdexcept>
+# include "rubik.hpp"
+# include "Color.hpp"
+
+class Solver {
+
+	public:
+
+		Solver(); // constructor
+
+		void	render();
+		void	moveLeft(int factor);
+		void	moveRight(int factor);
+		void	moveUp(int factor);
+		void	moveDown(int factor);
+		void	moveFront(int factor);
+		void	moveBack(int factor);
+
+	private:
+
+		int	_cubies[6][9];
+};
 
 #endif

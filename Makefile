@@ -1,10 +1,10 @@
 TARGET	= rubik.out
 INC 	= ./include/
 SRCDIR	= ./src/
-SRC		= main.cpp
+SRC		= main.cpp Solver.cpp Color.cpp
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
-CFLAGS	= -Wall -Wextra -Werror --std=c++98
+CFLAGS	= -Wall -Wextra --std=c++11 -g #-Werror
 CC		= g++
 
 ${OBJDIR}%.o:	${SRCDIR}%.cpp
