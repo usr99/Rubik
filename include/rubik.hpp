@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:04:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/11 22:59:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/12 11:32:09 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define RUBIK_HPP
 
 # include <iostream>
+# include <sstream>
 # include <exception>
 # include <stdexcept>
 

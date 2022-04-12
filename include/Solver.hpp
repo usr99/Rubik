@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 02:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/11 23:00:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/12 11:22:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,17 @@
 # define SOLVER_HPP
 
 # include <vector>
+# include <map>
 # include "rubik.hpp"
 # include "Color.hpp"
 
 class Solver {
 
-	public:
 
-		Solver(); // constructor
+	public:
+		typedef		void (Solver::*MoveFunctionPtr)(void);
+
+		Solver(const std::list<std::string>& scramble); // constructor
 
 		void	render();
 		void	moveLeft();
@@ -36,6 +39,8 @@ class Solver {
 		void	_rotateFace(std::vector<int>& face);
 
 		std::vector<std::vector<int>>	_cubies;
+
+		static const std::map<char, MoveFunctionPtr>	_notationReference;
 };
 
 #endif

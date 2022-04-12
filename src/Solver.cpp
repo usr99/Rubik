@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/09 02:15:25 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/12 10:44:35 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/12 16:05:32 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,53 @@
 #include <algorithm>
 #include "../include/Solver.hpp"
 
-Solver::Solver()
+const std::map<char, Solver::MoveFunctionPtr>	Solver::_notationReference({
+	std::make_pair('R', &Solver::moveRight),
+	std::make_pair('L', &Solver::moveLeft),
+	std::make_pair('U', &Solver::moveUp),
+	std::make_pair('D', &Solver::moveDown),
+	std::make_pair('F', &Solver::moveFront),
+	std::make_pair('B', &Solver::moveBack)
+});
+
+Solver::Solver(const std::list<std::string>& scramble)
 {
 	// set the cube in a solved state
 	for (Color::iterator it = Color::begin(); it != Color::end(); ++it)
 		_cubies.emplace_back(std::vector<int>(9, *it));
+
+	for (
+		std::list<std::string>::const_iterator it = scramble.begin();
+		it != scramble.end();
+		it++)
+	{
+		try {
+			std::map<char, MoveFunctionPtr>::const_iterator	move = _notationReference.find(it->at(0));
+			if (move == _notationReference.end())
+				throw std::exception(); // not an existing move
+
+			int factor = 1;
+			if (it->length() == 2)
+			{
+				if (it->at(1) == '2')
+					factor = 2;
+				else if (it->at(1) == '\'')
+					factor = 3;
+				else
+					throw std::exception( ); // not an existing move
+			}
+			else if (it->length() != 1)
+				throw std::exception(); // not an existing move
+
+			for (int i = 0; i < factor; i++)
+				(this->*move->second)();
+			this->render();
+
+		} catch (const std::exception& e) {
+			std::cerr << e.what() << "\n";
+			throw std::invalid_argument("Scramble is not valid.");
+		}
+	}
 }
 
 void printFace(int map[9][12], int x, int y, std::vector<int>& face)
@@ -112,10 +154,10 @@ void Solver::moveLeft()
 
 	_rotateFace(_cubies[LEFT]);
 	tmp = swapVertical(_cubies[DOWN], tmp, 0);
+	std::reverse(tmp.begin(), tmp.end());
 	tmp = swapVertical(_cubies[BACK], tmp, 2);
 	std::reverse(tmp.begin(), tmp.end());
 	tmp = swapVertical(_cubies[UP], tmp, 0);
-	std::reverse(tmp.begin(), tmp.end());
 	tmp = swapVertical(_cubies[FRONT], tmp, 0); 
 }
 
