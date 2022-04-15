@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/11 20:26:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/12 10:04:15 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/15 03:20:28 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ const std::list<int> Color::_All = {
 	Color::YELLOW
 };
 
-Color::iterator Color::begin()
+Color::iterator	Color::begin()
 {
 	return _All.begin();
 }
