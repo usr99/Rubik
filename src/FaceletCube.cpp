@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 01:14:59 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/22 01:34:58 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,8 @@ FaceletCube::FaceletCube(const std::list<std::string>& scramble) :
 		it++
 	) {
 		try {
-			const char	move	= it->at(0);
-			int			factor	= 1;
+			const char	singmaster	= it->at(0);
+			int			factor		= 1;
 
 			if (it->length() == 2)
 			{
@@ -66,7 +66,7 @@ FaceletCube::FaceletCube(const std::list<std::string>& scramble) :
 				throw std::exception(); // not an existing move
 
 			for (int i = 0; i < factor; i++)
-				this->move(Rubik::SingmasterNotation.at(move), factor); // execute the move
+				this->move(singmaster, factor); // execute the move
 
 		} catch (const std::exception& e) {
 			throw std::invalid_argument("Scramble is not valid.");
@@ -99,7 +99,7 @@ FaceletCube::operator=(const FaceletCube& rhs)
 }
 
 void
-FaceletCube::move(TurnAxis face, int factor)
+FaceletCube::move(char face, int factor)
 {
 	const std::vector<Facelet>& table	= Move::faceletTable.at(face);
 	const std::vector<Facelet>	copy	= _data;
@@ -126,7 +126,7 @@ FaceletCube::render()
 	};
 
 	// draw each face on the map
-	for (int face = U; face <= B; face++)
+	for (int face = 0; face < 6; face++)
 	{
 		const int*	start = coordinates[face];
 
