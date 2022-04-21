@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:05:33 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 01:33:36 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/22 01:40:50 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,7 @@ class FaceletCube
 
 	private:
 
-		Facelet					_corners[CORNER_COUNT][3];
-		Facelet					_edges[EDGE_COUNT][2];
-		std::vector<Facelet>	_data;
+		std::vector<Facelet>	_facelets;
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 01:34:58 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/22 01:44:39 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,35 +14,11 @@
 #include "../include/FaceletCube.hpp"
 
 FaceletCube::FaceletCube(const std::list<std::string>& scramble) :
-	_corners {
-		{ U9, R1, F3 },
-		{ U7, F1, L3 },
-		{ U1, L1, B3 },
-		{ U3, B1, R3 },
-		{ F9, R7, D3 },
-		{ F7, D1, L9 },
-		{ B9, L7, D7 },
-		{ B7, R9, D9 }
-	},
-	_edges {
-		{ U6, R2 },
-		{ U8, F2 },
-		{ U4, L2 },
-		{ U2, B2 },
-		{ D6, R8 },
-		{ D2, F8 },
-		{ D4, L8 },
-		{ D8, R8 },
-		{ F6, R4 },
-		{ F4, L6 },
-		{ B4, R6 },
-		{ B6, L4 }
-	},
-	_data(FACELET_COUNT)
+	_facelets(FACELET_COUNT)
 {
 	// initialize a solved cube
 	for (int i = 0; i < FACELET_COUNT; i++)
-		_data[i] = static_cast<Facelet>(i);
+		_facelets[i] = static_cast<Facelet>(i);
 
 	for (
 		std::list<std::string>::const_iterator it = scramble.begin();
@@ -84,17 +60,7 @@ FaceletCube::~FaceletCube() {}
 FaceletCube&
 FaceletCube::operator=(const FaceletCube& rhs)
 {
-	for (int i = 0; i < CORNER_COUNT; i++)
-	{
-		for (int j = 0; j < 3; j++)
-			_corners[i][j] = rhs._corners[i][j];
-	}
-
-	for (int i = 0; i < EDGE_COUNT; i++)
-	{
-		for (int j = 0; j < 2; j++)
-			_edges[i][j] = rhs._edges[i][j];
-	}
+	_facelets = rhs._facelets;
 	return *this;
 }
 
@@ -102,12 +68,12 @@ void
 FaceletCube::move(char face, int factor)
 {
 	const std::vector<Facelet>& table	= Move::faceletTable.at(face);
-	const std::vector<Facelet>	copy	= _data;
+	const std::vector<Facelet>	copy	= _facelets;
 
 	for (int j = 0; j < factor; j++)
 	{
 		for (int i = 0; i < FACELET_COUNT; i++)
-			_data[table[i]] = copy[i];
+			_facelets[table[i]] = copy[i];
 	}
 }
 
@@ -133,7 +99,7 @@ FaceletCube::render()
 		for (int y = start[1]; y < start[1] + 3; y++)
 		{
 			for (int x = start[0]; x < start[0] + 3; x++) {
-				map[y][x] = Rubik::ColorScheme[_data[faceletIndex] / 9];
+				map[y][x] = Rubik::ColorScheme[_facelets[faceletIndex] / 9];
 				faceletIndex++;
 			}
 		}
