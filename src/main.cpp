@@ -10,8 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/rubik.hpp"
-#include "../include/Solver.hpp"
+#include <iostream>
+#include <list>
+#include <sstream>
 
 int main(int ac, char **av)
 {
@@ -22,6 +23,7 @@ int main(int ac, char **av)
 
 		std::list<std::string>	scramble;
 
+		// read scramble from arguments
 		for (int i = 1; i < ac; i++)
 		{
 			std::istringstream	iss(av[i]);
@@ -30,9 +32,6 @@ int main(int ac, char **av)
 			while(std::getline(iss, buf, ' '))
 				scramble.push_back(buf);
 		}
-
-		Solver cube(scramble);
-		cube.render();
 
 		return (0);
 	}

@@ -1,7 +1,7 @@
 TARGET	= rubik.out
 INC 	= ./include/
 SRCDIR	= ./src/
-SRC		= main.cpp Solver.cpp Cube.cpp Color.cpp
+SRC		= 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 CFLAGS	= -Wall -Wextra --std=c++11 -g #-Werror
