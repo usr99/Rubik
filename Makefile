@@ -1,7 +1,7 @@
 TARGET	= rubik.out
 INC 	= ./include/
 SRCDIR	= ./src/
-SRC		= 
+SRC		= main.cpp FaceletCube.cpp
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 CFLAGS	= -Wall -Wextra --std=c++11 -g #-Werror

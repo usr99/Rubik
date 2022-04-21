@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/15 03:20:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/22 00:31:03 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <list>
 #include <sstream>
+
+#include "../include/FaceletCube.hpp"
 
 int main(int ac, char **av)
 {
@@ -32,6 +34,10 @@ int main(int ac, char **av)
 			while(std::getline(iss, buf, ' '))
 				scramble.push_back(buf);
 		}
+
+		FaceletCube cube(scramble);
+
+		cube.render();
 
 		return (0);
 	}
