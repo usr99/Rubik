@@ -6,16 +6,14 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 16:25:41 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 01:32:53 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/22 23:25:30 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MOVE_HPP
 # define MOVE_HPP
 
-# include <map>
-# include <vector>
-
+# include "rubik.hpp"
 # include "Facelet.hpp"
 # include "Cubie.hpp"
 
@@ -72,15 +70,77 @@ namespace Move {
 		}))
 	};
 
-	namespace Cubie {
-		namespace Corner {
+	static const std::map<char, std::vector<CornerCubie>> cornerTable = { // "is replaced by" representation
+		std::make_pair('U', std::vector<CornerCubie>({
+			CornerCubie(UBR, 0), CornerCubie(URF, 0),
+			CornerCubie(UFL, 0), CornerCubie(ULB, 0),
+			CornerCubie(DFR, 0), CornerCubie(DLF, 0),
+			CornerCubie(DBL, 0), CornerCubie(DRB, 0)
+		})),
+		std::make_pair('R', std::vector<CornerCubie>({
+			CornerCubie(DFR, 2), CornerCubie(UFL, 0),
+			CornerCubie(ULB, 0), CornerCubie(URF, 1),
+			CornerCubie(DRB, 1), CornerCubie(DLF, 0),
+			CornerCubie(DBL, 0), CornerCubie(UBR, 2)
+		})),
+		std::make_pair('F', std::vector<CornerCubie>({
+			CornerCubie(UFL, 1), CornerCubie(DLF, 2),
+			CornerCubie(ULB, 0), CornerCubie(UBR, 0),
+			CornerCubie(URF, 2), CornerCubie(DFR, 1),
+			CornerCubie(DBL, 0), CornerCubie(DRB, 0)
+		})),
+		std::make_pair('D', std::vector<CornerCubie>({
+			CornerCubie(URF, 0), CornerCubie(UFL, 0),
+			CornerCubie(ULB, 0), CornerCubie(UBR, 0),
+			CornerCubie(DLF, 0), CornerCubie(DBL, 0),
+			CornerCubie(DRB, 0), CornerCubie(DFR, 0)
+		})),
+		std::make_pair('L', std::vector<CornerCubie>({
+			CornerCubie(URF, 0), CornerCubie(ULB, 1),
+			CornerCubie(DBL, 2), CornerCubie(UBR, 0),
+			CornerCubie(DFR, 0), CornerCubie(UFL, 2),
+			CornerCubie(DLF, 1), CornerCubie(DRB, 0)
+		})),
+		std::make_pair('B', std::vector<CornerCubie>({
+			CornerCubie(URF, 0), CornerCubie(UFL, 0),
+			CornerCubie(UBR, 1), CornerCubie(DRB, 2),
+			CornerCubie(DFR, 0), CornerCubie(DLF, 0),
+			CornerCubie(ULB, 2), CornerCubie(DBL, 1)
+		})),
+	};
 
-		}
-
-		namespace Edge {
-
-		}
-	}
+	static const std::map<char, std::vector<EdgeCubie>> edgeTable = { // "is replaced by" representation
+		std::make_pair('U', std::vector<EdgeCubie>({
+			EdgeCubie(UB, 0), EdgeCubie(UR, 0), EdgeCubie(UF, 0), EdgeCubie(UL, 0),
+			EdgeCubie(DR, 0), EdgeCubie(DF, 0), EdgeCubie(DL, 0), EdgeCubie(DB, 0),
+			EdgeCubie(FR, 0), EdgeCubie(FL, 0), EdgeCubie(BL, 0), EdgeCubie(BR, 0)
+		})),
+		std::make_pair('R', std::vector<EdgeCubie>({
+			EdgeCubie(FR, 0), EdgeCubie(UF, 0), EdgeCubie(UL, 0), EdgeCubie(UB, 0),
+			EdgeCubie(BR, 0), EdgeCubie(DF, 0), EdgeCubie(DL, 0), EdgeCubie(DB, 0),
+			EdgeCubie(DR, 0), EdgeCubie(FL, 0), EdgeCubie(BL, 0), EdgeCubie(UR, 0)
+		})),
+		std::make_pair('F', std::vector<EdgeCubie>({
+			EdgeCubie(UR, 0), EdgeCubie(FL, 1), EdgeCubie(UL, 0), EdgeCubie(UB, 0),
+			EdgeCubie(DR, 0), EdgeCubie(FR, 1), EdgeCubie(DL, 0), EdgeCubie(DB, 0),
+			EdgeCubie(UF, 1), EdgeCubie(DF, 1), EdgeCubie(BL, 0), EdgeCubie(BR, 0)
+		})),
+		std::make_pair('D', std::vector<EdgeCubie>({
+			EdgeCubie(UR, 0), EdgeCubie(UF, 0), EdgeCubie(UL, 0), EdgeCubie(UB, 0),
+			EdgeCubie(DF, 0), EdgeCubie(DL, 0), EdgeCubie(DB, 0), EdgeCubie(DR, 0),
+			EdgeCubie(FR, 0), EdgeCubie(FL, 0), EdgeCubie(BL, 0), EdgeCubie(BR, 0)
+		})),
+		std::make_pair('L', std::vector<EdgeCubie>({
+			EdgeCubie(UR, 0), EdgeCubie(UF, 0), EdgeCubie(BL, 0), EdgeCubie(UB, 0),
+			EdgeCubie(DR, 0), EdgeCubie(DF, 0), EdgeCubie(FL, 0), EdgeCubie(DB, 0),
+			EdgeCubie(FR, 0), EdgeCubie(UL, 0), EdgeCubie(DL, 0), EdgeCubie(BR, 0)
+		})),
+		std::make_pair('B', std::vector<EdgeCubie>({
+			EdgeCubie(UR, 0), EdgeCubie(UF, 0), EdgeCubie(UL, 0), EdgeCubie(BR, 1),
+			EdgeCubie(DR, 0), EdgeCubie(DF, 0), EdgeCubie(DL, 0), EdgeCubie(BL, 1),
+			EdgeCubie(FR, 0), EdgeCubie(FL, 0), EdgeCubie(UB, 1), EdgeCubie(DB, 1)
+		})),		
+	};
 }
 
 #endif
