@@ -1,38 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   rubik.hpp                                          :+:      :+:    :+:   */
+/*   ACube.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 22:28:26 by user42           ###   ########.fr       */
+/*   Created: 2022/04/22 23:21:04 by user42            #+#    #+#             */
+/*   Updated: 2022/04/22 23:33:00 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DEF_HPP
-# define DEF_HPP
+#ifndef ACUBE_HPP
+# define ACUBE_HPP
 
-# include <iostream>
-# include <list>
-# include <vector>
-# include <map>
+# include "rubik.hpp"
 
-# define FACELET_COUNT	54
-# define CORNER_COUNT	8
-# define EDGE_COUNT		12
+class ACube
+{
+	public:
 
-namespace Rubik {
-
-	// Map a color to a face
-	static const unsigned char ColorScheme[6] = {
-		231,	// U
-		160,	// R
-		28,		// F
-		11,		// D
-		202,	// L
-		20		// B
-	};
-}
+		void scramble(const std::list<std::string>& sequence);
+		virtual void move(char face, int factor = 1) = 0;
+};
 
 #endif

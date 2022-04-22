@@ -6,48 +6,21 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 01:44:39 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/22 23:30:32 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
 #include "../include/FaceletCube.hpp"
+#include "../include/Move.hpp"
 
-FaceletCube::FaceletCube(const std::list<std::string>& scramble) :
+FaceletCube::FaceletCube(const std::list<std::string>& sequence) :
 	_facelets(FACELET_COUNT)
 {
 	// initialize a solved cube
 	for (int i = 0; i < FACELET_COUNT; i++)
 		_facelets[i] = static_cast<Facelet>(i);
 
-	for (
-		std::list<std::string>::const_iterator it = scramble.begin();
-		it != scramble.end();
-		it++
-	) {
-		try {
-			const char	singmaster	= it->at(0);
-			int			factor		= 1;
-
-			if (it->length() == 2)
-			{
-				if (it->at(1) == '2')
-					factor = 2; // half-turn
-				else if (it->at(1) == '\'')
-					factor = 3; // counter clockwise
-				else
-					throw std::exception(); // not an existing move
-			}
-			else if (it->length() != 1)
-				throw std::exception(); // not an existing move
-
-			for (int i = 0; i < factor; i++)
-				this->move(singmaster, factor); // execute the move
-
-		} catch (const std::exception& e) {
-			throw std::invalid_argument("Scramble is not valid.");
-		}
-	}
+	this->scramble(sequence);
 }
 
 FaceletCube::FaceletCube(const FaceletCube& rhs)
@@ -78,7 +51,7 @@ FaceletCube::move(char face, int factor)
 }
 
 void
-FaceletCube::render()
+FaceletCube::render() const
 {
 	int		faceletIndex		= 0;
 	int		map[9][12]			= {0};
