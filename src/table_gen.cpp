@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 02:09:40 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 22:02:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/23 22:20:28 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void generateMoveTable(
 	const std::string& tableName,
-	void (CubieCube::*set)(int),
-	unsigned int (CubieCube::*get)(void) const,
+	void (CubieCube::*set)(long),
+	long (CubieCube::*get)(void) const,
 	int max
 ) {
 

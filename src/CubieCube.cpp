@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 21:49:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/23 22:20:59 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ CubieCube::move(char face, int factor)
 	}
 }
 
-unsigned int
+long
 CubieCube::getCornerOriCoord() const
 {
 	int coord	= 0;
@@ -97,7 +97,7 @@ CubieCube::getCornerOriCoord() const
 	return coord;
 }
 
-unsigned int
+long
 CubieCube::getEdgeOriCoord() const
 {
 	int coord	= 0;
@@ -111,7 +111,7 @@ CubieCube::getEdgeOriCoord() const
 	return coord;
 }
 
-unsigned int
+long
 CubieCube::getCornerPermCoord() const
 {
 	int coord = 0;
@@ -130,7 +130,7 @@ CubieCube::getCornerPermCoord() const
 	return coord;
 }
 
-unsigned int
+long
 CubieCube::getEdgePermCoord() const
 {
 	int coord = 0;
@@ -149,7 +149,7 @@ CubieCube::getEdgePermCoord() const
 	return coord;
 }
 
-unsigned int
+long
 CubieCube::getUDSliceCoord() const
 {
 	int	coord	= 0;
@@ -171,7 +171,7 @@ CubieCube::getUDSliceCoord() const
 }
 
 void
-CubieCube::setCornerOriCoord(int coordinate)
+CubieCube::setCornerOriCoord(long coordinate)
 {
 	int orientationSum = 0;
 
@@ -191,7 +191,7 @@ CubieCube::setCornerOriCoord(int coordinate)
 }
 
 void
-CubieCube::setEdgeOriCoord(int coordinate)
+CubieCube::setEdgeOriCoord(long coordinate)
 {
 	int orientationSum = 0;
 
@@ -208,7 +208,7 @@ CubieCube::setEdgeOriCoord(int coordinate)
 }
 
 void
-CubieCube::setCornerPermCoord(int coordinate)
+CubieCube::setCornerPermCoord(long coordinate)
 {
 	std::vector<Corner>	remainingCorners({ URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB });
 	int					orders[CORNER_COUNT];
@@ -228,7 +228,7 @@ CubieCube::setCornerPermCoord(int coordinate)
 }
 
 void
-CubieCube::setEdgePermCoord(int coordinate)
+CubieCube::setEdgePermCoord(long coordinate)
 {
 	std::vector<Edge>	remainingEdges({ UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR });
 	int					orders[EDGE_COUNT];
@@ -248,7 +248,7 @@ CubieCube::setEdgePermCoord(int coordinate)
 }
 
 void		
-CubieCube::setUDSliceCoord(int coordinate)
+CubieCube::setUDSliceCoord(long coordinate)
 {
 	int	n = EDGE_COUNT - 1;
 	int	k = 3;
