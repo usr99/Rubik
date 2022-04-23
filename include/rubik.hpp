@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 02:01:25 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 14:54:15 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define RUBIK_HPP
 
 # include <iostream>
+# include <fstream>
+# include <sstream>
 # include <list>
 # include <vector>
 # include <map>
@@ -23,6 +25,15 @@
 # define EDGE_COUNT		12
 
 namespace Rubik {
+
+	enum Move {
+		U, U2, U3,
+		R, R2, R3,
+		F, F2, F3,
+		D, D2, D3,
+		L, L2, L3,
+		B, B2, B3
+	};
 
 	// Map a color to a face
 	static const unsigned char ColorScheme[6] = {
@@ -34,5 +45,8 @@ namespace Rubik {
 		20		// B
 	};
 }
+
+void	generateMoveTables();
+int**	loadMoveTables();
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 02:01:46 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 15:17:09 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,22 +59,27 @@ CubieCube::operator=(const CubieCube& rhs)
 void
 CubieCube::move(char face, int factor)
 {
-	const std::vector<CornerCubie>&	cTable(Move::cornerTable.at(face));
-	const std::vector<EdgeCubie>&	eTable(Move::edgeTable.at(face));
-	const CubieCube					copy(*this);
+	try {
+		const std::vector<CornerCubie>&	cTable(Move::cornerTable.at(face));
+		const std::vector<EdgeCubie>&	eTable(Move::edgeTable.at(face));
 
-	for (int j = 0; j < factor; j++)
-	{
-		for (int i = 0; i < CORNER_COUNT; i++)
+		const CubieCube copy(*this);
+
+		for (int j = 0; j < factor; j++)
 		{
-			_corners[i].c = copy._corners[cTable[i].c].c;
-			_corners[i].o = (_corners[i].o + cTable[i].o) % 3;
+			for (int i = 0; i < CORNER_COUNT; i++)
+			{
+				_corners[i].c = copy._corners[cTable[i].c].c;
+				_corners[i].o = (_corners[i].o + cTable[i].o) % 3;
+			}
+			for (int i = 0; i < EDGE_COUNT; i++)
+			{
+				_edges[i].e = copy._edges[eTable[i].e].e;
+				_edges[i].o = (_edges[i].o + eTable[i].o) % 2;
+			}
 		}
-		for (int i = 0; i < EDGE_COUNT; i++)
-		{
-			_edges[i].e = copy._edges[eTable[i].e].e;
-			_edges[i].o = (_edges[i].o + eTable[i].o) % 2;
-		}
+	} catch (const std::out_of_range& e) {
+		throw std::invalid_argument(std::string(&face) + std::string(" is not a move"));
 	}
 }
 
