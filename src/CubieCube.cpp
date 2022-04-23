@@ -6,14 +6,14 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 01:44:48 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 02:01:46 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cmath>
 
 #include "../include/CubieCube.hpp"
-#include "../include/Move.hpp"
+#include "../include/permutations.hpp"
 
 CubieCube::CubieCube(const std::list<std::string>& sequence)
 {

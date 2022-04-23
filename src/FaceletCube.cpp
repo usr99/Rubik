@@ -6,12 +6,12 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 23:30:32 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 02:01:55 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/FaceletCube.hpp"
-#include "../include/Move.hpp"
+#include "../include/permutations.hpp"
 
 FaceletCube::FaceletCube(const std::list<std::string>& sequence) :
 	_facelets(FACELET_COUNT)

@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Cubie.cpp                                          :+:      :+:    :+:   */
+/*   cubie.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 16:02:36 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 23:28:31 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 02:01:03 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/Cubie.hpp"
+#include "../include/cubie.hpp"
 
 CornerCubie::CornerCubie() {}
 CornerCubie::CornerCubie(const Corner c, const char o) :

@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:05:33 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 00:56:55 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 02:01:15 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define FACELETCUBE_HPP
 
 # include "ACube.hpp"
-# include "Facelet.hpp"
+# include "facelet.hpp"
 
 class FaceletCube : public ACube
 {

@@ -6,12 +6,12 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 22:28:26 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 02:01:25 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DEF_HPP
-# define DEF_HPP
+#ifndef RUBIK_HPP
+# define RUBIK_HPP
 
 # include <iostream>
 # include <list>

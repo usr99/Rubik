@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Move.hpp                                           :+:      :+:    :+:   */
+/*   permutations.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 16:25:41 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 23:25:30 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 02:02:10 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 # define MOVE_HPP
 
 # include "rubik.hpp"
-# include "Facelet.hpp"
-# include "Cubie.hpp"
+# include "facelet.hpp"
+# include "cubie.hpp"
 
 namespace Move {
 
