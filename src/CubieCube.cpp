@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CubieCube.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 02:01:46 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 21:49:54 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,22 +59,27 @@ CubieCube::operator=(const CubieCube& rhs)
 void
 CubieCube::move(char face, int factor)
 {
-	const std::vector<CornerCubie>&	cTable(Move::cornerTable.at(face));
-	const std::vector<EdgeCubie>&	eTable(Move::edgeTable.at(face));
-	const CubieCube					copy(*this);
+	try {
+		const std::vector<CornerCubie>&	cTable(Move::cornerTable.at(face));
+		const std::vector<EdgeCubie>&	eTable(Move::edgeTable.at(face));
 
-	for (int j = 0; j < factor; j++)
-	{
-		for (int i = 0; i < CORNER_COUNT; i++)
+		const CubieCube copy(*this);
+
+		for (int j = 0; j < factor; j++)
 		{
-			_corners[i].c = copy._corners[cTable[i].c].c;
-			_corners[i].o = (_corners[i].o + cTable[i].o) % 3;
+			for (int i = 0; i < CORNER_COUNT; i++)
+			{
+				_corners[i].c = copy._corners[cTable[i].c].c;
+				_corners[i].o = (_corners[i].o + cTable[i].o) % 3;
+			}
+			for (int i = 0; i < EDGE_COUNT; i++)
+			{
+				_edges[i].e = copy._edges[eTable[i].e].e;
+				_edges[i].o = (_edges[i].o + eTable[i].o) % 2;
+			}
 		}
-		for (int i = 0; i < EDGE_COUNT; i++)
-		{
-			_edges[i].e = copy._edges[eTable[i].e].e;
-			_edges[i].o = (_edges[i].o + eTable[i].o) % 2;
-		}
+	} catch (const std::out_of_range& e) {
+		throw std::invalid_argument(std::string("Accepted moves are U, R, F, D, L and B"));
 	}
 }
 
@@ -82,12 +87,12 @@ unsigned int
 CubieCube::getCornerOriCoord() const
 {
 	int coord	= 0;
-	int weight	= 6;
+	int weight	= 0;
 
-	for (int i = 0; i < CORNER_COUNT - 1; i++)
+	for (int i = CORNER_COUNT - 2; i >= 0; --i)
 	{
 		coord += _corners[i].o * pow(3, weight);
-		weight--;
+		weight++;
 	}
 	return coord;
 }
@@ -96,12 +101,12 @@ unsigned int
 CubieCube::getEdgeOriCoord() const
 {
 	int coord	= 0;
-	int weight	= 6;
+	int weight	= 0;
 
-	for (int i = 0; i < EDGE_COUNT - 1; i++)
+	for (int i = EDGE_COUNT - 2; i >= 0; --i)
 	{
 		coord += _edges[i].o * pow(2, weight);
-		weight--;
+		weight++;
 	}
 	return coord;
 }
@@ -120,7 +125,7 @@ CubieCube::getCornerPermCoord() const
 			if (_corners[j].c > _corners[i].c)
 				sum++;
 		}
-		coord += sum * std::ceil(std::tgamma(i + 1)); // tgamma(n + 1) == n!
+		coord += sum * factorial(i + 1);
 	}
 	return coord;
 }
@@ -139,8 +144,29 @@ CubieCube::getEdgePermCoord() const
 			if (_edges[j].e > _edges[i].e)
 				sum++;
 		}
-		coord += sum * std::ceil(std::tgamma(i + 1)); // tgamma(n + 1) == n!
+		coord += sum * factorial(i + 1);
 	}
+	return coord;
+}
+
+unsigned int
+CubieCube::getUDSliceCoord() const
+{
+	int	coord	= 0;
+	int k		= 0;
+	int	n		= 0;
+
+	while (_edges[n].e < FR)
+		n++;
+
+	for (n = n + 1; n < EDGE_COUNT; n++)
+	{
+		if (_edges[n].e >= FR)
+			k++;
+		else
+			coord += binomial(n, k);
+	}
+
 	return coord;
 }
 
@@ -178,7 +204,7 @@ CubieCube::setEdgeOriCoord(int coordinate)
 		orientationSum += mod;
 		coordinate /= 2;
 	}
-	_edges[CORNER_COUNT - 1].o = orientationSum % 2;
+	_edges[EDGE_COUNT - 1].o = orientationSum % 2;
 }
 
 void
@@ -189,10 +215,10 @@ CubieCube::setCornerPermCoord(int coordinate)
 
 	for (int i = CORNER_COUNT - 1; i >= 0; --i)
 	{
-		const int factorial = std::ceil(std::tgamma(i + 1));
+		const int f = factorial(i + 1);
 
-		orders[i] = coordinate / factorial;	// compute corner's "score"
-		coordinate -= orders[i] * factorial;
+		orders[i] = coordinate / f;	// compute corner's "score"
+		coordinate -= orders[i] * f;
 
 		const int index = remainingCorners.size() - orders[i] - 1;
 
@@ -209,14 +235,52 @@ CubieCube::setEdgePermCoord(int coordinate)
 
 	for (int i = EDGE_COUNT - 1; i >= 0; --i)
 	{
-		const int factorial = std::ceil(std::tgamma(i + 1));
+		const int f = factorial(i + 1);
 
-		orders[i] = coordinate / factorial;
-		coordinate -= orders[i] * factorial;
+		orders[i] = coordinate / f;
+		coordinate -= orders[i] * f;
 
 		const int index = remainingEdges.size() - orders[i] - 1;
 
 		_edges[i].e = remainingEdges[index];
 		remainingEdges.erase(remainingEdges.begin() + index);
+	}
+}
+
+void		
+CubieCube::setUDSliceCoord(int coordinate)
+{
+	int	n = EDGE_COUNT - 1;
+	int	k = 3;
+
+	while (coordinate != 0)
+	{
+		int res = binomial(n, k);
+
+		if (coordinate >= res)
+		{
+			// not a UDSlice edge
+			_edges[n].e = UR;
+			coordinate -= res;
+		}
+		else
+		{
+			// UDSlice edge found !
+			_edges[n].e = FR;
+			k--;
+		}
+		n--;
+	}
+
+	while (n >= 0)
+	{
+		if (k >= 0)
+		{
+			_edges[n].e = FR; // last UDSlice edges
+			k--;
+		}
+		else 
+			_edges[n].e = UR;
+		n--;
 	}
 }

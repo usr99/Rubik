@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CubieCube.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 02:01:10 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 18:24:05 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,13 @@ class CubieCube : public ACube
 		unsigned int	getEdgeOriCoord() const;
 		unsigned int	getCornerPermCoord() const;
 		unsigned int	getEdgePermCoord() const;
+		unsigned int	getUDSliceCoord() const;
 		// coordinates setters
 		void			setCornerOriCoord(int coordinate);
 		void			setEdgeOriCoord(int coordinate);
 		void			setCornerPermCoord(int coordinate);
 		void			setEdgePermCoord(int coordinate);
+		void			setUDSliceCoord(int coordinate);
 		
     private:
 
