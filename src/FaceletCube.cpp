@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FaceletCube.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
+/*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 02:01:55 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 17:53:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,17 @@ FaceletCube::operator=(const FaceletCube& rhs)
 void
 FaceletCube::move(char face, int factor)
 {
-	const std::vector<Facelet>& table	= Move::faceletTable.at(face);
-	const std::vector<Facelet>	copy	= _facelets;
+	try {
+		const std::vector<Facelet> &table = Move::faceletTable.at(face);
+		const std::vector<Facelet> copy = _facelets;
 
-	for (int j = 0; j < factor; j++)
-	{
-		for (int i = 0; i < FACELET_COUNT; i++)
-			_facelets[table[i]] = copy[i];
+		for (int j = 0; j < factor; j++)
+		{
+			for (int i = 0; i < FACELET_COUNT; i++)
+				_facelets[table[i]] = copy[i];
+		}
+	} catch (const std::out_of_range &e) {
+		throw std::invalid_argument(std::string("Accepted moves are U, R, F, D, L and B"));
 	}
 }
 
