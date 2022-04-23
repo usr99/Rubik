@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:05:33 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 23:30:57 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 00:56:55 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,9 @@ class FaceletCube : public ACube
 		~FaceletCube();
 
 		// operators
-		FaceletCube& operator=(const FaceletCube& rhs);
+		FaceletCube&	operator=(const FaceletCube& rhs);
 
-		// functions
+		// member functions
 		virtual void	move(char face, int factor = 1);
 		void			render() const;
 

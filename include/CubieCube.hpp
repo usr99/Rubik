@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/04/22 23:31:05 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 01:58:04 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,21 @@ class CubieCube : public ACube
 		~CubieCube();
 
 		// operators
-		CubieCube& operator=(const CubieCube& rhs);
+		CubieCube&		operator=(const CubieCube& rhs);
 
-		// functions
-		virtual void move(char face, int factor = 1);
-
+		// member functions
+		virtual void	move(char face, int factor = 1);
+		// coordinates getters
+		unsigned int	getCornerOriCoord() const;
+		unsigned int	getEdgeOriCoord() const;
+		unsigned int	getCornerPermCoord() const;
+		unsigned int	getEdgePermCoord() const;
+		// coordinates setters
+		void			setCornerOriCoord(int coordinate);
+		void			setEdgeOriCoord(int coordinate);
+		void			setCornerPermCoord(int coordinate);
+		void			setEdgePermCoord(int coordinate);
+		
     private:
 
 		CornerCubie	_corners[CORNER_COUNT];
