@@ -21,6 +21,7 @@ class FaceletCube : public ACube
 
 		// constructors
 		FaceletCube(const std::list<std::string>& sequence = {});	// default
+		FaceletCube(const std::vector<Facelet>& facelets);			// copy
 		FaceletCube(const FaceletCube& rhs);    					// copy
 
 		// destructors

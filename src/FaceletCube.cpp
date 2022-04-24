@@ -23,6 +23,9 @@ FaceletCube::FaceletCube(const std::list<std::string>& sequence) :
 	this->scramble(sequence);
 }
 
+FaceletCube::FaceletCube(const std::vector<Facelet>& facelets) :
+	_facelets(facelets) {}
+
 FaceletCube::FaceletCube(const FaceletCube& rhs)
 {
 	*this = rhs;

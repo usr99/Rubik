@@ -33,6 +33,8 @@ class CubieCube : public ACube
 
 		// member functions
 		virtual void	move(char face, int factor = 1);
+		FaceletCube		toFacelet();
+
 		// coordinates getters
 		long	getCornerOriCoord() const;
 		long	getEdgeOriCoord() const;

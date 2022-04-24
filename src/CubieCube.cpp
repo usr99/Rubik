@@ -108,6 +108,42 @@ CubieCube::move(char face, int factor)
 	}
 }
 
+FaceletCube
+CubieCube::toFacelet()
+{
+	std::vector<Facelet>	facelets(FACELET_COUNT);
+
+	for (int i = 0; i < 6; i++) // centers
+	{
+		const int center = i * 9 + 4;
+		facelets[center] = static_cast<Facelet>(center);
+	}
+
+	for (int i = 0; i < CORNER_COUNT; i++)
+	{
+		const int newCorner	= _corners[i].c;
+
+		for (int j = 0; j < 3; j++)
+		{
+			const int newOri = (j - _corners[i].o + 3) % 3;
+			facelets[Rubik::CornerFacelets[i][j]] = Rubik::CornerFacelets[newCorner][newOri];
+		} 
+	}
+
+	for (int i = 0; i < EDGE_COUNT; i++)
+	{
+		const int newEdge = _edges[i].e;
+
+		for (int j = 0; j < 2; j++)
+		{
+			const int newOri = (j - _edges[i].o + 2) % 2;
+			facelets[Rubik::EdgeFacelets[i][j]] = Rubik::EdgeFacelets[newEdge][newOri];
+		}
+	} 
+
+	return FaceletCube(facelets);
+}
+
 long
 CubieCube::getCornerOriCoord() const
 {
