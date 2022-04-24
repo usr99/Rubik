@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:05:33 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 17:53:33 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 19:29:07 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define FACELETCUBE_HPP
 
 # include "ACube.hpp"
-# include "facelet.hpp"
 
 class FaceletCube : public ACube
 {

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/22 23:23:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 17:53:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 22:53:07 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,7 @@ ACube::scramble(const std::list<std::string>& sequence)
 			else if (it->length() != 1)
 				throw std::exception(); // not an existing move
 
-			for (int i = 0; i < factor; i++)
-				this->move(singmaster, factor); // execute the move
+			this->move(singmaster, factor); // execute the move
 
 		} catch (const std::exception& e) {
 			throw std::invalid_argument("Scramble is not valid.");

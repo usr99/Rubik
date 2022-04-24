@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 22:20:59 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 22:53:30 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,27 @@ CubieCube::operator=(const CubieCube& rhs)
 	return *this;
 }
 
+bool
+CubieCube::operator==(const CubieCube& rhs)
+{
+	for (int i = 0; i < CORNER_COUNT; i++)
+	{
+		if (
+			_corners[i].c != rhs._corners[i].c ||
+			_corners[i].o != rhs._corners[i].o
+		) return false;
+	}
+
+	for (int i = 0; i < EDGE_COUNT; i++)
+	{
+		if (
+			_edges[i].e != rhs._edges[i].e ||
+			_edges[i].o != rhs._edges[i].o
+		) return false;		
+	}
+	return true;
+}
+
 void
 CubieCube::move(char face, int factor)
 {
@@ -63,19 +84,23 @@ CubieCube::move(char face, int factor)
 		const std::vector<CornerCubie>&	cTable(Rubik::cornerTable.at(face));
 		const std::vector<EdgeCubie>&	eTable(Rubik::edgeTable.at(face));
 
-		const CubieCube copy(*this);
-
 		for (int j = 0; j < factor; j++)
 		{
+			const CubieCube copy(*this);
+
 			for (int i = 0; i < CORNER_COUNT; i++)
 			{
-				_corners[i].c = copy._corners[cTable[i].c].c;
-				_corners[i].o = (_corners[i].o + cTable[i].o) % 3;
-			}
+				const CornerCubie& newCorner = copy._corners[cTable[i].c];
+
+				_corners[i].c = newCorner.c;
+				_corners[i].o = (newCorner.o + cTable[i].o) % 3;
+			} 
 			for (int i = 0; i < EDGE_COUNT; i++)
 			{
-				_edges[i].e = copy._edges[eTable[i].e].e;
-				_edges[i].o = (_edges[i].o + eTable[i].o) % 2;
+				const EdgeCubie& newEdge = copy._edges[eTable[i].e];
+
+				_edges[i].e = newEdge.e;
+				_edges[i].o = (newEdge.o + eTable[i].o) % 2;
 			}
 		}
 	} catch (const std::out_of_range& e) {

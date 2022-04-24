@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 17:53:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 22:55:03 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,10 @@ FaceletCube::move(char face, int factor)
 {
 	try {
 		const std::vector<Facelet> &table = Rubik::faceletTable.at(face);
-		const std::vector<Facelet> copy = _facelets;
 
 		for (int j = 0; j < factor; j++)
 		{
+			const std::vector<Facelet> copy(_facelets);
 			for (int i = 0; i < FACELET_COUNT; i++)
 				_facelets[table[i]] = copy[i];
 		}

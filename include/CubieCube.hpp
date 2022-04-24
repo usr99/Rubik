@@ -6,14 +6,14 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 22:20:17 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 19:56:04 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUBIECUBE_HPP
 # define CUBIECUBE_HPP
 
-# include "ACube.hpp"
+# include "FaceletCube.hpp"
 # include "cubie.hpp"
 
 class CubieCube : public ACube
@@ -29,6 +29,7 @@ class CubieCube : public ACube
 
 		// operators
 		CubieCube&		operator=(const CubieCube& rhs);
+		bool			operator==(const CubieCube& rhs);
 
 		// member functions
 		virtual void	move(char face, int factor = 1);
