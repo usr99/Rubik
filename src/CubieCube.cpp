@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/24 22:53:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 23:09:17 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ CubieCube::getCornerPermCoord() const
 			if (_corners[j].c > _corners[i].c)
 				sum++;
 		}
-		coord += sum * factorial(i + 1);
+		coord += sum * factorial(i);
 	}
 	return coord;
 }
@@ -205,7 +205,7 @@ CubieCube::getEdgePermCoord() const
 			if (_edges[j].e > _edges[i].e)
 				sum++;
 		}
-		coord += sum * factorial(i + 1);
+		coord += sum * factorial(i);
 	}
 	return coord;
 }
@@ -276,7 +276,7 @@ CubieCube::setCornerPermCoord(long coordinate)
 
 	for (int i = CORNER_COUNT - 1; i >= 0; --i)
 	{
-		const int f = factorial(i + 1);
+		const int f = factorial(i);
 
 		orders[i] = coordinate / f;	// compute corner's "score"
 		coordinate -= orders[i] * f;
@@ -296,7 +296,7 @@ CubieCube::setEdgePermCoord(long coordinate)
 
 	for (int i = EDGE_COUNT - 1; i >= 0; --i)
 	{
-		const int f = factorial(i + 1);
+		const int f = factorial(i);
 
 		orders[i] = coordinate / f;
 		coordinate -= orders[i] * f;
