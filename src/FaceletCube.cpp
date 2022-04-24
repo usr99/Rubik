@@ -41,7 +41,7 @@ void
 FaceletCube::move(char face, int factor)
 {
 	try {
-		const std::vector<Facelet> &table = Move::faceletTable.at(face);
+		const std::vector<Facelet> &table = Rubik::faceletTable.at(face);
 		const std::vector<Facelet> copy = _facelets;
 
 		for (int j = 0; j < factor; j++)

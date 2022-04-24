@@ -60,8 +60,8 @@ void
 CubieCube::move(char face, int factor)
 {
 	try {
-		const std::vector<CornerCubie>&	cTable(Move::cornerTable.at(face));
-		const std::vector<EdgeCubie>&	eTable(Move::edgeTable.at(face));
+		const std::vector<CornerCubie>&	cTable(Rubik::cornerTable.at(face));
+		const std::vector<EdgeCubie>&	eTable(Rubik::edgeTable.at(face));
 
 		const CubieCube copy(*this);
 

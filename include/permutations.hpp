@@ -6,18 +6,21 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 16:25:41 by user42            #+#    #+#             */
-/*   Updated: 2022/04/23 17:53:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 19:35:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MOVE_HPP
-# define MOVE_HPP
+#ifndef PERMUTATIONS_HPP
+# define PERMUTATIONS_HPP
 
 # include "rubik.hpp"
-# include "facelet.hpp"
 # include "cubie.hpp"
 
-namespace Move {
+/*
+** 	THIS HEADER DEFINES MOVE TABLES FOR FACELET AND CUBIE LEVELS
+*/
+
+namespace Rubik {
 
 	static const std::map<char, std::vector<Facelet>> faceletTable = { // "is carried to" representation
 		std::make_pair('U', std::vector<Facelet>({ // U

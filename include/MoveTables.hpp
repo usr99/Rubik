@@ -6,12 +6,12 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/23 23:58:59 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/24 19:32:59 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MOVE_TABLES_HPP
-# define MOVE_TABLES_HPP
+#ifndef MOVETABLES_HPP
+# define MOVETABLES_HPP
 
 # include "CubieCube.hpp"
 
