@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/24 23:09:17 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/25 01:22:30 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ CubieCube::toFacelet()
 {
 	std::vector<Facelet>	facelets(FACELET_COUNT);
 
-	for (int i = 0; i < 6; i++) // centers
+	for (int i = 0; i < FACES_COUNT; i++) // centers
 	{
 		const int center = i * 9 + 4;
 		facelets[center] = static_cast<Facelet>(center);

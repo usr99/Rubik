@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/24 00:13:50 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/25 22:48:55 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,14 +90,15 @@ MoveTables::_load(int index)
 	std::cout << "Loading " + path + " ...\n";
 	for (int i = 0; i <= _generators[index].max; i++)
 	{
-		tables[index][i].reserve(18);
-		for (int j = 0; j < 18 ; j++)
+		tables[index][i].reserve(MOVES_COUNT);
+		for (int j = 0; j < MOVES_COUNT ; j++)
 		{
 			ifs.read(buf, sizeof(long));
-			const long res = *(reinterpret_cast<long*>(buf));
-			tables[index][i][j] = res;
+			tables[index][i][j] = *(reinterpret_cast<long*>(buf));
 		}
 	}
+
+	delete buf;
 	ifs.close();
 }
 
@@ -111,15 +112,17 @@ MoveTables::_generate(int index)
 	
 	for (int i = 0; i <= gen.max; i++)
 	{
+		tables[index][i].reserve(MOVES_COUNT);
+
 		// generate a permutation with coordinate i
 		(cube.*gen.set)(i);
 
-		for (int f = 0; f < 6; f++)
+		for (int f = 0; f < FACES_COUNT; f++)
 		{
 			for (int k = 0; k <= 3; k++)
 			{
 				cube.move(Rubik::Faces[f]); // apply all 18 face turns
-				const int newCoord = (cube.*gen.get)(); // store the new coordinate
+				const long newCoord = (cube.*gen.get)(); // store the new coordinate
 
 				if (k != 3) // write it in the table
 				{

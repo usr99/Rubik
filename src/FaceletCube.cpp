@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/24 22:55:03 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/25 01:26:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ FaceletCube::render() const
 	};
 
 	// draw each face on the map
-	for (int face = 0; face < 6; face++)
+	for (int face = 0; face < FACES_COUNT; face++)
 	{
 		const int*	start = coordinates[face];
 

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/24 19:32:59 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/25 01:13:50 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@ class MoveTables
 {
 	public:
 
+		enum Table { CORNER_ORI, EDGE_ORI, UD_SLICE };
+
 		MoveTables();
 		
 		std::vector<std::vector<long>>	tables[MOVE_TABLES_COUNT];
 
 	private:
-
-		enum Table { CORNER_ORI, EDGE_ORI, UD_SLICE };
 
 		using Generator = struct Generator {
 

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/24 19:33:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/25 22:48:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include <vector>
 # include <map>
 
+# define FACES_COUNT	6
+# define MOVES_COUNT	18
 # define FACELET_COUNT	54
 # define CORNER_COUNT	8
 # define EDGE_COUNT		12
@@ -36,7 +38,7 @@ enum Move {
 	Fx1, Fx2, Fx3,
 	Dx1, Dx2, Dx3,
 	Lx1, Lx2, Lx3,
-	Bx1, Bx2, Bx3
+	Bx1, Bx2, Bx3, NONE
 };
 
 enum Facelet {
