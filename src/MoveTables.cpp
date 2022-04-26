@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/25 22:48:55 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 04:02:50 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 
 MoveTables::Generator::Generator(
 	const std::string& name,
-	void (CubieCube::*set)(long),
-	long (CubieCube::*get)(void) const,
+	void (CubieCube::*set)(int),
+	int (CubieCube::*get)(void) const,
 	int max	
 ) : name(name), set(set), get(get), max(max) {}
 
@@ -47,7 +47,7 @@ MoveTables::MoveTables() :
 
 	if (stat("./tables", &st) == -1)
 	{
-		if (errno == ENOENT)
+		if (errno == ENOENT) // folder not found
 		{
 			std::cout << "Creating tables folder...\n";
 			if (mkdir("./tables", S_IRWXU | S_IRWXG | S_IROTH) == -1)
@@ -72,7 +72,7 @@ MoveTables::_load(int index)
 
 	if (stat(path.c_str(), &st) == -1)
 	{
-		if (errno == ENOENT)
+		if (errno == ENOENT) // table not found
 		{
 			std::cout << "Generating " + path + " ...\n";
 			_generate(index);
@@ -85,7 +85,7 @@ MoveTables::_load(int index)
 	}
 
 	std::ifstream	ifs(path);
-	char*			buf = new char[sizeof(long)];
+	char*			buf = new char[sizeof(int)];
 
 	std::cout << "Loading " + path + " ...\n";
 	for (int i = 0; i <= _generators[index].max; i++)
@@ -93,11 +93,14 @@ MoveTables::_load(int index)
 		tables[index][i].reserve(MOVES_COUNT);
 		for (int j = 0; j < MOVES_COUNT ; j++)
 		{
-			ifs.read(buf, sizeof(long));
-			tables[index][i][j] = *(reinterpret_cast<long*>(buf));
+			if (!ifs.good()) {
+				remove(path.c_str());
+				throw std::runtime_error(std::string("Could not load ") + path);
+			}
+			ifs.read(buf, sizeof(int));
+			tables[index][i][j] = *(reinterpret_cast<int*>(buf));
 		}
 	}
-
 	delete buf;
 	ifs.close();
 }
@@ -122,11 +125,17 @@ MoveTables::_generate(int index)
 			for (int k = 0; k <= 3; k++)
 			{
 				cube.move(Rubik::Faces[f]); // apply all 18 face turns
-				const long newCoord = (cube.*gen.get)(); // store the new coordinate
+				const int newCoord = (cube.*gen.get)(); // store the new coordinate
 
-				if (k != 3) // write it in the table
+				if (k != 3) // k == 3 restores the initial state
 				{
-					ofs.write(reinterpret_cast<const char*>(&newCoord), sizeof(long));
+					if (!ofs.good()) {
+						remove(filename.c_str());
+						throw std::runtime_error(std::string("Could not generate ") + filename);
+					}
+
+					// write it in the table
+					ofs.write(reinterpret_cast<const char*>(&newCoord), sizeof(int));
 					tables[index][i][f * 3 + k] = newCoord;
 				}
 			}

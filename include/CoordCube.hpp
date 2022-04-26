@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/24 01:24:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/25 23:32:06 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 04:04:18 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,10 @@
 class CoordCube : public ACube
 {
 	using CubeState = struct CubeState {
-		long corners;
-		long edges;
-		long UDSlice;
-		Move last;
+		int		corners;
+		int		edges;
+		int		UDSlice;
+		Move	last;
 
 		bool operator==(const CubeState& rhs);
 	};
@@ -41,25 +41,26 @@ class CoordCube : public ACube
 		CoordCube&				operator=(const CubieCube& rhs);
 
 		// member functions
+		void					setSolvedState();
 		virtual void			move(char face, int factor = 1);
 		std::list<std::string>	solvePhase1();
 
 	private:
 
-		void					_generatePruningTables(std::vector<long>& table, long& coord);
+		void					_generatePruningTables(std::vector<int>& table, int& coord);
 
 		int						_estimateCost(const CubeState& st);
 		bool					_isGoalState(const CubeState& st);
 		int						_search(std::list<CubeState>& path, int cost, int threshold);
 		std::list<CubeState>	_applyAllMoves(const CubeState& node);
 
-		long					_cornersOri;
-		long					_edgesOri;
-		long					_UDSlice;
+		int						_cornersOri;
+		int						_edgesOri;
+		int						_UDSlice;
 
-		std::vector<long>		_cornersPruning;
-		std::vector<long>		_edgesPruning;
-		std::vector<long>		_UDSlicePruning;
+		std::vector<int>		_cornersPruning;
+		std::vector<int>		_edgesPruning;
+		std::vector<int>		_UDSlicePruning;
 		
 		const MoveTables		_moves;
 };

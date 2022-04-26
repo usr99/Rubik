@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/26 02:08:24 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 23:07:34 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,13 @@ CoordCube::CoordCube(const std::list<std::string>& sequence) :
 	_edgesPruning(EDGE_ORI_MAX + 1, -1),
 	_UDSlicePruning(UD_SLICE_MAX + 1, -1)
 {
-	CubieCube c;
-
-	*this = c;
+	setSolvedState();
 	_generatePruningTables(_UDSlicePruning, _UDSlice);
 	_generatePruningTables(_cornersPruning, _cornersOri);
 	_generatePruningTables(_edgesPruning, _edgesOri);
 
-	c.scramble(sequence);
-	*this = c;
+	setSolvedState();
+	this->scramble(sequence);
 }
 
 CoordCube::CoordCube(const CoordCube& rhs)
@@ -59,63 +57,41 @@ CoordCube::operator=(const CubieCube& rhs)
 	return *this;
 }
 
+bool
+CoordCube::CubeState::operator==(const CubeState& rhs)
+{
+	return (
+		rhs.corners == corners &&
+		rhs.edges == edges &&
+		rhs.UDSlice == UDSlice
+	); // we ignore the move which produced this state
+}
+
+void
+CoordCube::setSolvedState()
+{
+	_cornersOri	= 0;
+	_edgesOri	= 0;
+	_UDSlice	= 0;
+}
+
 void
 CoordCube::move(char face, int factor)
 {
-	int faceIndex = 0;
-	int moveIndex;
+	int		faceIndex = 0;
+	u_int	moveIndex;
 
 	while (Rubik::Faces[faceIndex] != face)
 		faceIndex++;
 	moveIndex = faceIndex * 3 + factor - 1;
+	if (moveIndex >= MOVES_COUNT)
+		throw std::invalid_argument("Accepted moves are U, R, F, D, L and B");
 
+	// find new coordinates in move tables
 	_cornersOri	= _moves.tables[MoveTables::CORNER_ORI][_cornersOri][moveIndex];
 	_edgesOri	= _moves.tables[MoveTables::EDGE_ORI][_edgesOri][moveIndex];
 	_UDSlice	= _moves.tables[MoveTables::UD_SLICE][_UDSlice][moveIndex];
 }
-
-void
-CoordCube::_generatePruningTables(std::vector<long>& table, long& coord)
-{
-	std::list<long>	buffer(1, 0);
-	std::list<long>	tmp;
-	size_t			filled	= 0;
-	size_t			depth	= 0;
-
-	while (filled < table.size())
-	{
-		for (
-			std::list<long>::iterator it = buffer.begin();
-			it != buffer.end();
-			it++
-		) {
-			if (table[*it] == -1)
-			{
-				table[*it] = depth;
-				filled++;
-			}
-
-			for (int i = 0; i < 18; i++)
-			{
-				if (i % 3 == 0)
-					coord = *it;
-
-				move(Rubik::Faces[i / 3]);
-
-				if (table[coord] == -1)
-					tmp.push_back(coord);
-			}
-		}
-
-		buffer = tmp;
-		tmp.clear();
-		depth++;
-	}
-}
-
-/**********************************************/
-/************** WORK IN PROGRESS **************/
-/**********************************************/
 
 std::list<std::string>
 CoordCube::solvePhase1()
@@ -134,15 +110,15 @@ CoordCube::solvePhase1()
 	path.push_back(root);
 	while (!found)
 	{
-		const int cost = _search(path, 0, threshold);
-
-		threshold = cost;
-		found = !cost; // a cost of 0 means the solution is found
+		// search any solution of length threshold
+		const int minimalCost = _search(path, 0, threshold);
+		threshold = minimalCost; // new threshold is the smallest branch cost encountered
+		found = !minimalCost; // but 0 is returned when the solution has been found
 	}
 
-	// convert path into a list of moves (as strings)
-	path.pop_front();
-	std::list<std::string>	solution;
+	// convert the path into a readable solution
+	path.pop_front(); // remove root node
+	std::list<std::string> solution;
 	for (
 		std::list<CubeState>::const_iterator it = path.begin();
 		it != path.end();
@@ -157,10 +133,47 @@ CoordCube::solvePhase1()
 		else if (factor == 3)
 			move += '\'';
 		solution.push_back(move);
-		std::cout << move << " ";
 	}
-	std::cout << "\n";
 	return solution;
+}
+
+void
+CoordCube::_generatePruningTables(std::vector<int>& table, int& coord)
+{
+	std::list<int>	buffer(1, 0);
+	std::list<int>	tmp;
+	size_t				filled	= 0;
+	size_t				depth	= 0;
+
+	while (filled < table.size())
+	{
+		for (
+			std::list<int>::iterator it = buffer.begin();
+			it != buffer.end();
+			it++
+		) {
+			if (table[*it] == -1)
+			{
+				table[*it] = depth;
+				filled++;
+			}
+
+			for (int i = 0; i < MOVES_COUNT; i++)
+			{
+				if (i % 3 == 0)
+					coord = *it;
+
+				move(Rubik::Faces[i / 3]);
+
+				if (table[coord] == -1)
+					tmp.push_back(coord);
+			}
+		}
+
+		buffer = tmp;
+		tmp.clear();
+		depth++;
+	}
 }
 
 int
@@ -171,9 +184,9 @@ CoordCube::_search(std::list<CubeState>& path, int cost, int threshold)
 	int					minimalCost	= -1;
 
 	if (branchCost > threshold)
-		return branchCost;
+		return branchCost; // this branch is a dead-end
 	if (_isGoalState(node))
-		return 0; // null cost
+		return 0; // solution found
 
 	std::list<CubeState> nextNodes = _applyAllMoves(node);
 	for (
@@ -181,13 +194,13 @@ CoordCube::_search(std::list<CubeState>& path, int cost, int threshold)
 		it != nextNodes.end();
 		it++
 	) {
-		if (std::find(path.begin(), path.end(), *it) == path.end())
+		if (std::find(path.begin(), path.end(), *it) == path.end()) // avoid going back to a previously explored state
 		{
 			path.push_back(*it);
 
 			const int c = _search(path, cost + 1, threshold);
 			if (c == 0)
-				return c;
+				return c; // solution found
 			if (c < minimalCost || minimalCost == -1)
 				minimalCost = c;
 			path.pop_back();
@@ -199,7 +212,7 @@ CoordCube::_search(std::list<CubeState>& path, int cost, int threshold)
 int
 CoordCube::_estimateCost(const CubeState& st)
 {
-	return (
+	return ( // biggest value from pruning tables
 		std::max(
 			_cornersPruning[st.corners],
 			std::max(
@@ -221,10 +234,12 @@ CoordCube::_isGoalState(const CubeState& st)
 std::list<CoordCube::CubeState>
 CoordCube::_applyAllMoves(const CubeState& node)
 {
-	std::list<CubeState>	results;
+	std::list<CubeState> results;
 
-	for (int i = 0; i < MOVES_COUNT; i++)
+	for (int i = 0; i < MOVES_COUNT; i++) // apply all possible moves
 	{
+		// except those who would reverse the current state
+		// i.e. moves on the same face as the last one
 		if (i / 3 != node.last / 3)
 		{
 			results.push_back({
@@ -235,15 +250,5 @@ CoordCube::_applyAllMoves(const CubeState& node)
 			});
 		}
 	}
-	return results;
-}
-
-bool
-CoordCube::CubeState::operator==(const CubeState& rhs)
-{
-	return (
-		rhs.corners == corners &&
-		rhs.edges == edges &&
-		rhs.UDSlice == UDSlice
-	);
+	return results; // list of the states resulting from applying a move on the current node
 }

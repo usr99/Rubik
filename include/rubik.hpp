@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/25 22:48:35 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 03:11:37 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ namespace Rubik {
 }
 
 // math_utils.cpp
-unsigned long	factorial(unsigned int n);
-unsigned long	binomial(unsigned int n, unsigned int k);
+unsigned int	factorial(unsigned int n);
+unsigned int	binomial(unsigned int n, unsigned int k);
 
 #endif

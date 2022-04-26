@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/25 01:13:50 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 03:11:12 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class MoveTables
 
 		MoveTables();
 		
-		std::vector<std::vector<long>>	tables[MOVE_TABLES_COUNT];
+		std::vector<std::vector<int>>	tables[MOVE_TABLES_COUNT];
 
 	private:
 
@@ -33,14 +33,14 @@ class MoveTables
 
 			Generator(
 				const std::string& name,
-				void (CubieCube::*set)(long),
-				long (CubieCube::*get)(void) const,
+				void (CubieCube::*set)(int),
+				int (CubieCube::*get)(void) const,
 				int max
 			);
 
 			const std::string& name;
-			void (CubieCube::*set)(long);
-			long (CubieCube::*get)(void) const;
+			void (CubieCube::*set)(int);
+			int (CubieCube::*get)(void) const;
 			int max;
 		};
 

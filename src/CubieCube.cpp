@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/26 03:03:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 04:00:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ CubieCube::move(char face, int factor)
 			}
 		}
 	} catch (const std::out_of_range& e) {
-		throw std::invalid_argument(std::string("Accepted moves are U, R, F, D, L and B"));
+		throw std::invalid_argument("Accepted moves are U, R, F, D, L and B");
 	}
 }
 
@@ -113,38 +113,39 @@ CubieCube::toFacelet()
 {
 	std::vector<Facelet>	facelets(FACELET_COUNT);
 
-	for (int i = 0; i < FACES_COUNT; i++) // centers
+	for (int i = 0; i < FACES_COUNT; i++)
 	{
-		const int center = i * 9 + 4;
+		const int center = i * 9 + 4; // centers are X4 facelets where X is the face
 		facelets[center] = static_cast<Facelet>(center);
 	}
 
 	for (int i = 0; i < CORNER_COUNT; i++)
 	{
-		const int newCorner	= _corners[i].c;
-
 		for (int j = 0; j < 3; j++)
 		{
 			const int newOri = (j - _corners[i].o + 3) % 3;
-			facelets[Rubik::CornerFacelets[i][j]] = Rubik::CornerFacelets[newCorner][newOri];
+			facelets[Rubik::CornerFacelets[i][j]] = Rubik::CornerFacelets[_corners[i].c][newOri];
 		} 
 	}
 
 	for (int i = 0; i < EDGE_COUNT; i++)
 	{
-		const int newEdge = _edges[i].e;
-
 		for (int j = 0; j < 2; j++)
 		{
 			const int newOri = (j - _edges[i].o + 2) % 2;
-			facelets[Rubik::EdgeFacelets[i][j]] = Rubik::EdgeFacelets[newEdge][newOri];
+			facelets[Rubik::EdgeFacelets[i][j]] = Rubik::EdgeFacelets[_edges[i].e][newOri];
 		}
 	} 
 
 	return FaceletCube(facelets);
 }
 
-long
+/*
+** TO UNDERSTAND HOW COORDINATES ARE COMPUTED, SEE:
+** http://kociemba.org/math/coordlevel.htm
+*/
+
+int
 CubieCube::getCornerOriCoord() const
 {
 	int coord	= 0;
@@ -158,7 +159,7 @@ CubieCube::getCornerOriCoord() const
 	return coord;
 }
 
-long
+int
 CubieCube::getEdgeOriCoord() const
 {
 	int coord	= 0;
@@ -172,7 +173,7 @@ CubieCube::getEdgeOriCoord() const
 	return coord;
 }
 
-long
+int
 CubieCube::getCornerPermCoord() const
 {
 	int coord = 0;
@@ -191,7 +192,7 @@ CubieCube::getCornerPermCoord() const
 	return coord;
 }
 
-long
+int
 CubieCube::getEdgePermCoord() const
 {
 	int coord = 0;
@@ -210,19 +211,19 @@ CubieCube::getEdgePermCoord() const
 	return coord;
 }
 
-long
+int
 CubieCube::getUDSliceCoord() const
 {
 	int	coord	= 0;
 	int k		= 0;
 	int	n		= 0;
 
-	while (_edges[n].e < FR)
+	while (_edges[n].e < FR) // an edge less than FR is not a UD-slice edge
 		n++;
 
 	for (n = n + 1; n < EDGE_COUNT; n++)
 	{
-		if (_edges[n].e >= FR)
+		if (_edges[n].e >= FR) // the edge is a UD-slice edge
 			k++;
 		else
 			coord += binomial(n, k);
@@ -232,8 +233,11 @@ CubieCube::getUDSliceCoord() const
 }
 
 void
-CubieCube::setCornerOriCoord(long coordinate)
+CubieCube::setCornerOriCoord(int coordinate)
 {
+	if (coordinate < 0 || coordinate > CORN_ORI_MAX)
+		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
+
 	int orientationSum = 0;
 
 	// convert coordinate using ternary number system
@@ -252,8 +256,11 @@ CubieCube::setCornerOriCoord(long coordinate)
 }
 
 void
-CubieCube::setEdgeOriCoord(long coordinate)
+CubieCube::setEdgeOriCoord(int coordinate)
 {
+	if (coordinate < 0 || coordinate > EDGE_ORI_MAX)
+		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
+
 	int orientationSum = 0;
 
 	// same as for the corners but with binary system
@@ -269,39 +276,48 @@ CubieCube::setEdgeOriCoord(long coordinate)
 }
 
 void
-CubieCube::setCornerPermCoord(long coordinate)
+CubieCube::setCornerPermCoord(int coordinate)
 {
-	std::vector<Corner>	remainingCorners({ URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB });
-	int					orders[CORNER_COUNT];
+	if (coordinate < 0 || coordinate > CORN_PERM_MAX)
+		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
+	std::vector<Corner>	remainingCorners({ URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB });
+	int					score[CORNER_COUNT];
+
+	// loop through the corners in descending order
 	for (int i = CORNER_COUNT - 1; i >= 0; --i)
 	{
 		const int f = factorial(i);
 
-		orders[i] = coordinate / f;	// compute corner's "score"
-		coordinate -= orders[i] * f;
+		score[i] = coordinate / f; // retrieve corner's "score"
+		coordinate -= score[i] * f;
 
-		const int index = remainingCorners.size() - orders[i] - 1;
+		// find the corner whose value is strictly inferior than "score[i]" other corners
+		const int index = remainingCorners.size() - score[i] - 1;
 
-		_corners[i].c = remainingCorners[index]; // set the corner
-		remainingCorners.erase(remainingCorners.begin() + index); // one corner less to place
+		_corners[i].c = remainingCorners[index]; // place the corner
+		remainingCorners.erase(remainingCorners.begin() + index); // one corner less to place now
 	}
 }
 
 void
-CubieCube::setEdgePermCoord(long coordinate)
+CubieCube::setEdgePermCoord(int coordinate)
 {
-	std::vector<Edge>	remainingEdges({ UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR });
-	int					orders[EDGE_COUNT];
+	if (coordinate < 0 || coordinate > EDGE_PERM_MAX)
+		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
+	std::vector<Edge>	remainingEdges({ UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR });
+	int					score[EDGE_COUNT];
+
+	// same but there are 12 cubies to place instead of 8
 	for (int i = EDGE_COUNT - 1; i >= 0; --i)
 	{
 		const int f = factorial(i);
 
-		orders[i] = coordinate / f;
-		coordinate -= orders[i] * f;
+		score[i] = coordinate / f;
+		coordinate -= score[i] * f;
 
-		const int index = remainingEdges.size() - orders[i] - 1;
+		const int index = remainingEdges.size() - score[i] - 1;
 
 		_edges[i].e = remainingEdges[index];
 		remainingEdges.erase(remainingEdges.begin() + index);
@@ -309,38 +325,38 @@ CubieCube::setEdgePermCoord(long coordinate)
 }
 
 void		
-CubieCube::setUDSliceCoord(long coordinate)
+CubieCube::setUDSliceCoord(int coordinate)
 {
 	int	n = EDGE_COUNT - 1;
-	int	k = 3;
+	int	k = 3; // k+1 is the number of UD-slice edges left to place
 
+	// reverse the computation
 	while (coordinate != 0)
 	{
 		int res = binomial(n, k);
 
-		if (coordinate >= res)
+		if (coordinate >= res) // not a UDSlice edge
 		{
-			// not a UDSlice edge
-			_edges[n].e = UR;
+			_edges[n].e = UR; // place a random edge
 			coordinate -= res;
 		}
-		else
+		else // UD-slice edge found !
 		{
-			// UDSlice edge found !
-			_edges[n].e = FR;
+			_edges[n].e = FR; // place UD-slice edge
 			k--;
 		}
 		n--;
 	}
 
+	// place the last edges
 	while (n >= 0)
 	{
-		if (k >= 0)
+		if (k >= 0) // remaining UD-slice edges
 		{
-			_edges[n].e = FR; // last UDSlice edges
+			_edges[n].e = FR;
 			k--;
 		}
-		else 
+		else
 			_edges[n].e = UR;
 		n--;
 	}

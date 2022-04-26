@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 16:25:41 by user42            #+#    #+#             */
-/*   Updated: 2022/04/24 19:35:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 03:40:20 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 
 /*
 ** 	THIS HEADER DEFINES MOVE TABLES FOR FACELET AND CUBIE LEVELS
+**	TO UNDERSTAND HOW IT WORKS, SEE:
+**	http://kociemba.org/math/faceletlevel.htm
+**	http://kociemba.org/math/cubielevel.htm
 */
 
 namespace Rubik {

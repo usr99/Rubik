@@ -33,3 +33,6 @@
 
 # Other
 .vscode
+tables/corner_ori.move
+tables/edge_ori.move
+tables/ud_slice.move

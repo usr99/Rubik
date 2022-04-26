@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/04/24 19:56:04 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 03:11:53 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,17 @@ class CubieCube : public ACube
 		FaceletCube		toFacelet();
 
 		// coordinates getters
-		long	getCornerOriCoord() const;
-		long	getEdgeOriCoord() const;
-		long	getCornerPermCoord() const;
-		long	getEdgePermCoord() const;
-		long	getUDSliceCoord() const;
+		int		getCornerOriCoord() const;
+		int		getEdgeOriCoord() const;
+		int		getCornerPermCoord() const;
+		int		getEdgePermCoord() const;
+		int		getUDSliceCoord() const;
 		// coordinates setters
-		void	setCornerOriCoord(long coordinate);
-		void	setEdgeOriCoord(long coordinate);
-		void	setCornerPermCoord(long coordinate);
-		void	setEdgePermCoord(long coordinate);
-		void	setUDSliceCoord(long coordinate);
+		void	setCornerOriCoord(int coordinate);
+		void	setEdgeOriCoord(int coordinate);
+		void	setCornerPermCoord(int coordinate);
+		void	setEdgePermCoord(int coordinate);
+		void	setUDSliceCoord(int coordinate);
 		
     private:
 
