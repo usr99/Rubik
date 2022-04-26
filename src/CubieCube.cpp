@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/25 01:22:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 03:03:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,7 +248,7 @@ CubieCube::setCornerOriCoord(long coordinate)
 
 	// last corner is determined by the others
 	// the sum of all orientations must be divisible by 3
-	_corners[CORNER_COUNT - 1].o = orientationSum % 3;
+	_corners[CORNER_COUNT - 1].o = 3 - orientationSum % 3;
 }
 
 void
