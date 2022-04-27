@@ -1,32 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   MoveTables.hpp                                     :+:      :+:    :+:   */
+/*   PruningTables.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/27 22:29:08 by mamartin         ###   ########.fr       */
+/*   Created: 2022/04/27 22:13:26 by mamartin          #+#    #+#             */
+/*   Updated: 2022/04/27 22:28:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MOVETABLES_HPP
-# define MOVETABLES_HPP
+#ifndef PRUNINGTABLES_HPP
+# define PRUNINGTABLES_HPP
 
-# include <sys/stat.h>
-# include <cstring>
-# include <fcntl.h>
-# include <unistd.h>
+# include "MoveTables.hpp"
 
-# include "CubieCube.hpp"
-
-class MoveTables
+class PruningTables
 {
 	public:
 
-		MoveTables();
-		
-		std::vector<std::vector<int>>	tables[TABLES_COUNT];
+		PruningTables(const MoveTables& mt);
+
+		std::vector<int>	tables[TABLES_COUNT];
 
 	private:
 
@@ -34,15 +29,11 @@ class MoveTables
 
 			Generator( // constructor
 				const std::string& name,
-				void (CubieCube::*set)(int),
-				int (CubieCube::*get)(void) const,
-				int max
+				const std::vector<std::vector<int>>& mt
 			);
 
-			const std::string name;
-			void (CubieCube::*set)(int);
-			int (CubieCube::*get)(void) const;
-			int max;
+			const std::string						name;
+			const std::vector<std::vector<int>>&	moveTable;
 		};
 
 		void _load(int index);

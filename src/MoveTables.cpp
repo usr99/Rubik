@@ -6,14 +6,10 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/27 15:42:48 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/27 23:06:17 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/stat.h>
-#include <cstring>
-#include <fcntl.h>
-#include <unistd.h>
 #include "../include/MoveTables.hpp"
 
 MoveTables::Generator::Generator(
@@ -71,7 +67,7 @@ MoveTables::MoveTables() :
 			throw std::runtime_error("Error when trying to access move tables");
 	}
 
-	for (int i = 0; i < MOVE_TABLES_COUNT; i++)
+	for (int i = 0; i < TABLES_COUNT; i++)
 	{
 		tables[i].reserve(_generators[i].max + 1);
 		_load(i);
@@ -145,7 +141,7 @@ MoveTables::_generate(int index)
 				if (k != 3) // k == 3 restores the initial state
 				{
 					// write it in the table
-					if (write(fd, reinterpret_cast<const char*>(&newCoord), sizeof(int)) == -1)
+					if (write(fd, &newCoord, sizeof(int)) == -1)
 						throw std::runtime_error(std::string("Could not generate ") + filename);
 					tables[index][i][f * 3 + k] = newCoord;
 				}

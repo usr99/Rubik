@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/27 22:11:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 01:05:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,31 +14,18 @@
 #include "../include/CoordCube.hpp"
 
 CoordCube::CoordCube(const std::list<std::string>& sequence) :
-	_cornersPruning(CORN_ORI_MAX + 1, -1),
-	_edgesPruning(EDGE_ORI_MAX + 1, -1),
-	_UDSlicePruning(UD_SLICE_MAX + 1, -1),
-	_edgesP2Pruning(EDGE_P2_PERM_MAX + 1, -1),
-	_UDSliceP2Pruning(UD_SLICE_P2_MAX + 1, -1)
+	_pruning(_moves)
 {
-	setSolvedState();
-	std::cout << "Generating pruning tables ...\n";
-	_generatePruningTables(_UDSlicePruning, _UDSlice);
-	_generatePruningTables(_cornersPruning, _cornersOri);
-	_generatePruningTables(_edgesPruning, _edgesOri);
-	_generatePruningTables(_edgesP2Pruning, _edgesPermP2);
-	_generatePruningTables(_UDSliceP2Pruning, _UDSliceP2);
-	std::cout << "done !\n";
-
 	setSolvedState();
 	this->scramble(sequence);
 }
 
-CoordCube::CoordCube(const CoordCube& rhs)
+CoordCube::CoordCube(const CoordCube& rhs) : _pruning(_moves)
 {
 	*this = rhs;
 }
 
-CoordCube::CoordCube(const CubieCube& rhs)
+CoordCube::CoordCube(const CubieCube& rhs) : _pruning(_moves)
 {
 	*this = rhs;
 }
@@ -86,11 +73,11 @@ CoordCube::move(char face, int factor)
 		throw std::invalid_argument("Accepted moves are U, R, F, D, L and B");
 
 	// find new coordinates in move tables
-	_cornersOri		= _moves.tables[MoveTables::CORNER_ORI][_cornersOri][moveIndex];
-	_edgesOri		= _moves.tables[MoveTables::EDGE_ORI][_edgesOri][moveIndex];
-	_UDSlice		= _moves.tables[MoveTables::UD_SLICE][_UDSlice][moveIndex];
-	_edgesPermP2	= _moves.tables[MoveTables::EDGE_P2][_edgesPermP2][moveIndex];
-	_UDSliceP2		= _moves.tables[MoveTables::UD_SLICE_P2][_UDSliceP2][moveIndex];
+	_cornersOri		= _moves.tables[Table::CORNER_ORI][_cornersOri][moveIndex];
+	_edgesOri		= _moves.tables[Table::EDGE_ORI][_edgesOri][moveIndex];
+	_UDSlice		= _moves.tables[Table::UD_SLICE][_UDSlice][moveIndex];
+	_edgesPermP2	= _moves.tables[Table::EDGE_P2][_edgesPermP2][moveIndex];
+	_UDSliceP2		= _moves.tables[Table::UD_SLICE_P2][_UDSliceP2][moveIndex];
 }
 
 std::list<std::string>
@@ -187,10 +174,10 @@ int CoordCube::_estimateCost(const CubeStateP1& st)
 {
 	return ( // biggest value from pruning tables
 		std::max(
-			_cornersPruning[st.c],
+			_pruning.tables[Table::CORNER_ORI][st.c],
 			std::max(
-				_edgesPruning[st.e],
-				_UDSlicePruning[st.ud]
+				_pruning.tables[Table::EDGE_ORI][st.e],
+				_pruning.tables[Table::UD_SLICE][st.ud]
 			)
 		)
 	);
@@ -202,8 +189,8 @@ CoordCube::_estimateCost(const CubeStateP2& st)
 {
 	return ( // biggest value from pruning tables
 		std::max(
-			_edgesP2Pruning[st.e],
-			_UDSliceP2Pruning[st.ud]
+			_pruning.tables[Table::EDGE_P2][st.e],
+			_pruning.tables[Table::UD_SLICE_P2][st.ud]
 		)
 	);
 }
@@ -226,9 +213,9 @@ CoordCube::_applyAllMoves(const CubeStateP1& node)
 			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
 		) {
 			results.push_back(CubeStateP1(
-				_moves.tables[MoveTables::CORNER_ORI][node.c][i],
-				_moves.tables[MoveTables::EDGE_ORI][node.e][i],
-				_moves.tables[MoveTables::UD_SLICE][node.ud][i],
+				_moves.tables[Table::CORNER_ORI][node.c][i],
+				_moves.tables[Table::EDGE_ORI][node.e][i],
+				_moves.tables[Table::UD_SLICE][node.ud][i],
 				static_cast<Move>(i)
 			));
 		}
@@ -262,8 +249,8 @@ CoordCube::_applyAllMoves(const CoordCube::CubeStateP2& node)
 			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
 		) {
 			results.push_back(CubeStateP2(
-				_moves.tables[MoveTables::EDGE_P2][node.e][*it],
-				_moves.tables[MoveTables::UD_SLICE_P2][node.ud][*it],
+				_moves.tables[Table::EDGE_P2][node.e][*it],
+				_moves.tables[Table::UD_SLICE_P2][node.ud][*it],
 				*it
 			));
 		}

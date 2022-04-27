@@ -2,7 +2,8 @@ TARGET	= rubik.out
 INC 	= ./include/
 SRCDIR	= ./src/
 SRC		= main.cpp ACube.cpp FaceletCube.cpp cubie.cpp \
-			CubieCube.cpp MoveTables.cpp CoordCube.cpp math_utils.cpp
+			CubieCube.cpp MoveTables.cpp CoordCube.cpp math_utils.cpp \
+			PruningTables.cpp
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 CFLAGS	= -Wall -Wextra --std=c++11 -g #-Werror
