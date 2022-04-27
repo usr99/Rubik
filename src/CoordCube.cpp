@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/26 23:07:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/27 03:46:43 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,13 @@ CoordCube::CoordCube(const std::list<std::string>& sequence) :
 	_UDSlicePruning(UD_SLICE_MAX + 1, -1)
 {
 	setSolvedState();
+	std::cout << "Generating pruning tables ...\n";
 	_generatePruningTables(_UDSlicePruning, _UDSlice);
 	_generatePruningTables(_cornersPruning, _cornersOri);
 	_generatePruningTables(_edgesPruning, _edgesOri);
+	_generatePruningTables(_edgesP2Pruning, _edgesPermP2);
+	_generatePruningTables(_UDSliceP2Pruning, _UDSliceP2);
+	std::cout << "done !\n";
 
 	setSolvedState();
 	this->scramble(sequence);
@@ -70,9 +74,11 @@ CoordCube::CubeState::operator==(const CubeState& rhs)
 void
 CoordCube::setSolvedState()
 {
-	_cornersOri	= 0;
-	_edgesOri	= 0;
-	_UDSlice	= 0;
+	_cornersOri		= 0;
+	_edgesOri		= 0;
+	_UDSlice		= 0;
+	_edgesPermP2	= 0;
+	_UDSliceP2		= 0;
 }
 
 void
@@ -88,9 +94,11 @@ CoordCube::move(char face, int factor)
 		throw std::invalid_argument("Accepted moves are U, R, F, D, L and B");
 
 	// find new coordinates in move tables
-	_cornersOri	= _moves.tables[MoveTables::CORNER_ORI][_cornersOri][moveIndex];
-	_edgesOri	= _moves.tables[MoveTables::EDGE_ORI][_edgesOri][moveIndex];
-	_UDSlice	= _moves.tables[MoveTables::UD_SLICE][_UDSlice][moveIndex];
+	_cornersOri		= _moves.tables[MoveTables::CORNER_ORI][_cornersOri][moveIndex];
+	_edgesOri		= _moves.tables[MoveTables::EDGE_ORI][_edgesOri][moveIndex];
+	_UDSlice		= _moves.tables[MoveTables::UD_SLICE][_UDSlice][moveIndex];
+	_edgesPermP2	= _moves.tables[MoveTables::EDGE_P2][_edgesPermP2][moveIndex];
+	_UDSliceP2		= _moves.tables[MoveTables::UD_SLICE_P2][_UDSliceP2][moveIndex];
 }
 
 std::list<std::string>
@@ -142,8 +150,8 @@ CoordCube::_generatePruningTables(std::vector<int>& table, int& coord)
 {
 	std::list<int>	buffer(1, 0);
 	std::list<int>	tmp;
-	size_t				filled	= 0;
-	size_t				depth	= 0;
+	size_t			filled	= 0;
+	size_t			depth	= 0;
 
 	while (filled < table.size())
 	{
@@ -189,6 +197,7 @@ CoordCube::_search(std::list<CubeState>& path, int cost, int threshold)
 		return 0; // solution found
 
 	std::list<CubeState> nextNodes = _applyAllMoves(node);
+
 	for (
 		std::list<CubeState>::const_iterator it = nextNodes.begin();
 		it != nextNodes.end();
@@ -238,10 +247,16 @@ CoordCube::_applyAllMoves(const CubeState& node)
 
 	for (int i = 0; i < MOVES_COUNT; i++) // apply all possible moves
 	{
-		// except those who would reverse the current state
-		// i.e. moves on the same face as the last one
-		if (i / 3 != node.last / 3)
-		{
+		// except those who would reverse the current state or commutating ones
+		// i.e. moves on the same/opposite face as the last one
+		
+		const int currentMoveIndex	= i / 3;
+		const int lastMoveIndex		= node.last / 3;
+
+		if (
+			currentMoveIndex != lastMoveIndex &&
+			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
+		) {
 			results.push_back({
 				.corners	= _moves.tables[MoveTables::CORNER_ORI][node.corners][i],
 				.edges		= _moves.tables[MoveTables::EDGE_ORI][node.edges][i],

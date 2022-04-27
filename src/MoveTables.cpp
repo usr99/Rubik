@@ -6,12 +6,14 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/26 04:02:50 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/27 15:42:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/stat.h>
 #include <cstring>
+#include <fcntl.h>
+#include <unistd.h>
 #include "../include/MoveTables.hpp"
 
 MoveTables::Generator::Generator(
@@ -40,6 +42,18 @@ MoveTables::MoveTables() :
 			&CubieCube::setUDSliceCoord,
 			&CubieCube::getUDSliceCoord,
 			UD_SLICE_MAX
+		),
+		Generator(
+			std::string("edge_perm_p2.move"),
+			&CubieCube::setPhase2EdgePermCoord,
+			&CubieCube::getPhase2EdgePermCoord,
+			EDGE_P2_PERM_MAX
+		),
+		Generator(
+			std::string("ud_slice_p2.move"),
+			&CubieCube::setPhase2UDSliceCoord,
+			&CubieCube::getPhase2UDSliceCoord,
+			UD_SLICE_P2_MAX
 		)
 	})
 {
@@ -84,8 +98,10 @@ MoveTables::_load(int index)
 		}
 	}
 
-	std::ifstream	ifs(path);
-	char*			buf = new char[sizeof(int)];
+	int	buf;
+	int fd = open(path.c_str(), O_RDONLY);
+	if (fd == -1)
+		throw std::runtime_error(std::string("Could not load ") + path);
 
 	std::cout << "Loading " + path + " ...\n";
 	for (int i = 0; i <= _generators[index].max; i++)
@@ -93,16 +109,12 @@ MoveTables::_load(int index)
 		tables[index][i].reserve(MOVES_COUNT);
 		for (int j = 0; j < MOVES_COUNT ; j++)
 		{
-			if (!ifs.good()) {
-				remove(path.c_str());
+			if (read(fd, &buf, sizeof(int)) == -1)
 				throw std::runtime_error(std::string("Could not load ") + path);
-			}
-			ifs.read(buf, sizeof(int));
-			tables[index][i][j] = *(reinterpret_cast<int*>(buf));
+			tables[index][i][j] = buf;
 		}
 	}
-	delete buf;
-	ifs.close();
+	close(fd);
 }
 
 void
@@ -110,9 +122,12 @@ MoveTables::_generate(int index)
 {
 	const Generator&	gen(_generators[index]);
 	std::string			filename("./tables/" + gen.name);
-	std::ofstream		ofs(filename);
 	CubieCube			cube;
 	
+	int	fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IROTH);
+	if (fd == -1)
+		throw std::runtime_error(std::string("Could not generate ") + filename);
+
 	for (int i = 0; i <= gen.max; i++)
 	{
 		tables[index][i].reserve(MOVES_COUNT);
@@ -129,17 +144,13 @@ MoveTables::_generate(int index)
 
 				if (k != 3) // k == 3 restores the initial state
 				{
-					if (!ofs.good()) {
-						remove(filename.c_str());
-						throw std::runtime_error(std::string("Could not generate ") + filename);
-					}
-
 					// write it in the table
-					ofs.write(reinterpret_cast<const char*>(&newCoord), sizeof(int));
+					if (write(fd, reinterpret_cast<const char*>(&newCoord), sizeof(int)) == -1)
+						throw std::runtime_error(std::string("Could not generate ") + filename);
 					tables[index][i][f * 3 + k] = newCoord;
 				}
 			}
 		}
 	}
-	ofs.close();
+	close(fd);
 }

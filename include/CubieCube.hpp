@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/04/26 03:11:53 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 19:22:29 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,12 +41,16 @@ class CubieCube : public ACube
 		int		getCornerPermCoord() const;
 		int		getEdgePermCoord() const;
 		int		getUDSliceCoord() const;
+		int		getPhase2EdgePermCoord() const;
+		int		getPhase2UDSliceCoord() const;
 		// coordinates setters
 		void	setCornerOriCoord(int coordinate);
 		void	setEdgeOriCoord(int coordinate);
 		void	setCornerPermCoord(int coordinate);
 		void	setEdgePermCoord(int coordinate);
 		void	setUDSliceCoord(int coordinate);
+		void	setPhase2EdgePermCoord(int coordinate);
+		void	setPhase2UDSliceCoord(int coordinate);
 		
     private:
 

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/26 03:11:12 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/27 15:43:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,13 @@
 
 # include "CubieCube.hpp"
 
-# define MOVE_TABLES_COUNT 3
+# define MOVE_TABLES_COUNT 5
 
 class MoveTables
 {
 	public:
 
-		enum Table { CORNER_ORI, EDGE_ORI, UD_SLICE };
+		enum Table { CORNER_ORI, EDGE_ORI, UD_SLICE, EDGE_P2, UD_SLICE_P2 };
 
 		MoveTables();
 		
@@ -38,7 +38,7 @@ class MoveTables
 				int max
 			);
 
-			const std::string& name;
+			const std::string name;
 			void (CubieCube::*set)(int);
 			int (CubieCube::*get)(void) const;
 			int max;

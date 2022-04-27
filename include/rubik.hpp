@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/26 03:11:37 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/26 18:27:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,20 @@
 # include <vector>
 # include <map>
 
-# define FACES_COUNT	6
-# define MOVES_COUNT	18
-# define FACELET_COUNT	54
-# define CORNER_COUNT	8
-# define EDGE_COUNT		12
+# define FACES_COUNT		6
+# define MOVES_COUNT		18
+# define FACELET_COUNT		54
+# define CORNER_COUNT		8
+# define EDGE_COUNT			12
 
-# define CORN_ORI_MAX	2186		// 3^7 - 1
-# define EDGE_ORI_MAX	2047		// 2^11 - 1
-# define CORN_PERM_MAX	40319		// 8! - 1
-# define EDGE_PERM_MAX	479001599	// 12! - 1
-# define UD_SLICE_MAX	494			// 12*11*10*9/4! - 1
+# define CORN_ORI_MAX		2186		// 3^7 - 1
+# define EDGE_ORI_MAX		2047		// 2^11 - 1
+# define CORN_PERM_MAX		40319		// 8! - 1
+# define EDGE_PERM_MAX		479001599	// 12! - 1
+# define UD_SLICE_MAX		494			// 12*11*10*9/4! - 1
+# define EDGE_P2_PERM_MAX	40319		// 8! - 1
+# define UD_SLICE_P2_MAX	23			// 4! - 1
+
 
 enum Move {
 	Ux1, Ux2, Ux3,

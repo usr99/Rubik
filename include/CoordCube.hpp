@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/24 01:24:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/26 04:04:18 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/27 03:45:30 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class CoordCube : public ACube
 		void					setSolvedState();
 		virtual void			move(char face, int factor = 1);
 		std::list<std::string>	solvePhase1();
+		std::list<std::string>	solvePhase2();
 
 	private:
 
@@ -57,10 +58,14 @@ class CoordCube : public ACube
 		int						_cornersOri;
 		int						_edgesOri;
 		int						_UDSlice;
+		int						_edgesPermP2;
+		int						_UDSliceP2;
 
 		std::vector<int>		_cornersPruning;
 		std::vector<int>		_edgesPruning;
 		std::vector<int>		_UDSlicePruning;
+		std::vector<int>		_edgesP2Pruning;
+		std::vector<int>		_UDSliceP2Pruning;
 		
 		const MoveTables		_moves;
 };
