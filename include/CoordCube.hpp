@@ -6,26 +6,17 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/24 01:24:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/27 03:45:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/27 18:04:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CORDCUBE_HPP
-# define CORDCUBE_HPP
+#ifndef COORDCUBE_HPP
+# define COORDCUBE_HPP
 
 # include "MoveTables.hpp"
 
 class CoordCube : public ACube
 {
-	using CubeState = struct CubeState {
-		int		corners;
-		int		edges;
-		int		UDSlice;
-		Move	last;
-
-		bool operator==(const CubeState& rhs);
-	};
-
 	public:
 
 		// constructor
@@ -43,17 +34,25 @@ class CoordCube : public ACube
 		// member functions
 		void					setSolvedState();
 		virtual void			move(char face, int factor = 1);
-		std::list<std::string>	solvePhase1();
-		std::list<std::string>	solvePhase2();
+		std::list<std::string>	solve();
 
 	private:
 
+		// nested structures used in the solver
+		struct ACubeState;
+		struct CubeStateP1;
+		struct CubeStateP2;
+
 		void					_generatePruningTables(std::vector<int>& table, int& coord);
 
-		int						_estimateCost(const CubeState& st);
-		bool					_isGoalState(const CubeState& st);
-		int						_search(std::list<CubeState>& path, int cost, int threshold);
-		std::list<CubeState>	_applyAllMoves(const CubeState& node);
+		template <typename T>
+		std::list<std::string>	_solve();
+		template <typename T>
+		int						_estimateCost(const T& st);
+		template <typename T>
+		int						_search(std::list<T>& path, int cost, int threshold);
+		template <typename T>
+		std::list<T>			_applyAllMoves(const T& node);
 
 		int						_cornersOri;
 		int						_edgesOri;
@@ -69,5 +68,41 @@ class CoordCube : public ACube
 		
 		const MoveTables		_moves;
 };
+
+struct CoordCube::ACubeState
+{
+	ACubeState(Move last = NONE);
+
+	virtual bool isGoal() const = 0;
+
+	Move last;
+};
+
+struct CoordCube::CubeStateP1 : public CoordCube::ACubeState
+{
+	CubeStateP1(const CoordCube& cube);
+	CubeStateP1(int c, int e, int ud, Move last = NONE);
+
+	virtual bool	isGoal() const;
+	bool			operator==(const CubeStateP1& rhs) const;
+
+	int	c;
+	int	e;
+	int	ud;
+};
+
+struct CoordCube::CubeStateP2 : public CoordCube::ACubeState
+{
+	CubeStateP2(const CoordCube& cube);
+	CubeStateP2(int e, int ud, Move last = NONE);
+
+	virtual bool	isGoal() const;
+	bool			operator==(const CubeStateP2& rhs) const;
+
+	int	e;
+	int	ud;
+};
+
+# include "Solver.ipp"
 
 #endif
