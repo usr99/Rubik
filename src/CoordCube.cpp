@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 02:59:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 19:39:07 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,18 +35,24 @@ CoordCube::~CoordCube() {}
 CoordCube&
 CoordCube::operator=(const CoordCube& rhs)
 {
-	_cornersOri	= rhs._cornersOri;
-	_edgesOri	= rhs._edgesOri;
-	_UDSlice	= rhs._UDSlice;
+	_cornersOri		= rhs._cornersOri;
+	_edgesOri		= rhs._edgesOri;
+	_UDSlice		= rhs._UDSlice;
+	_cornersPerm	= rhs._cornersPerm;
+	_edgesPermP2	= rhs._edgesPermP2;
+	_UDSliceP2		= rhs._UDSliceP2;
 	return *this;
 }
 
 CoordCube&
 CoordCube::operator=(const CubieCube& rhs)
 {
-	_cornersOri	= rhs.getCornerOriCoord();
-	_edgesOri	= rhs.getEdgeOriCoord();
-	_UDSlice	= rhs.getUDSliceCoord();
+	_cornersOri		= rhs.getCornerOriCoord();
+	_edgesOri		= rhs.getEdgeOriCoord();
+	_UDSlice		= rhs.getUDSliceCoord();
+	_cornersPerm	= rhs.getCornerPermCoord();
+	_edgesPermP2	= rhs.getPhase2EdgePermCoord();
+	_UDSliceP2		= rhs.getPhase2UDSliceCoord();
 	return *this;
 }
 
