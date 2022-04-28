@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/27 23:06:17 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 01:26:54 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,12 @@ MoveTables::MoveTables() :
 			&CubieCube::getUDSliceCoord,
 			UD_SLICE_MAX
 		),
+		Generator(
+			std::string("corner_perm.move"),
+			&CubieCube::setCornerPermCoord,
+			&CubieCube::getCornerPermCoord,
+			CORN_PERM_MAX
+		),		
 		Generator(
 			std::string("edge_perm_p2.move"),
 			&CubieCube::setPhase2EdgePermCoord,

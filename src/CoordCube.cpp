@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 01:05:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 02:59:36 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../include/CoordCube.hpp"
 
 CoordCube::CoordCube(const std::list<std::string>& sequence) :
-	_pruning(_moves)
+	_pruning(_moves), _scramble(sequence)
 {
 	setSolvedState();
 	this->scramble(sequence);
@@ -56,6 +56,7 @@ CoordCube::setSolvedState()
 	_cornersOri		= 0;
 	_edgesOri		= 0;
 	_UDSlice		= 0;
+	_cornersPerm	= 0;
 	_edgesPermP2	= 0;
 	_UDSliceP2		= 0;
 }
@@ -76,6 +77,7 @@ CoordCube::move(char face, int factor)
 	_cornersOri		= _moves.tables[Table::CORNER_ORI][_cornersOri][moveIndex];
 	_edgesOri		= _moves.tables[Table::EDGE_ORI][_edgesOri][moveIndex];
 	_UDSlice		= _moves.tables[Table::UD_SLICE][_UDSlice][moveIndex];
+	_cornersPerm	= _moves.tables[Table::CORNER_PERM][_cornersPerm][moveIndex];
 	_edgesPermP2	= _moves.tables[Table::EDGE_P2][_edgesPermP2][moveIndex];
 	_UDSliceP2		= _moves.tables[Table::UD_SLICE_P2][_UDSliceP2][moveIndex];
 }
@@ -86,87 +88,21 @@ CoordCube::solve()
 	std::list<std::string> solution;
 	std::list<std::string> tmp;
 
+	// Phase 1
 	solution = _solve<CubeStateP1>();
 	std::cout << "phase 1 solved\n";
-	//tmp = _solve<CubeStateP2>();
-	//std::cout << "phase 2 solved\n";
-	//solution.insert(solution.end(), tmp.begin(), tmp.end());
-	return solution;
-}
-
-void
-CoordCube::_generatePruningTables(std::vector<int>& table, int& coord)
-{
-	std::list<int>	buffer(1, 0);
-	std::list<int>	tmp;
-	size_t			filled	= 0;
-	size_t			depth	= 0;
-
-	while (filled < table.size() / 2)
-	{
-		for (
-			std::list<int>::const_iterator it = buffer.begin();
-			it != buffer.end();
-			it++
-		) {
-			if (table[*it] == -1)
-			{
-				table[*it] = depth;
-				filled++;
-			}
-
-			for (int i = 0; i < MOVES_COUNT; i++)
-			{
-				if (i % 3 == 0)
-					coord = *it;
-
-				move(Rubik::Faces[i / 3]);
-
-				if (table[coord] == -1)
-					tmp.push_back(coord);
-			}
-		}
-
-		buffer = tmp;
-		tmp.clear();
-		depth++;
-	}
 	
-	buffer.clear();
-	for (size_t i = 1; i < table.size(); i++)
-	{
-		if (table[i] == -1)
-			buffer.push_back(i);
-	}
+	// Apply the Phase 1 solution
+	// CubieCube c(_scramble);
+	// c.scramble(solution);
+	// *this = c;
 
-	while (buffer.size())
-	{
-		std::list<int>::const_iterator it = buffer.begin();
-		
-		while (it != buffer.end())
-		{
-			bool found = false;
+	// // Phase 2
+	// tmp = _solve<CubeStateP2>();
 
-			for (int i = 0; !found && i < MOVES_COUNT; i++)
-			{
-				if (i % 3 == 0)
-					coord = *it;
-
-				move(Rubik::Faces[i / 3]);
-
-				if (table[coord] >= 0)
-				{
-					found = true;
-					table[*it] = table[coord] + 1;
-					it = buffer.erase(it);
-					filled++;
-				}
-			}
-
-			if (!found)
-				it++;
-		}
-	}
+	// // return solution
+	// solution.insert(solution.end(), tmp.begin(), tmp.end());
+	return solution;
 }
 
 template <>
@@ -189,8 +125,11 @@ CoordCube::_estimateCost(const CubeStateP2& st)
 {
 	return ( // biggest value from pruning tables
 		std::max(
-			_pruning.tables[Table::EDGE_P2][st.e],
-			_pruning.tables[Table::UD_SLICE_P2][st.ud]
+			_pruning.tables[Table::CORNER_PERM][st.c],
+			std::max(
+				_pruning.tables[Table::EDGE_P2][st.e],
+				_pruning.tables[Table::UD_SLICE_P2][st.ud]
+			)
 		)
 	);
 }
@@ -249,6 +188,7 @@ CoordCube::_applyAllMoves(const CoordCube::CubeStateP2& node)
 			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
 		) {
 			results.push_back(CubeStateP2(
+				_moves.tables[Table::CORNER_PERM][node.c][*it],
 				_moves.tables[Table::EDGE_P2][node.e][*it],
 				_moves.tables[Table::UD_SLICE_P2][node.ud][*it],
 				*it
@@ -258,23 +198,18 @@ CoordCube::_applyAllMoves(const CoordCube::CubeStateP2& node)
 	return results; // list of the states resulting from applying a move on the current node
 }
 
-CoordCube::ACubeState::ACubeState(Move last) : last(last) {}
-
-CoordCube::CubeStateP1::CubeStateP1(const CoordCube& cube) :
-	c(cube._cornersOri), e(cube._edgesOri), ud(cube._UDSlice) {}
-
-CoordCube::CubeStateP1::CubeStateP1(int c, int e, int ud, Move last) : ACubeState(last),
-	c(c), e(e), ud(ud) {}
+CoordCube::CubeState::CubeState(int c, int e, int ud, Move last) :
+	c(c), e(e), ud(ud), last(last) {}
 
 bool
-CoordCube::CubeStateP1::isGoal() const
+CoordCube::CubeState::isGoal() const
 {
 	// all coordinates must be zero
 	return (!c && !e && !ud);
 }
 
 bool
-CoordCube::CubeStateP1::operator==(const CubeStateP1& rhs) const
+CoordCube::CubeState::operator==(const CubeState& rhs) const
 {
 	// 2 states are equals if and only if their coordinates are equals
 	// last move is ignored
@@ -285,23 +220,30 @@ CoordCube::CubeStateP1::operator==(const CubeStateP1& rhs) const
 	);
 }
 
+const std::vector<Move> CoordCube::CubeStateP1::Moves = {
+	Ux1, Ux2, Ux3,
+	Rx1, Rx2, Rx3,
+	Fx1, Fx2, Fx3,
+	Dx1, Dx2, Dx3,
+	Lx1, Lx2, Lx3,
+	Bx1, Bx2, Bx3,
+};
+
+const std::vector<Move> CoordCube::CubeStateP2::Moves = {
+	Ux1, Ux2, Ux3,
+	Dx1, Dx2, Dx3,
+	Rx2, Fx2, Lx2, Bx2
+};
+
+CoordCube::CubeStateP1::CubeStateP1(int c, int e, int ud, Move last) :
+	CubeState(c, e, ud, last) {}
+
+CoordCube::CubeStateP1::CubeStateP1(const CoordCube& cube) :
+	CubeState(cube._cornersOri, cube._edgesOri, cube._UDSlice) {}
+
+CoordCube::CubeStateP2::CubeStateP2(int c, int e, int ud, Move last) :
+	CubeState(c, e, ud, last) {}
+
 CoordCube::CubeStateP2::CubeStateP2(const CoordCube& cube) :
-	e(cube._edgesPermP2), ud(cube._UDSliceP2) {}
+	CubeState(cube._cornersPerm, cube._edgesPermP2, cube._UDSliceP2) {}
 
-CoordCube::CubeStateP2::CubeStateP2(int e, int ud, Move last) : ACubeState(last),
-	e(e), ud(ud) {}
-
-bool
-CoordCube::CubeStateP2::isGoal() const
-{
-	return (!e && !ud);
-}
-
-bool
-CoordCube::CubeStateP2::operator==(const CubeStateP2& rhs) const
-{
-	return (
-		e == rhs.e &&
-		ud == rhs.ud
-	);
-}

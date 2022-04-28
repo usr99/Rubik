@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/27 22:16:33 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 01:34:13 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 # define EDGE_P2_PERM_MAX	40319		// 8! - 1
 # define UD_SLICE_P2_MAX	23			// 4! - 1
 
-# define TABLES_COUNT		5
+# define TABLES_COUNT		6
 
 enum Move {
 	Ux1, Ux2, Ux3,
@@ -70,7 +70,7 @@ enum Edge {
 
 enum Table {
 	CORNER_ORI, EDGE_ORI, UD_SLICE,
-	EDGE_P2, UD_SLICE_P2
+	CORNER_PERM, EDGE_P2, UD_SLICE_P2
 };
 
 namespace Rubik {

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/27 23:06:55 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 16:07:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ PruningTables::Generator::Generator(
 PruningTables::PruningTables(const MoveTables& mt) : 
 	_generators({
 		Generator(
-			std::string("corners_ori.prune"),
+			std::string("corner_ori.prune"),
 			mt.tables[Table::CORNER_ORI]
 		),
 		Generator(
@@ -31,6 +31,10 @@ PruningTables::PruningTables(const MoveTables& mt) :
 			std::string("ud_slice.prune"),
 			mt.tables[Table::UD_SLICE]
 		),
+		Generator(
+			std::string("corner_perm.prune"),
+			mt.tables[Table::EDGE_P2]
+		),		
 		Generator(
 			std::string("edge_perm_p2.prune"),
 			mt.tables[Table::EDGE_P2]
@@ -99,7 +103,7 @@ PruningTables::_generate(int index)
 	size_t				filled	= 0;
 	size_t				depth	= 0;
 
-	while (filled < table.size() / 2)
+	while (filled < table.size())
 	{
 		for (
 			std::list<int>::const_iterator it = buffer.begin();
@@ -125,6 +129,8 @@ PruningTables::_generate(int index)
 		depth++;
 	}
 	
+	return ; 
+
 	buffer.clear();
 	for (size_t i = 1; i < table.size(); i++)
 	{
@@ -157,7 +163,7 @@ PruningTables::_generate(int index)
 		}
 	}
 
-	for (int i = 0; i < table.size(); i++)
+	for (size_t i = 0; i < table.size(); i++)
 	{
 		if (write(fd, &(table[i]), sizeof(int)) == -1)
 			throw std::runtime_error(std::string("Could not generate ") + filename);

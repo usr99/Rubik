@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/24 01:24:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 01:12:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 02:07:00 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class CoordCube : public ACube
 	private:
 
 		// nested structures used in the solver
-		struct ACubeState;
+		struct CubeState;
 		struct CubeStateP1;
 		struct CubeStateP2;
 
@@ -52,49 +52,47 @@ class CoordCube : public ACube
 		template <typename T>
 		std::list<T>			_applyAllMoves(const T& node);
 
+	public:
+
 		int						_cornersOri;
 		int						_edgesOri;
 		int						_UDSlice;
+		int						_cornersPerm;
 		int						_edgesPermP2;
 		int						_UDSliceP2;
 
 		const MoveTables		_moves;
 		const PruningTables		_pruning;
 
+		// TO REMOVE AS SOON AS POSSIBLE
+		const std::list<std::string>	_scramble;
 };
 
-struct CoordCube::ACubeState
+struct CoordCube::CubeState
 {
-	ACubeState(Move last = NONE);
+	CubeState(int c, int e, int ud, Move last = NONE);
 
-	virtual bool isGoal() const = 0;
+	bool isGoal() const;
+	bool operator==(const CubeState& rhs) const;
 
-	Move last;
+	int		c;
+	int		e;
+	int		ud;
+	Move	last;
 };
 
-struct CoordCube::CubeStateP1 : public CoordCube::ACubeState
+struct CoordCube::CubeStateP1 : public CoordCube::CubeState
 {
 	CubeStateP1(const CoordCube& cube);
 	CubeStateP1(int c, int e, int ud, Move last = NONE);
-
-	virtual bool	isGoal() const;
-	bool			operator==(const CubeStateP1& rhs) const;
-
-	int	c;
-	int	e;
-	int	ud;
+	static const std::vector<Move> Moves;
 };
 
-struct CoordCube::CubeStateP2 : public CoordCube::ACubeState
+struct CoordCube::CubeStateP2 : public CoordCube::CubeState
 {
 	CubeStateP2(const CoordCube& cube);
-	CubeStateP2(int e, int ud, Move last = NONE);
-
-	virtual bool	isGoal() const;
-	bool			operator==(const CubeStateP2& rhs) const;
-
-	int	e;
-	int	ud;
+	CubeStateP2(int c, int e, int ud, Move last = NONE);
+	static const std::vector<Move> Moves;
 };
 
 # include "solver.ipp"
