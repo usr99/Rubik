@@ -6,13 +6,11 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/22 23:35:31 by user42           ###   ########.fr       */
+/*   Updated: 2022/04/23 15:16:39 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sstream>
-
-#include "../include/FaceletCube.hpp"
+#include "../include/rubik.hpp"
 #include "../include/CubieCube.hpp"
 
 int main(int ac, char **av)
@@ -34,9 +32,11 @@ int main(int ac, char **av)
 				scramble.push_back(buf);
 		}
 
-		CubieCube cube;
-		cube.move('F');
-		cube.move('R');
+		CubieCube c(scramble);
+
+		c.move(0);
+
+		//generateMoveTables();
 
 		return (0);
 	}
