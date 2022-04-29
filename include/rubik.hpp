@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/28 16:20:41 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 19:46:24 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,21 @@ namespace Rubik {
 		11,		// D
 		202,	// L
 		20		// B
+	};
+
+	// List of available moves for each phase
+	static const std::vector<Move> GroupP1 = {
+		Ux1, Ux2, Ux3,
+		Rx1, Rx2, Rx3,
+		Fx1, Fx2, Fx3,
+		Dx1, Dx2, Dx3,
+		Lx1, Lx2, Lx3,
+		Bx1, Bx2, Bx3
+	};
+	static const std::vector<Move> GroupP2 = {
+		Ux1, Ux2, Ux3,
+		Dx1, Dx2, Dx3,
+		Rx2, Fx2, Lx2, Bx2
 	};
 }
 

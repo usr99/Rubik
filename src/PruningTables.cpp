@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 17:08:09 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/29 04:06:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,34 +14,41 @@
 
 PruningTables::Generator::Generator(
 	const std::string&						name,
-	const std::vector<std::vector<int>>&	mt
-) : name(name), moveTable(mt) {}
+	const std::vector<std::vector<int>>&	mt,
+	const std::vector<Move>&				allowedMoves
+) : name(name), moveTable(mt), moves(allowedMoves) {}
 
 PruningTables::PruningTables(const MoveTables& mt) : 
 	_generators({
 		Generator(
 			std::string("corner_ori.prune"),
-			mt.tables[Table::CORNER_ORI]
+			mt.tables[Table::CORNER_ORI],
+			Rubik::GroupP1
 		),
 		Generator(
 			std::string("edge_ori.prune"),
-			mt.tables[Table::EDGE_ORI]
+			mt.tables[Table::EDGE_ORI],
+			Rubik::GroupP1
 		),
 		Generator(
 			std::string("ud_slice.prune"),
-			mt.tables[Table::UD_SLICE]
+			mt.tables[Table::UD_SLICE],
+			Rubik::GroupP1
 		),
 		Generator(
 			std::string("corner_perm.prune"),
-			mt.tables[Table::EDGE_P2]
+			mt.tables[Table::CORNER_PERM],
+			Rubik::GroupP2
 		),		
 		Generator(
 			std::string("edge_perm_p2.prune"),
-			mt.tables[Table::EDGE_P2]
+			mt.tables[Table::EDGE_P2],
+			Rubik::GroupP2
 		),
 		Generator(
 			std::string("ud_slice_p2.prune"),
-			mt.tables[Table::UD_SLICE_P2]
+			mt.tables[Table::UD_SLICE_P2],
+			Rubik::GroupP2
 		)								
 	})
 {
@@ -116,9 +123,12 @@ PruningTables::_generate(int index)
 				filled++;
 			}
 
-			for (int i = 0; i < MOVES_COUNT; i++)
-			{
-				int newCoord = gen.moveTable[*it][i];
+			for (
+				std::vector<Move>::const_iterator m = gen.moves.begin();
+				m != gen.moves.end();
+				m++
+			) {
+				int newCoord = gen.moveTable[*it][*m];
 				if (table[newCoord] == -1)
 					tmp.push_back(newCoord);
 			}
@@ -144,9 +154,12 @@ PruningTables::_generate(int index)
 		{
 			bool found = false;
 
-			for (int i = 0; !found && i < MOVES_COUNT; i++)
-			{
-				int newCoord = gen.moveTable[*it][i];
+			for (
+				std::vector<Move>::const_iterator m = gen.moves.begin();
+				m != gen.moves.end() && !found;
+				m++
+			) {
+				int newCoord = gen.moveTable[*it][*m];
 				if (table[newCoord] >= 0)
 				{
 					found = true;
@@ -160,12 +173,5 @@ PruningTables::_generate(int index)
 				it++;
 		}
 	}
-
-	for (size_t i = 0; i < table.size(); i++)
-	{
-		if (write(fd, &(table[i]), sizeof(int)) == -1)
-			throw std::runtime_error(std::string("Could not generate ") + filename);
-	}
-
 	close(fd);
 }

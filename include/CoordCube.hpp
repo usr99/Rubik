@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/24 01:24:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 02:07:00 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 19:49:44 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,14 +85,16 @@ struct CoordCube::CubeStateP1 : public CoordCube::CubeState
 {
 	CubeStateP1(const CoordCube& cube);
 	CubeStateP1(int c, int e, int ud, Move last = NONE);
-	static const std::vector<Move> Moves;
+
+	static const std::vector<Move>& AllowedMoves;
 };
 
 struct CoordCube::CubeStateP2 : public CoordCube::CubeState
 {
 	CubeStateP2(const CoordCube& cube);
 	CubeStateP2(int c, int e, int ud, Move last = NONE);
-	static const std::vector<Move> Moves;
+
+	static const std::vector<Move>& AllowedMoves;
 };
 
 # include "solver.ipp"

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 19:39:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/28 19:58:58 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,20 +226,11 @@ CoordCube::CubeState::operator==(const CubeState& rhs) const
 	);
 }
 
-const std::vector<Move> CoordCube::CubeStateP1::Moves = {
-	Ux1, Ux2, Ux3,
-	Rx1, Rx2, Rx3,
-	Fx1, Fx2, Fx3,
-	Dx1, Dx2, Dx3,
-	Lx1, Lx2, Lx3,
-	Bx1, Bx2, Bx3,
-};
+const std::vector<Move>&
+CoordCube::CubeStateP1::AllowedMoves = Rubik::GroupP1;
 
-const std::vector<Move> CoordCube::CubeStateP2::Moves = {
-	Ux1, Ux2, Ux3,
-	Dx1, Dx2, Dx3,
-	Rx2, Fx2, Lx2, Bx2
-};
+const std::vector<Move>&
+CoordCube::CubeStateP2::AllowedMoves = Rubik::GroupP2;
 
 CoordCube::CubeStateP1::CubeStateP1(int c, int e, int ud, Move last) :
 	CubeState(c, e, ud, last) {}
