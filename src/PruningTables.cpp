@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/29 04:06:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/29 17:32:31 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,32 +79,30 @@ PruningTables::_load(int index)
 		}
 	}
 
-	int	buf;
-	int fd = open(path.c_str(), O_RDONLY);
-	if (fd == -1)
-		throw std::runtime_error(std::string("Could not load ") + path);
+	try {
+		int buf;
+		int fd = open(path.c_str(), O_RDONLY);
+		if (fd == -1)
+			throw std::exception();
 
-	std::cout << "Loading " + path + " ...\n";
-	for (size_t i = 0; i < _generators[index].moveTable.capacity(); i++)
-	{
-		if (read(fd, &buf, sizeof(int)) == -1)
-			throw std::runtime_error(std::string("Could not load ") + path);
-		tables[index][i] = buf;
+		std::cout << "Loading " + path + " ...\n";
+		for (size_t i = 0; i < _generators[index].moveTable.capacity(); i++)
+		{
+			if (read(fd, &buf, sizeof(int)) == -1)
+				throw std::exception();
+			tables[index][i] = buf;
+		}
+		close(fd);
+	} catch (const std::exception& e) {
+		throw std::runtime_error(std::string("Could not load ") + path);
 	}
-	close(fd);
 }
 
 void
 PruningTables::_generate(int index)
 {
 	const Generator&	gen(_generators[index]);
-	std::string			filename("./tables/" + gen.name);
 	std::vector<int>&	table = tables[index];
-	
-	int	fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IROTH);
-	if (fd == -1)
-		throw std::runtime_error(std::string("Could not generate ") + filename);
-
 	std::list<int>		buffer(1, 0);
 	std::list<int>		tmp;
 	size_t				filled	= 0;
@@ -173,5 +171,19 @@ PruningTables::_generate(int index)
 				it++;
 		}
 	}
-	close(fd);
+
+	std::string	filename("./tables/" + gen.name);
+	try {
+		int	fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IROTH);
+		if (fd == -1)
+			throw std::exception();
+
+		for (size_t i = 0; i < gen.moveTable.capacity(); i++) {
+			if (write(fd, table.data() + i, sizeof(int)) == -1)
+				throw std::exception();
+		}
+		close(fd);
+	} catch (const std::exception& e) {
+		throw std::runtime_error(std::string("Could not generate ") + filename);
+	}
 }

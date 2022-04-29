@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 01:26:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/29 17:25:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,6 @@ MoveTables::_load(int index)
 			return ;
 		}
 		else {
-			std::cerr << strerror(errno) << "\n";
 			throw std::runtime_error("Could not open " + _generators[index].name);
 		}
 	}

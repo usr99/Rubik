@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 19:58:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/29 04:08:39 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,15 +99,15 @@ CoordCube::solve()
 	std::cout << "phase 1 solved\n";
 	
 	// Apply the Phase 1 solution
-	// CubieCube c(_scramble);
-	// c.scramble(solution);
-	// *this = c;
+	CubieCube c(_scramble);
+	c.scramble(solution);
+	*this = c;
 
-	// // Phase 2
-	// tmp = _solve<CubeStateP2>();
+	// Phase 2
+	tmp = _solve<CubeStateP2>();
 
-	// // return solution
-	// solution.insert(solution.end(), tmp.begin(), tmp.end());
+	// return solution
+	solution.insert(solution.end(), tmp.begin(), tmp.end());
 	return solution;
 }
 
