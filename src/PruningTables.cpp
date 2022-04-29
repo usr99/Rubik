@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 00:18:50 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 01:03:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,14 +82,11 @@ PruningTables::_load(int index, int fd)
 	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
 	int			buf;
 
-	std::ofstream	ofs("tmp.prune");
-
 	for (size_t i = 0; i <= gen->max; i++)
 	{
 		if (read(fd, &buf, sizeof(int)) != sizeof(int))
 			throw std::exception();
 		_tables[index][i] = buf;
-		ofs << buf << "\n";
 	}
 }
 

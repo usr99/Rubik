@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/24 01:24:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/29 23:17:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 00:57:33 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ struct CoordCube::CubeState
 struct CoordCube::CubeStateP1 : public CoordCube::CubeState
 {
 	CubeStateP1(const CoordCube& cube);
-	CubeStateP1(int c, int e, int ud, Move last = NONE);
+	CubeStateP1(const MoveTables& tables, const CubeStateP1& st, Move m);
 
 	static const std::vector<Move>& AllowedMoves;
 };
@@ -90,7 +90,7 @@ struct CoordCube::CubeStateP1 : public CoordCube::CubeState
 struct CoordCube::CubeStateP2 : public CoordCube::CubeState
 {
 	CubeStateP2(const CoordCube& cube);
-	CubeStateP2(int c, int e, int ud, Move last = NONE);
+	CubeStateP2(const MoveTables& tables, const CubeStateP2& st, Move m);
 
 	static const std::vector<Move>& AllowedMoves;
 };

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 16:18:35 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 02:19:18 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 01:04:00 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,31 @@ CoordCube::_search(std::list<T>& path, int cost, int threshold)
 		}
 	}
 	return minimalCost;
+}
+
+template <typename T>
+std::list<T>
+CoordCube::_applyAllMoves(const T& node)
+{
+	std::list<T> results;
+
+	for (
+		std::vector<Move>::const_iterator it = T::AllowedMoves.begin();
+		it != T::AllowedMoves.end();
+		it++
+	) { // apply all available moves in current phase
+		// except those who would reverse the current state or commutating ones
+		// i.e. moves on the same/opposite face as the last one
+		const int currentMoveIndex	= *it / 3;
+		const int lastMoveIndex		= node.last / 3;
+
+		if (
+			currentMoveIndex != lastMoveIndex &&
+			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
+		)
+			results.push_back(T(_moves, node, *it));
+	}
+	return results; // list of the states resulting from applying a move on the current node
 }
 
 #endif
