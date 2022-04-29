@@ -6,31 +6,34 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/29 04:08:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 00:20:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <algorithm>
 #include "../include/CoordCube.hpp"
 
 CoordCube::CoordCube(const std::list<std::string>& sequence) :
-	_pruning(_moves), _scramble(sequence)
+	_moves(*MoveTables::getInstance()), _pruning(*PruningTables::getInstance(_moves)), _scramble(sequence)
 {
 	setSolvedState();
 	this->scramble(sequence);
 }
 
-CoordCube::CoordCube(const CoordCube& rhs) : _pruning(_moves)
+CoordCube::CoordCube(const CoordCube& rhs) : CoordCube()
 {
 	*this = rhs;
 }
 
-CoordCube::CoordCube(const CubieCube& rhs) : _pruning(_moves)
+CoordCube::CoordCube(const CubieCube& rhs) : CoordCube()
 {
 	*this = rhs;
 }
 
-CoordCube::~CoordCube() {}
+CoordCube::~CoordCube()
+{
+	delete &_moves;
+	delete &_pruning;
+}
 
 CoordCube&
 CoordCube::operator=(const CoordCube& rhs)
@@ -80,12 +83,12 @@ CoordCube::move(char face, int factor)
 		throw std::invalid_argument("Accepted moves are U, R, F, D, L and B");
 
 	// find new coordinates in move tables
-	_cornersOri		= _moves.tables[Table::CORNER_ORI][_cornersOri][moveIndex];
-	_edgesOri		= _moves.tables[Table::EDGE_ORI][_edgesOri][moveIndex];
-	_UDSlice		= _moves.tables[Table::UD_SLICE][_UDSlice][moveIndex];
-	_cornersPerm	= _moves.tables[Table::CORNER_PERM][_cornersPerm][moveIndex];
-	_edgesPermP2	= _moves.tables[Table::EDGE_P2][_edgesPermP2][moveIndex];
-	_UDSliceP2		= _moves.tables[Table::UD_SLICE_P2][_UDSliceP2][moveIndex];
+	_cornersOri		= _moves[Table::CORNER_ORI][_cornersOri][moveIndex];
+	_edgesOri		= _moves[Table::EDGE_ORI][_edgesOri][moveIndex];
+	_UDSlice		= _moves[Table::UD_SLICE][_UDSlice][moveIndex];
+	_cornersPerm	= _moves[Table::CORNER_PERM][_cornersPerm][moveIndex];
+	_edgesPermP2	= _moves[Table::EDGE_P2][_edgesPermP2][moveIndex];
+	_UDSliceP2		= _moves[Table::UD_SLICE_P2][_UDSliceP2][moveIndex];
 }
 
 std::list<std::string>
@@ -116,10 +119,10 @@ int CoordCube::_estimateCost(const CubeStateP1& st)
 {
 	return ( // biggest value from pruning tables
 		std::max(
-			_pruning.tables[Table::CORNER_ORI][st.c],
+			_pruning[Table::CORNER_ORI][st.c],
 			std::max(
-				_pruning.tables[Table::EDGE_ORI][st.e],
-				_pruning.tables[Table::UD_SLICE][st.ud]
+				_pruning[Table::EDGE_ORI][st.e],
+				_pruning[Table::UD_SLICE][st.ud]
 			)
 		)
 	);
@@ -131,10 +134,10 @@ CoordCube::_estimateCost(const CubeStateP2& st)
 {
 	return ( // biggest value from pruning tables
 		std::max(
-			_pruning.tables[Table::CORNER_PERM][st.c],
+			_pruning[Table::CORNER_PERM][st.c],
 			std::max(
-				_pruning.tables[Table::EDGE_P2][st.e],
-				_pruning.tables[Table::UD_SLICE_P2][st.ud]
+				_pruning[Table::EDGE_P2][st.e],
+				_pruning[Table::UD_SLICE_P2][st.ud]
 			)
 		)
 	);
@@ -158,9 +161,9 @@ CoordCube::_applyAllMoves(const CubeStateP1& node)
 			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
 		) {
 			results.push_back(CubeStateP1(
-				_moves.tables[Table::CORNER_ORI][node.c][i],
-				_moves.tables[Table::EDGE_ORI][node.e][i],
-				_moves.tables[Table::UD_SLICE][node.ud][i],
+				_moves[Table::CORNER_ORI][node.c][i],
+				_moves[Table::EDGE_ORI][node.e][i],
+				_moves[Table::UD_SLICE][node.ud][i],
 				static_cast<Move>(i)
 			));
 		}
@@ -194,9 +197,9 @@ CoordCube::_applyAllMoves(const CoordCube::CubeStateP2& node)
 			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
 		) {
 			results.push_back(CubeStateP2(
-				_moves.tables[Table::CORNER_PERM][node.c][*it],
-				_moves.tables[Table::EDGE_P2][node.e][*it],
-				_moves.tables[Table::UD_SLICE_P2][node.ud][*it],
+				_moves[Table::CORNER_PERM][node.c][*it],
+				_moves[Table::EDGE_P2][node.e][*it],
+				_moves[Table::UD_SLICE_P2][node.ud][*it],
 				*it
 			));
 		}
@@ -243,4 +246,3 @@ CoordCube::CubeStateP2::CubeStateP2(int c, int e, int ud, Move last) :
 
 CoordCube::CubeStateP2::CubeStateP2(const CoordCube& cube) :
 	CubeState(cube._cornersPerm, cube._edgesPermP2, cube._UDSliceP2) {}
-

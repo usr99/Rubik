@@ -6,18 +6,19 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/28 19:46:24 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/29 22:56:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RUBIK_HPP
 # define RUBIK_HPP
 
+# include <algorithm>
 # include <iostream>
 # include <fstream>
 # include <sstream>
-# include <list>
 # include <vector>
+# include <list>
 # include <map>
 
 # define FACES_COUNT		6
@@ -33,8 +34,6 @@
 # define UD_SLICE_MAX		494			// 12*11*10*9/4! - 1
 # define EDGE_P2_PERM_MAX	40319		// 8! - 1
 # define UD_SLICE_P2_MAX	23			// 4! - 1
-
-# define TABLES_COUNT		6
 
 enum Move {
 	Ux1, Ux2, Ux3,

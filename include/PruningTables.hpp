@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:13:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 19:52:48 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 00:18:14 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,33 +15,36 @@
 
 # include "MoveTables.hpp"
 
-class PruningTables
+class PruningTables : public ATable<int>
 {
 	public:
 
-		PruningTables(const MoveTables& mt);
-
-		std::vector<int>	tables[TABLES_COUNT];
+		static PruningTables*	getInstance(const MoveTables& mt);
+		virtual ~PruningTables();
 
 	private:
 
-		using Generator = struct Generator {
+		struct Generator;
 
-			Generator( // constructor
-				const std::string& name,
-				const std::vector<std::vector<int>>& mt,
-				const std::vector<Move>& allowedMoves
-			);
+		PruningTables(const MoveTables& mt);
 
-			const std::string						name;
-			const std::vector<std::vector<int>>&	moveTable;
-			const std::vector<Move>&				moves;
-		};
+		virtual void			_load(int index, int fd);
+		virtual void			_generate(int index, int fd);
 
-		void _load(int index);
-		void _generate(int index);
+		static PruningTables*	_instance;
+};
 
-		const std::vector<Generator> _generators;
+struct PruningTables::Generator : public BaseGenerator
+{
+	Generator(
+		const std::string& name,
+		const std::vector<Move>& allowedMoves,
+		size_t max,
+		const std::vector<std::vector<int>>& mt
+	);
+	
+	const std::vector<Move>&				allowedMoves;
+	const std::vector<std::vector<int>>&	moveTable;
 };
 
 #endif

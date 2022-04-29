@@ -6,152 +6,122 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/29 17:25:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 00:19:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/MoveTables.hpp"
 
+MoveTables* MoveTables::_instance = NULL;
+
 MoveTables::Generator::Generator(
-	const std::string& name,
+	const std::string &name,
+	size_t max,
 	void (CubieCube::*set)(int),
-	int (CubieCube::*get)(void) const,
-	int max	
-) : name(name), set(set), get(get), max(max) {}
+	int (CubieCube::*get)(void) const
+) : BaseGenerator(name, max), set(set), get(get) {}
 
 MoveTables::MoveTables() :
-	_generators({
-		Generator(
+	ATable(std::vector<BaseGenerator*>({
+		new Generator(
 			std::string("corner_ori.move"),
+			CORN_ORI_MAX,
 			&CubieCube::setCornerOriCoord,
-			&CubieCube::getCornerOriCoord,
-			CORN_ORI_MAX
+			&CubieCube::getCornerOriCoord
 		),
-		Generator(
+		new Generator(
 			std::string("edge_ori.move"),
+			EDGE_ORI_MAX,
 			&CubieCube::setEdgeOriCoord,
-			&CubieCube::getEdgeOriCoord,
-			EDGE_ORI_MAX
+			&CubieCube::getEdgeOriCoord
 		),
-		Generator(
+		new Generator(
 			std::string("ud_slice.move"),
+			UD_SLICE_MAX,
 			&CubieCube::setUDSliceCoord,
-			&CubieCube::getUDSliceCoord,
-			UD_SLICE_MAX
+			&CubieCube::getUDSliceCoord
 		),
-		Generator(
+		new Generator(
 			std::string("corner_perm.move"),
+			CORN_PERM_MAX,
 			&CubieCube::setCornerPermCoord,
-			&CubieCube::getCornerPermCoord,
-			CORN_PERM_MAX
+			&CubieCube::getCornerPermCoord
 		),		
-		Generator(
+		new Generator(
 			std::string("edge_perm_p2.move"),
+			EDGE_P2_PERM_MAX,
 			&CubieCube::setPhase2EdgePermCoord,
-			&CubieCube::getPhase2EdgePermCoord,
-			EDGE_P2_PERM_MAX
+			&CubieCube::getPhase2EdgePermCoord
 		),
-		Generator(
+		new Generator(
 			std::string("ud_slice_p2.move"),
+			UD_SLICE_P2_MAX,
 			&CubieCube::setPhase2UDSliceCoord,
-			&CubieCube::getPhase2UDSliceCoord,
-			UD_SLICE_P2_MAX
+			&CubieCube::getPhase2UDSliceCoord
 		)
-	})
+	}))
 {
-	struct stat	st;
-
-	if (stat("./tables", &st) == -1)
-	{
-		if (errno == ENOENT) // folder not found
-		{
-			std::cout << "Creating tables folder...\n";
-			if (mkdir("./tables", S_IRWXU | S_IRWXG | S_IROTH) == -1)
-				throw std::runtime_error("Could not create ./tables folder");
-		}
-		else
-			throw std::runtime_error("Error when trying to access move tables");
-	}
-
-	for (int i = 0; i < TABLES_COUNT; i++)
-	{
-		tables[i].reserve(_generators[i].max + 1);
-		_load(i);
+	for (size_t i = 0; i < _generators.size(); i++) {
+		_tables[i].reserve(_generators[i]->max + 1);
+		_create(i);
 	}
 }
 
-void
-MoveTables::_load(int index)
+MoveTables*	MoveTables::getInstance()
 {
-	const std::string	path("./tables/" + _generators[index].name);
-	struct stat			st;
+	if (!_instance)
+		_instance = new MoveTables();
+	return _instance;
+}
 
-	if (stat(path.c_str(), &st) == -1)
+MoveTables::~MoveTables() {}
+
+void
+MoveTables::_load(int index, int fd)
+{
+	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
+	int			buf;
+
+	for (size_t i = 0; i <= gen->max; i++)
 	{
-		if (errno == ENOENT) // table not found
-		{
-			std::cout << "Generating " + path + " ...\n";
-			_generate(index);
-			return ;
-		}
-		else {
-			throw std::runtime_error("Could not open " + _generators[index].name);
-		}
-	}
-
-	int	buf;
-	int fd = open(path.c_str(), O_RDONLY);
-	if (fd == -1)
-		throw std::runtime_error(std::string("Could not load ") + path);
-
-	std::cout << "Loading " + path + " ...\n";
-	for (int i = 0; i <= _generators[index].max; i++)
-	{
-		tables[index][i].reserve(MOVES_COUNT);
+		_tables[index][i].reserve(MOVES_COUNT);
 		for (int j = 0; j < MOVES_COUNT ; j++)
 		{
-			if (read(fd, &buf, sizeof(int)) == -1)
-				throw std::runtime_error(std::string("Could not load ") + path);
-			tables[index][i][j] = buf;
+			if (read(fd, &buf, sizeof(int)) != sizeof(int))
+				throw std::exception();
+			_tables[index][i][j] = buf;
 		}
 	}
-	close(fd);
 }
 
 void
-MoveTables::_generate(int index)
+MoveTables::_generate(int index, int fd)
 {
-	const Generator&	gen(_generators[index]);
-	std::string			filename("./tables/" + gen.name);
-	CubieCube			cube;
-	
-	int	fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IROTH);
-	if (fd == -1)
-		throw std::runtime_error(std::string("Could not generate ") + filename);
+	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
+	CubieCube	cube;
 
-	for (int i = 0; i <= gen.max; i++)
+	for (size_t i = 0; i <= gen->max; i++)
 	{
-		tables[index][i].reserve(MOVES_COUNT);
+		_tables[index][i].reserve(MOVES_COUNT);
 
 		// generate a permutation with coordinate i
-		(cube.*gen.set)(i);
+		(cube.*gen->set)(i);
 
 		for (int f = 0; f < FACES_COUNT; f++)
 		{
 			for (int k = 0; k <= 3; k++)
 			{
 				cube.move(Rubik::Faces[f]); // apply all 18 face turns
-				const int newCoord = (cube.*gen.get)(); // store the new coordinate
+				const int newCoord = (cube.*gen->get)(); // store the new coordinate
 
 				if (k != 3) // k == 3 restores the initial state
 				{
 					// write it in the table
-					if (write(fd, &newCoord, sizeof(int)) == -1)
-						throw std::runtime_error(std::string("Could not generate ") + filename);
-					tables[index][i][f * 3 + k] = newCoord;
+					if (write(fd, &newCoord, sizeof(int)) != sizeof(int))
+						throw std::exception();
+					_tables[index][i][f * 3 + k] = newCoord;
 				}
 			}
 		}
-	}
-	close(fd);
+	}	
 }

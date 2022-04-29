@@ -6,113 +6,108 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/29 17:32:31 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 00:18:50 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/PruningTables.hpp"
 
+PruningTables* PruningTables::_instance = NULL;
+
 PruningTables::Generator::Generator(
-	const std::string&						name,
-	const std::vector<std::vector<int>>&	mt,
-	const std::vector<Move>&				allowedMoves
-) : name(name), moveTable(mt), moves(allowedMoves) {}
+	const std::string& name,
+	const std::vector<Move>& allowedMoves,
+	size_t max,
+	const std::vector<std::vector<int>>& mt
+) : BaseGenerator(name, max), allowedMoves(allowedMoves), moveTable(mt) {}
 
-PruningTables::PruningTables(const MoveTables& mt) : 
-	_generators({
-		Generator(
+PruningTables::PruningTables(const MoveTables& mt) :
+	ATable(std::vector<BaseGenerator*>({
+		new Generator(
 			std::string("corner_ori.prune"),
-			mt.tables[Table::CORNER_ORI],
-			Rubik::GroupP1
+			Rubik::GroupP1,
+			CORN_ORI_MAX,
+			mt[Table::CORNER_ORI]
 		),
-		Generator(
+		new Generator(
 			std::string("edge_ori.prune"),
-			mt.tables[Table::EDGE_ORI],
-			Rubik::GroupP1
+			Rubik::GroupP1,
+			EDGE_ORI_MAX,
+			mt[Table::EDGE_ORI]
 		),
-		Generator(
+		new Generator(
 			std::string("ud_slice.prune"),
-			mt.tables[Table::UD_SLICE],
-			Rubik::GroupP1
+			Rubik::GroupP1,
+			UD_SLICE_MAX,
+			mt[Table::UD_SLICE]
 		),
-		Generator(
+		new Generator(
 			std::string("corner_perm.prune"),
-			mt.tables[Table::CORNER_PERM],
-			Rubik::GroupP2
-		),		
-		Generator(
-			std::string("edge_perm_p2.prune"),
-			mt.tables[Table::EDGE_P2],
-			Rubik::GroupP2
+			Rubik::GroupP2,
+			CORN_PERM_MAX,
+			mt[Table::CORNER_PERM]
 		),
-		Generator(
+		new Generator(
+			std::string("edge_perm_p2.prune"),
+			Rubik::GroupP2,
+			EDGE_P2_PERM_MAX,
+			mt[Table::EDGE_P2]
+		),
+		new Generator(
 			std::string("ud_slice_p2.prune"),
-			mt.tables[Table::UD_SLICE_P2],
-			Rubik::GroupP2
-		)								
-	})
+			Rubik::GroupP2,
+			UD_SLICE_P2_MAX,
+			mt[Table::UD_SLICE_P2]
+		)
+	}))
 {
-	for (int i = 0; i < TABLES_COUNT; i++)
-	{
-		tables[i].insert(tables[i].begin(), _generators[i].moveTable.capacity(), -1);
-		_load(i);
+	for (size_t i = 0; i < _generators.size(); i++) {
+		_tables[i].resize(_generators[i]->max + 1, -1);
+		_create(i);
 	}
 }
 
-void
-PruningTables::_load(int index)
+PruningTables*	PruningTables::getInstance(const MoveTables& mt)
 {
-	const std::string	path("./tables/" + _generators[index].name);
-	struct stat			st;
+	if (!_instance)
+		_instance = new PruningTables(mt);
+	return _instance;
+}
 
-	if (stat(path.c_str(), &st) == -1)
+PruningTables::~PruningTables() {}
+
+void
+PruningTables::_load(int index, int fd)
+{
+	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
+	int			buf;
+
+	std::ofstream	ofs("tmp.prune");
+
+	for (size_t i = 0; i <= gen->max; i++)
 	{
-		if (errno == ENOENT) // table not found
-		{
-			std::cout << "Generating " + path + " ...\n";
-			_generate(index);
-			return ;
-		}
-		else {
-			std::cerr << strerror(errno) << "\n";
-			throw std::runtime_error("Could not open " + _generators[index].name);
-		}
-	}
-
-	try {
-		int buf;
-		int fd = open(path.c_str(), O_RDONLY);
-		if (fd == -1)
+		if (read(fd, &buf, sizeof(int)) != sizeof(int))
 			throw std::exception();
-
-		std::cout << "Loading " + path + " ...\n";
-		for (size_t i = 0; i < _generators[index].moveTable.capacity(); i++)
-		{
-			if (read(fd, &buf, sizeof(int)) == -1)
-				throw std::exception();
-			tables[index][i] = buf;
-		}
-		close(fd);
-	} catch (const std::exception& e) {
-		throw std::runtime_error(std::string("Could not load ") + path);
+		_tables[index][i] = buf;
+		ofs << buf << "\n";
 	}
 }
 
 void
-PruningTables::_generate(int index)
+PruningTables::_generate(int index, int fd)
 {
-	const Generator&	gen(_generators[index]);
-	std::vector<int>&	table = tables[index];
-	std::list<int>		buffer(1, 0);
-	std::list<int>		tmp;
+	Generator*			gen		= reinterpret_cast<Generator*>(_generators[index]);
+	std::vector<int>&	table	= _tables[index];
+	std::list<int>*		buffer	= new std::list<int>(1, 0);
+	std::list<int>*		tmp		= new std::list<int>();
 	size_t				filled	= 0;
 	size_t				depth	= 0;
 
 	while (filled < table.size() / 2)
 	{
 		for (
-			std::list<int>::const_iterator it = buffer.begin();
-			it != buffer.end();
+			std::list<int>::const_iterator it = buffer->begin();
+			it != buffer->end();
 			it++
 		) {
 			if (table[*it] == -1)
@@ -122,47 +117,48 @@ PruningTables::_generate(int index)
 			}
 
 			for (
-				std::vector<Move>::const_iterator m = gen.moves.begin();
-				m != gen.moves.end();
+				std::vector<Move>::const_iterator m = gen->allowedMoves.begin();
+				m != gen->allowedMoves.end();
 				m++
 			) {
-				int newCoord = gen.moveTable[*it][*m];
+				int newCoord = gen->moveTable[*it][*m];
 				if (table[newCoord] == -1)
-					tmp.push_back(newCoord);
+					tmp->push_back(newCoord);
 			}
 		}
 
-		buffer = tmp;
-		tmp.clear();
+		std::swap(buffer, tmp);
+		tmp->clear();
 		depth++;
 	}
 	
-	buffer.clear();
+	delete tmp;
+	buffer->clear();
 	for (size_t i = 1; i < table.size(); i++)
 	{
 		if (table[i] == -1)
-			buffer.push_back(i);
+			buffer->push_back(i);
 	}
 
-	while (buffer.size())
+	while (buffer->size())
 	{
-		std::list<int>::const_iterator it = buffer.begin();
+		std::list<int>::const_iterator it = buffer->begin();
 		
-		while (it != buffer.end())
+		while (it != buffer->end())
 		{
 			bool found = false;
 
 			for (
-				std::vector<Move>::const_iterator m = gen.moves.begin();
-				m != gen.moves.end() && !found;
+				std::vector<Move>::const_iterator m = gen->allowedMoves.begin();
+				m != gen->allowedMoves.end() && !found;
 				m++
 			) {
-				int newCoord = gen.moveTable[*it][*m];
+				int newCoord = gen->moveTable[*it][*m];
 				if (table[newCoord] >= 0)
 				{
 					found = true;
 					table[*it] = table[newCoord] + 1;
-					it = buffer.erase(it);
+					it = buffer->erase(it);
 					filled++;
 				}
 			}
@@ -171,19 +167,10 @@ PruningTables::_generate(int index)
 				it++;
 		}
 	}
+	delete buffer;
 
-	std::string	filename("./tables/" + gen.name);
-	try {
-		int	fd = open(filename.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IROTH);
-		if (fd == -1)
+	for (size_t i = 0; i < table.size(); i++) {
+		if (write(fd, table.data() + i, sizeof(int)) != sizeof(int))
 			throw std::exception();
-
-		for (size_t i = 0; i < gen.moveTable.capacity(); i++) {
-			if (write(fd, table.data() + i, sizeof(int)) == -1)
-				throw std::exception();
-		}
-		close(fd);
-	} catch (const std::exception& e) {
-		throw std::runtime_error(std::string("Could not generate ") + filename);
 	}
 }

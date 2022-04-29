@@ -1,26 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ACube.hpp                                          :+:      :+:    :+:   */
+/*   BaseGenerator.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/04/23 17:53:13 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/29 18:01:49 by mamartin         ###   ########.fr       */
+/*   Created: 2022/04/29 18:50:28 by mamartin          #+#    #+#             */
+/*   Updated: 2022/04/30 00:35:02 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ACUBE_HPP
-# define ACUBE_HPP
+#ifndef BASEGENERATOR_HPP
+# define BASEGENERATOR_HPP
 
 # include "rubik.hpp"
 
-class ACube
-{
-	public:
+using BaseGenerator = struct BaseGenerator {
+	
+	BaseGenerator(
+		const std::string& name,
+		size_t max
+	);
 
-		void			scramble(const std::list<std::string>& sequence);
-		virtual void	move(char face, int factor = 1) = 0;
+	const std::string	name;
+	size_t				max;
 };
 
 #endif

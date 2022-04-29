@@ -6,49 +6,46 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/27 22:29:08 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 00:18:09 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MOVETABLES_HPP
 # define MOVETABLES_HPP
 
-# include <sys/stat.h>
-# include <cstring>
-# include <fcntl.h>
-# include <unistd.h>
-
+# include "ATable.hpp"
 # include "CubieCube.hpp"
 
-class MoveTables
+class MoveTables : public ATable<std::vector<int>>
 {
 	public:
 
-		MoveTables();
-		
-		std::vector<std::vector<int>>	tables[TABLES_COUNT];
+		static MoveTables*	getInstance();
+		virtual ~MoveTables();
 
 	private:
 
-		using Generator = struct Generator {
+		struct Generator;
 
-			Generator( // constructor
-				const std::string& name,
-				void (CubieCube::*set)(int),
-				int (CubieCube::*get)(void) const,
-				int max
-			);
+		MoveTables();
 
-			const std::string name;
-			void (CubieCube::*set)(int);
-			int (CubieCube::*get)(void) const;
-			int max;
-		};
+		virtual void		_load(int index, int fd);
+		virtual void		_generate(int index, int fd);
 
-		void _load(int index);
-		void _generate(int index);
+		static MoveTables*	_instance;
+};
 
-		const std::vector<Generator> _generators;
+struct MoveTables::Generator : public BaseGenerator
+{
+	Generator(
+		const std::string &name,
+		size_t max,
+		void (CubieCube::*set)(int),
+		int (CubieCube::*get)(void) const
+	);
+	
+	void (CubieCube::*set)(int);
+	int (CubieCube::*get)(void) const;
 };
 
 #endif

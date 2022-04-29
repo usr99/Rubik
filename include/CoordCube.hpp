@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/24 01:24:53 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/28 19:49:44 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/29 23:17:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ class CoordCube : public ACube
 		template <typename T>
 		std::list<T>			_applyAllMoves(const T& node);
 
-	public:
-
 		int						_cornersOri;
 		int						_edgesOri;
 		int						_UDSlice;
@@ -61,8 +59,8 @@ class CoordCube : public ACube
 		int						_edgesPermP2;
 		int						_UDSliceP2;
 
-		const MoveTables		_moves;
-		const PruningTables		_pruning;
+		const MoveTables&		_moves;
+		const PruningTables&	_pruning;
 
 		// TO REMOVE AS SOON AS POSSIBLE
 		const std::list<std::string>	_scramble;
