@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/25 01:11:36 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 00:59:24 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/01 01:15:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,6 @@ CoordCube::solve()
 
 	// Phase 1
 	solution = _solve<CubeStateP1>();
-	std::cout << "phase 1 solved\n";
 	
 	// Apply the Phase 1 solution
 	CubieCube c(_scramble);
@@ -119,11 +118,8 @@ int CoordCube::_estimateCost(const CubeStateP1& st)
 {
 	return ( // biggest value from pruning tables
 		std::max(
-			_pruning[Table::CORNER_ORI][st.c],
-			std::max(
-				_pruning[Table::EDGE_ORI][st.e],
-				_pruning[Table::UD_SLICE][st.ud]
-			)
+			_pruning[0][st.c][st.e],
+			_pruning[1][st.e][st.ud]
 		)
 	);
 }
@@ -134,11 +130,8 @@ CoordCube::_estimateCost(const CubeStateP2& st)
 {
 	return ( // biggest value from pruning tables
 		std::max(
-			_pruning[Table::CORNER_PERM][st.c],
-			std::max(
-				_pruning[Table::EDGE_P2][st.e],
-				_pruning[Table::UD_SLICE_P2][st.ud]
-			)
+			_pruning[2][st.c][st.ud],
+			_pruning[3][st.e][st.ud]
 		)
 	);
 }

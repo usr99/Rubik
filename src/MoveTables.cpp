@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 00:19:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 18:56:21 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,53 +16,53 @@ MoveTables* MoveTables::_instance = NULL;
 
 MoveTables::Generator::Generator(
 	const std::string &name,
-	size_t max,
+	size_t size,
 	void (CubieCube::*set)(int),
 	int (CubieCube::*get)(void) const
-) : BaseGenerator(name, max), set(set), get(get) {}
+) : BaseGenerator(name, size), set(set), get(get) {}
 
 MoveTables::MoveTables() :
 	ATable(std::vector<BaseGenerator*>({
 		new Generator(
 			std::string("corner_ori.move"),
-			CORN_ORI_MAX,
+			CORN_ORI_MAX+1,
 			&CubieCube::setCornerOriCoord,
 			&CubieCube::getCornerOriCoord
 		),
 		new Generator(
 			std::string("edge_ori.move"),
-			EDGE_ORI_MAX,
+			EDGE_ORI_MAX+1,
 			&CubieCube::setEdgeOriCoord,
 			&CubieCube::getEdgeOriCoord
 		),
 		new Generator(
 			std::string("ud_slice.move"),
-			UD_SLICE_MAX,
+			UD_SLICE_MAX+1,
 			&CubieCube::setUDSliceCoord,
 			&CubieCube::getUDSliceCoord
 		),
 		new Generator(
 			std::string("corner_perm.move"),
-			CORN_PERM_MAX,
+			CORN_PERM_MAX+1,
 			&CubieCube::setCornerPermCoord,
 			&CubieCube::getCornerPermCoord
 		),		
 		new Generator(
 			std::string("edge_perm_p2.move"),
-			EDGE_P2_PERM_MAX,
+			EDGE_P2_PERM_MAX+1,
 			&CubieCube::setPhase2EdgePermCoord,
 			&CubieCube::getPhase2EdgePermCoord
 		),
 		new Generator(
 			std::string("ud_slice_p2.move"),
-			UD_SLICE_P2_MAX,
+			UD_SLICE_P2_MAX+1,
 			&CubieCube::setPhase2UDSliceCoord,
 			&CubieCube::getPhase2UDSliceCoord
 		)
 	}))
 {
 	for (size_t i = 0; i < _generators.size(); i++) {
-		_tables[i].reserve(_generators[i]->max + 1);
+		_tables[i].reserve(_generators[i]->size);
 		_create(i);
 	}
 }
@@ -82,7 +82,7 @@ MoveTables::_load(int index, int fd)
 	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
 	int			buf;
 
-	for (size_t i = 0; i <= gen->max; i++)
+	for (size_t i = 0; i < gen->size; i++)
 	{
 		_tables[index][i].reserve(MOVES_COUNT);
 		for (int j = 0; j < MOVES_COUNT ; j++)
@@ -100,7 +100,7 @@ MoveTables::_generate(int index, int fd)
 	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
 	CubieCube	cube;
 
-	for (size_t i = 0; i <= gen->max; i++)
+	for (size_t i = 0; i < gen->size; i++)
 	{
 		_tables[index][i].reserve(MOVES_COUNT);
 

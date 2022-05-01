@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:13:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 00:18:14 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/01 00:29:53 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 
 # include "MoveTables.hpp"
 
-class PruningTables : public ATable<int>
+typedef int8_t							pruning_t;
+typedef std::pair<u_int16_t, u_int16_t> coordinates_t;
+
+class PruningTables : public ATable<std::vector<pruning_t>>
 {
 	public:
 
@@ -39,12 +42,13 @@ struct PruningTables::Generator : public BaseGenerator
 	Generator(
 		const std::string& name,
 		const std::vector<Move>& allowedMoves,
-		size_t max,
-		const std::vector<std::vector<int>>& mt
+		const std::vector<std::vector<int>>& mt1,
+		const std::vector<std::vector<int>>& mt2
 	);
 	
 	const std::vector<Move>&				allowedMoves;
-	const std::vector<std::vector<int>>&	moveTable;
+	const std::vector<std::vector<int>>&	moveTable1;
+	const std::vector<std::vector<int>>&	moveTable2;
 };
 
 #endif

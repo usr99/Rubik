@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 00:18:09 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 18:55:31 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ struct MoveTables::Generator : public BaseGenerator
 {
 	Generator(
 		const std::string &name,
-		size_t max,
+		size_t size,
 		void (CubieCube::*set)(int),
 		int (CubieCube::*get)(void) const
 	);

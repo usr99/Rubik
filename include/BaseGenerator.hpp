@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 18:50:28 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 00:35:02 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 18:54:52 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,11 @@ using BaseGenerator = struct BaseGenerator {
 	
 	BaseGenerator(
 		const std::string& name,
-		size_t max
+		size_t size
 	);
 
 	const std::string	name;
-	size_t				max;
+	size_t				size;
 };
 
 #endif

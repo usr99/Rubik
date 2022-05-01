@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 18:19:13 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 00:34:05 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 23:06:56 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 template <class T>
 ATable<T>::ATable(const std::vector<BaseGenerator*>& gen) :
-	_generators(gen)
+	_tables(gen.size()), _generators(gen)
 {
 	struct stat	st;
 
@@ -30,7 +30,6 @@ ATable<T>::ATable(const std::vector<BaseGenerator*>& gen) :
 		else
 			throw std::runtime_error("Error when trying to access move tables");
 	}
-	_tables.reserve(_generators.size()); // there are as many generators as tables
 }
 
 template <class T>

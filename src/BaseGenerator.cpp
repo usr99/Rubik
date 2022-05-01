@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 18:52:34 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/29 23:41:24 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/04/30 18:55:24 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,5 @@
 
 BaseGenerator::BaseGenerator(
 	const std::string& name,
-	size_t max
-) : name(name), max(max) {}
+	size_t size
+) : name(name), size(size) {}
