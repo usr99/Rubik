@@ -22,7 +22,7 @@ int main(int ac, char **av)
 	try
 	{
 		if (ac < 2)
-			throw std::invalid_argument("A scramble is needed");
+			throw std::invalid_argument("No scramble provided");
 
 		// read scramble from arguments
 		std::list<std::string> scramble;
@@ -32,12 +32,13 @@ int main(int ac, char **av)
 			std::string			buf;
 
 			while(std::getline(iss, buf, ' '))
+			{
+				if (buf.size() != 0) // if the scramble contains consecutives spaces, buf can be empty
 				scramble.push_back(buf);
 		}
-
-		// load tables used for the solver
-		MoveTables*		mt		= MoveTables::getInstance();
-		PruningTables*	prun	= PruningTables::getInstance(*mt);
+		}
+		if (!scramble.size())
+			throw std::invalid_argument("No scramble provided");
 
 		CubieCube cube(scramble);	// create a cube from the scramble
 		cube.toFacelet().render();	// render the scramble
