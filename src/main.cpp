@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 16:37:02 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 17:31:12 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,28 @@ std::list<std::string> solve(const CubieCube& cube)
 	// Solve phase 2 from the new state
 	Solver<CubeStateP2>		solverP2;
 	std::list<std::string>	tmp = solverP2.solve(CubeStateP2(copy));
+
+	// Modify the moves transitioning between the two phases if they're on the same face
+	if (solution.back().front() == tmp.front().front())
+	{
+		const std::vector<char>	values	= { '\0', '2', '\'' };
+		char						v1		= 1;
+		char						v2		= 1;
+		char						move	= solution.back().front();
+
+		if (solution.back().size() > 1)
+			v1 = (std::find(values.begin(), values.end(), solution.back()[1]) - values.begin()) + 1;
+		if (tmp.front().size() > 1)
+			v2 = (std::find(values.begin(), values.end(), tmp.front()[1]) - values.begin()) + 1;
+
+		// erase the moves from the solution
+		solution.erase(--solution.end());
+		tmp.erase(tmp.begin());
+
+		v1 = (v1 + v2) % 4;
+		if (v1) // the moves do not cancel each other, they add up
+			solution.push_back(std::string(1, move) + values[v1 - 1]);
+	}
 	solution.insert(solution.end(), tmp.begin(), tmp.end());
 
 	return solution;
