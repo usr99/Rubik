@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 00:45:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 02:42:28 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,39 +16,43 @@ PruningTables* PruningTables::_instance = NULL;
 
 PruningTables::Generator::Generator(
 	const std::string& name,
+	size_t size,
 	const std::vector<Move>& allowedMoves,
-	const std::vector<std::vector<int>>& mt1,
-	const std::vector<std::vector<int>>& mt2
-) : BaseGenerator(name, 0),
-	allowedMoves(allowedMoves), moveTable1(mt1), moveTable2(mt2) {}
+	unsigned int mt1,
+	unsigned int mt2
+) : BaseGenerator(name, size), allowedMoves(allowedMoves), mtIndex1(mt1), mtIndex2(mt2) {}
 
 PruningTables::PruningTables(const MoveTables& mt) :
 	ATable(std::vector<BaseGenerator*>({
 		new Generator(
 			std::string("orientation.prune"),
+			PRUN_SZ_ORI,
 			Rubik::GroupP1,
-			mt[Table::CORNER_ORI],
-			mt[Table::EDGE_ORI]
+			MoveTables::CORNER_ORI,
+			MoveTables::EDGE_ORI
 		),
 		new Generator(
-			std::string("ud_slice.prune"),
+			std::string("edge_p1.prune"),
+			PRUN_SZ_EDGE_P1,
 			Rubik::GroupP1,
-			mt[Table::EDGE_ORI],
-			mt[Table::UD_SLICE]
+			MoveTables::EDGE_ORI,
+			MoveTables::UD_SLICE
 		),
 		new Generator(
 			std::string("corner_udslice_perm_p2.prune"),
+			PRUN_SZ_CORN_UD_P2,
 			Rubik::GroupP2,
-			mt[Table::CORNER_PERM],
-			mt[Table::UD_SLICE_P2]
+			MoveTables::CORNER_PERM,
+			MoveTables::UD_SLICE_P2
 		),
 		new Generator(
 			std::string("edge_udslice_perm_p2.prune"),
+			PRUN_SZ_EDGE_UD_P2,
 			Rubik::GroupP2,
-			mt[Table::EDGE_P2],
-			mt[Table::UD_SLICE_P2]
+			MoveTables::EDGE_P2,
+			MoveTables::UD_SLICE_P2
 		)
-	}))
+	})), _mt(mt)
 {
 	for (size_t i = 0; i < _generators.size(); i++) {
 		_create(i);
@@ -67,16 +71,18 @@ PruningTables::~PruningTables() {}
 void
 PruningTables::_load(int index, int fd)
 {
-	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
-	pruning_t	buf;
+	Generator*	gen			= reinterpret_cast<Generator*>(_generators[index]);
+	size_t		mtSizes[2]	= { _mt[gen->mtIndex1].capacity(), _mt[gen->mtIndex2].capacity() };
+	int8_t		buf;
 
-	_tables[index].reserve(gen->moveTable1.capacity());
-	for (u_int i = 0; i < gen->moveTable1.capacity(); i++)
+	// load table data from file
+	_tables[index].resize(mtSizes[0]);
+	for (u_int i = 0; i < mtSizes[0]; i++)
 	{
-		_tables[index][i].reserve(gen->moveTable2.capacity());
-		for (u_int j = 0; j < gen->moveTable2.capacity(); j++)
+		_tables[index][i].reserve(mtSizes[1]);
+		for (u_int j = 0; j < mtSizes[1]; j++)
 		{
-			if (read(fd, &buf, sizeof(pruning_t)) != sizeof(pruning_t))
+			if (read(fd, &buf, sizeof(int8_t)) != sizeof(int8_t))
 				throw std::exception();
 			_tables[index][i][j] = buf;
 		}
@@ -86,30 +92,30 @@ PruningTables::_load(int index, int fd)
 void
 PruningTables::_generate(int index, int fd)
 {
-	Generator*								gen			= reinterpret_cast<Generator*>(_generators[index]);
-	std::vector<std::vector<pruning_t>>&	table		= _tables[index];
+	Generator*							gen			= reinterpret_cast<Generator*>(_generators[index]);
+	size_t								mtSizes[2]	= { _mt[gen->mtIndex1].capacity(), _mt[gen->mtIndex2].capacity() };
+	std::vector<std::vector<int8_t>>&	table		= _tables[index];
 
-	pruning_t								depth		= 0;
-	u_int									filled		= 1;
-	bool									backsearch	= false;
+	int8_t								depth		= 0;
+	u_int								filled		= 1;
+	bool								backsearch	= false;
 
 	// allocate table
-	_tables[index].reserve(gen->moveTable1.capacity());
-	for (u_int i = 0; i < gen->moveTable1.capacity(); i++)
-		_tables[index][i].resize(gen->moveTable2.capacity(), -1);
-	u_int max = _tables[index].capacity() * _tables[index][0].capacity();
+	_tables[index].resize(mtSizes[0]);
+	for (u_int i = 0; i < mtSizes[0]; i++)
+		_tables[index][i].resize(mtSizes[1], -1);
 
 	table[0][0] = 0; // solved state is at depth 0
-	while (filled != max)
+	while (filled != gen->size)
 	{
 		if (depth == 9) // backward search is faster for depth >= 9
 			backsearch = true;
 
 		u_int i = 0;
-		while (i < _tables[index].capacity())
+		while (i < mtSizes[0])
 		{
 			u_int j = 0;
-			while (j < _tables[index][0].capacity())
+			while (j < mtSizes[1])
 			{
 				bool match;
 
@@ -126,17 +132,16 @@ PruningTables::_generate(int index, int fd)
 						m++
 					) {
 						coordinates_t coords = std::make_pair(
-							gen->moveTable1[i][*m],
-							gen->moveTable2[j][*m]
-						);
+							_mt[gen->mtIndex1][i][*m],
+							_mt[gen->mtIndex2][j][*m]
+						); // generate the new coordinates resulting from the move
 
 						if (!backsearch)
 						{
-							if (table[coords.first][coords.second] == -1) // empty
+							if (table[coords.first][coords.second] == -1) // empty entry
 							{
 								table[coords.first][coords.second] = depth + 1;
 								filled++;
-								std::cout << filled << "\n";
 							}
 						}
 						else
@@ -145,7 +150,6 @@ PruningTables::_generate(int index, int fd)
 							{
 								table[i][j] = depth + 1;
 								filled++;
-								std::cout << filled << "\n";
 								break ;
 							}
 						}
@@ -158,11 +162,12 @@ PruningTables::_generate(int index, int fd)
 		depth++;
 	}
 
-	for (u_int i = 0; i < table.capacity(); i++)
+	// write table data in a file
+	for (u_int i = 0; i < mtSizes[0]; i++)
 	{
-		for (u_int j = 0; j < table[i].capacity(); j++)
+		for (u_int j = 0; j < mtSizes[1]; j++)
 		{
-			if (write(fd, table[i].data() + j, sizeof(pruning_t)) != sizeof(pruning_t))
+			if (write(fd, table[i].data() + j, sizeof(int8_t)) != sizeof(int8_t))
 				throw std::exception();
 		}
 	}

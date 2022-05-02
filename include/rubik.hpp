@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/04/29 22:56:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 15:32:36 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,11 @@
 # define UD_SLICE_MAX		494			// 12*11*10*9/4! - 1
 # define EDGE_P2_PERM_MAX	40319		// 8! - 1
 # define UD_SLICE_P2_MAX	23			// 4! - 1
+
+# define PRUN_SZ_ORI		4478976		// (CORN_ORI_MAX + 1) * (EDGE_ORI_MAX + 1)
+# define PRUN_SZ_EDGE_P1	1013760		// (EDGE_ORI_MAX + 1) * (UD_SLICE_MAX + 1)
+# define PRUN_SZ_CORN_UD_P2	967680		// (CORN_PERM_MAX + 1) * (UD_SLICE_P2_MAX + 1)
+# define PRUN_SZ_EDGE_UD_P2	967680		// (EDGE_PERM_MAX + 1) * (UD_SLICE_P2_MAX + 1)
 
 enum Move {
 	Ux1, Ux2, Ux3,
@@ -65,11 +70,6 @@ enum Edge {
 	UB, DR, DF,
 	DL, DB, FR,
 	FL, BL, BR
-};
-
-enum Table {
-	CORNER_ORI, EDGE_ORI, UD_SLICE,
-	CORNER_PERM, EDGE_P2, UD_SLICE_P2
 };
 
 namespace Rubik {
@@ -122,7 +122,7 @@ namespace Rubik {
 }
 
 // math_utils.cpp
-unsigned int	factorial(unsigned int n);
-unsigned int	binomial(unsigned int n, unsigned int k);
+unsigned int			factorial(unsigned int n);
+unsigned int			binomial(unsigned int n, unsigned int k);
 
 #endif

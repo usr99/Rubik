@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 18:56:21 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 02:35:19 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@ MoveTables* MoveTables::_instance = NULL;
 MoveTables::Generator::Generator(
 	const std::string &name,
 	size_t size,
-	void (CubieCube::*set)(int),
-	int (CubieCube::*get)(void) const
+	void (CubieCube::*set)(u_int16_t),
+	u_int16_t (CubieCube::*get)(void) const
 ) : BaseGenerator(name, size), set(set), get(get) {}
 
 MoveTables::MoveTables() :
@@ -62,7 +62,7 @@ MoveTables::MoveTables() :
 	}))
 {
 	for (size_t i = 0; i < _generators.size(); i++) {
-		_tables[i].reserve(_generators[i]->size);
+		_tables[i].resize(_generators[i]->size);
 		_create(i);
 	}
 }
@@ -80,14 +80,14 @@ void
 MoveTables::_load(int index, int fd)
 {
 	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
-	int			buf;
+	u_int16_t	buf;
 
 	for (size_t i = 0; i < gen->size; i++)
 	{
 		_tables[index][i].reserve(MOVES_COUNT);
 		for (int j = 0; j < MOVES_COUNT ; j++)
 		{
-			if (read(fd, &buf, sizeof(int)) != sizeof(int))
+			if (read(fd, &buf, sizeof(u_int16_t)) != sizeof(u_int16_t))
 				throw std::exception();
 			_tables[index][i][j] = buf;
 		}
@@ -117,7 +117,7 @@ MoveTables::_generate(int index, int fd)
 				if (k != 3) // k == 3 restores the initial state
 				{
 					// write it in the table
-					if (write(fd, &newCoord, sizeof(int)) != sizeof(int))
+					if (write(fd, &newCoord, sizeof(u_int16_t)) != sizeof(u_int16_t))
 						throw std::exception();
 					_tables[index][i][f * 3 + k] = newCoord;
 				}

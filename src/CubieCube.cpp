@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/28 16:20:21 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 01:06:06 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,7 +146,7 @@ CubieCube::toFacelet()
 ** http://kociemba.org/math/twophase.htm
 */
 
-int
+u_int16_t
 CubieCube::getCornerOriCoord() const
 {
 	int coord	= 0;
@@ -160,7 +160,7 @@ CubieCube::getCornerOriCoord() const
 	return coord;
 }
 
-int
+u_int16_t
 CubieCube::getEdgeOriCoord() const
 {
 	int coord	= 0;
@@ -174,7 +174,7 @@ CubieCube::getEdgeOriCoord() const
 	return coord;
 }
 
-int
+u_int16_t
 CubieCube::getCornerPermCoord() const
 {
 	int coord = 0;
@@ -193,26 +193,7 @@ CubieCube::getCornerPermCoord() const
 	return coord;
 }
 
-int
-CubieCube::getEdgePermCoord() const
-{
-	int coord = 0;
-
-	for (int i = 1; i < EDGE_COUNT; i++)
-	{
-		int sum = 0;
-
-		for (int j = 0; j < i; j++)
-		{
-			if (_edges[j].e > _edges[i].e)
-				sum++;
-		}
-		coord += sum * factorial(i);
-	}
-	return coord;
-}
-
-int
+u_int16_t
 CubieCube::getUDSliceCoord() const
 {
 	int	coord	= 0;
@@ -233,7 +214,7 @@ CubieCube::getUDSliceCoord() const
 	return coord;
 }
 
-int
+u_int16_t
 CubieCube::getPhase2EdgePermCoord() const
 {
 	int coord = 0;
@@ -252,7 +233,7 @@ CubieCube::getPhase2EdgePermCoord() const
 	return coord;
 }
 
-int
+u_int16_t
 CubieCube::getPhase2UDSliceCoord() const
 {
 	Edge	UDSliceEdges[4];
@@ -282,9 +263,9 @@ CubieCube::getPhase2UDSliceCoord() const
 }
 
 void
-CubieCube::setCornerOriCoord(int coordinate)
+CubieCube::setCornerOriCoord(u_int16_t coordinate)
 {
-	if (coordinate < 0 || coordinate > CORN_ORI_MAX)
+	if (coordinate > CORN_ORI_MAX)
 		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
 	int orientationSum = 0;
@@ -305,9 +286,9 @@ CubieCube::setCornerOriCoord(int coordinate)
 }
 
 void
-CubieCube::setEdgeOriCoord(int coordinate)
+CubieCube::setEdgeOriCoord(u_int16_t coordinate)
 {
-	if (coordinate < 0 || coordinate > EDGE_ORI_MAX)
+	if (coordinate > EDGE_ORI_MAX)
 		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
 	int orientationSum = 0;
@@ -325,9 +306,9 @@ CubieCube::setEdgeOriCoord(int coordinate)
 }
 
 void
-CubieCube::setCornerPermCoord(int coordinate)
+CubieCube::setCornerPermCoord(u_int16_t coordinate)
 {
-	if (coordinate < 0 || coordinate > CORN_PERM_MAX)
+	if (coordinate > CORN_PERM_MAX)
 		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
 	std::vector<Corner>	remainingCorners({ URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB });
@@ -349,34 +330,10 @@ CubieCube::setCornerPermCoord(int coordinate)
 	}
 }
 
-void
-CubieCube::setEdgePermCoord(int coordinate)
-{
-	if (coordinate < 0 || coordinate > EDGE_PERM_MAX)
-		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
-
-	std::vector<Edge>	remainingEdges({ UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR });
-	int					score[EDGE_COUNT];
-
-	// same but there are 12 cubies to place instead of 8
-	for (int i = EDGE_COUNT - 1; i >= 0; --i)
-	{
-		const int f = factorial(i);
-
-		score[i] = coordinate / f;
-		coordinate -= score[i] * f;
-
-		const int index = remainingEdges.size() - score[i] - 1;
-
-		_edges[i].e = remainingEdges[index];
-		remainingEdges.erase(remainingEdges.begin() + index);
-	}
-}
-
 void		
-CubieCube::setUDSliceCoord(int coordinate)
+CubieCube::setUDSliceCoord(u_int16_t coordinate)
 {
-	if (coordinate < 0 || coordinate > UD_SLICE_MAX)
+	if (coordinate > UD_SLICE_MAX)
 		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
 	int	n = EDGE_COUNT - 1;
@@ -415,9 +372,9 @@ CubieCube::setUDSliceCoord(int coordinate)
 }
 
 void
-CubieCube::setPhase2EdgePermCoord(int coordinate)
+CubieCube::setPhase2EdgePermCoord(u_int16_t coordinate)
 {
-	if (coordinate < 0 || coordinate > EDGE_P2_PERM_MAX)
+	if (coordinate > EDGE_P2_PERM_MAX)
 		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
 	std::vector<Edge>	remainingEdges({ UR, UF, UL, UB, DR, DF, DL, DB });
@@ -439,9 +396,9 @@ CubieCube::setPhase2EdgePermCoord(int coordinate)
 }
 
 void
-CubieCube::setPhase2UDSliceCoord(int coordinate)
+CubieCube::setPhase2UDSliceCoord(u_int16_t coordinate)
 {
-	if (coordinate < 0 || coordinate > UD_SLICE_P2_MAX)
+	if (coordinate > UD_SLICE_P2_MAX)
 		throw std::out_of_range(std::to_string(coordinate) + " is not a valid coordinate value");
 
 	std::vector<Edge>	remainingEdges({ FR, FL, BL, BR });

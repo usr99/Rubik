@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/04/26 19:22:29 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 01:06:13 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,21 +36,19 @@ class CubieCube : public ACube
 		FaceletCube		toFacelet();
 
 		// coordinates getters
-		int		getCornerOriCoord() const;
-		int		getEdgeOriCoord() const;
-		int		getCornerPermCoord() const;
-		int		getEdgePermCoord() const;
-		int		getUDSliceCoord() const;
-		int		getPhase2EdgePermCoord() const;
-		int		getPhase2UDSliceCoord() const;
+		u_int16_t	getCornerOriCoord() const;
+		u_int16_t	getEdgeOriCoord() const;
+		u_int16_t	getCornerPermCoord() const;
+		u_int16_t	getUDSliceCoord() const;
+		u_int16_t	getPhase2EdgePermCoord() const;
+		u_int16_t	getPhase2UDSliceCoord() const;
 		// coordinates setters
-		void	setCornerOriCoord(int coordinate);
-		void	setEdgeOriCoord(int coordinate);
-		void	setCornerPermCoord(int coordinate);
-		void	setEdgePermCoord(int coordinate);
-		void	setUDSliceCoord(int coordinate);
-		void	setPhase2EdgePermCoord(int coordinate);
-		void	setPhase2UDSliceCoord(int coordinate);
+		void		setCornerOriCoord(u_int16_t coordinate);
+		void		setEdgeOriCoord(u_int16_t coordinate);
+		void		setCornerPermCoord(u_int16_t coordinate);
+		void		setUDSliceCoord(u_int16_t coordinate);
+		void		setPhase2EdgePermCoord(u_int16_t coordinate);
+		void		setPhase2UDSliceCoord(u_int16_t coordinate);
 		
     private:
 

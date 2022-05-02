@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 18:19:13 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 23:06:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 02:26:58 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ ATable<T>::ATable(const std::vector<BaseGenerator*>& gen) :
 }
 
 template <class T>
-const std::vector<T>&
+const std::vector<std::vector<T>>&
 ATable<T>::operator[](size_t n) const
 {
 	return _tables[n];

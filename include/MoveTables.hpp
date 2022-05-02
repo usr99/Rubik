@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 18:55:31 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 01:11:31 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,14 @@
 # include "ATable.hpp"
 # include "CubieCube.hpp"
 
-class MoveTables : public ATable<std::vector<int>>
+class MoveTables : public ATable<u_int16_t>
 {
 	public:
+
+		enum MoveTable {
+			CORNER_ORI, EDGE_ORI, UD_SLICE,
+			CORNER_PERM, EDGE_P2, UD_SLICE_P2
+		};
 
 		static MoveTables*	getInstance();
 		virtual ~MoveTables();
@@ -40,12 +45,12 @@ struct MoveTables::Generator : public BaseGenerator
 	Generator(
 		const std::string &name,
 		size_t size,
-		void (CubieCube::*set)(int),
-		int (CubieCube::*get)(void) const
+		void (CubieCube::*set)(u_int16_t),
+		u_int16_t (CubieCube::*get)(void) const
 	);
 	
-	void (CubieCube::*set)(int);
-	int (CubieCube::*get)(void) const;
+	void (CubieCube::*set)(u_int16_t);
+	u_int16_t (CubieCube::*get)(void) const;
 };
 
 #endif

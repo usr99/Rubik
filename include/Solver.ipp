@@ -1,31 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   solver.ipp                                         :+:      :+:    :+:   */
+/*   Solver.ipp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 16:18:35 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/30 01:04:00 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 15:37:49 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SOLVER_IPP
 # define SOLVER_IPP
 
-# include "CoordCube.hpp"
+# include "Solver.hpp"
+
+template <typename T>
+Solver<T>::Solver() :
+	_mt(MoveTables::getInstance()), _prun(PruningTables::getInstance(*_mt)) {}
 
 template <typename T>
 std::list<std::string>
-CoordCube::_solve()
+Solver<T>::solve(const T& root)
 {
-	T root(*this);
-
-	std::list<T>	path;
+	std::list<T>	path(1, root);
 	int				threshold	= _estimateCost(root);
 	bool			found		= false;
 
-	path.push_back(root);
 	while (!found)
 	{
 		// search any solution of length threshold
@@ -57,7 +58,7 @@ CoordCube::_solve()
 
 template <typename T>
 int
-CoordCube::_search(std::list<T>& path, int cost, int threshold)
+Solver<T>::_search(std::list<T>& path, int cost, int threshold)
 {
 	const T&	node		= path.back();
 	const int	branchCost	= cost + _estimateCost(node);
@@ -92,7 +93,7 @@ CoordCube::_search(std::list<T>& path, int cost, int threshold)
 
 template <typename T>
 std::list<T>
-CoordCube::_applyAllMoves(const T& node)
+Solver<T>::_applyAllMoves(const T& node)
 {
 	std::list<T> results;
 
@@ -110,7 +111,7 @@ CoordCube::_applyAllMoves(const T& node)
 			currentMoveIndex != lastMoveIndex &&
 			currentMoveIndex != (lastMoveIndex + 3) % FACES_COUNT
 		)
-			results.push_back(T(_moves, node, *it));
+			results.push_back(T(_mt, node, *it));
 	}
 	return results; // list of the states resulting from applying a move on the current node
 }
