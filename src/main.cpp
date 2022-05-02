@@ -6,16 +6,28 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 15:41:16 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 16:37:02 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ctime>
+#include <csignal>
 #include "../include/Solver.hpp"
 
 // protoypes
 std::list<std::string>	solve(const std::list<std::string>& sequence);
 std::list<std::string>	solve(const CubieCube& cube);
+
+void sig_handler(int sig)
+{
+	std::cout	<< "Received signal " << sig
+				<< "\nTerminating...\n";
+
+	MoveTables::destroy();
+	PruningTables::destroy();
+
+	exit(EXIT_FAILURE);
+}
 
 int main(int ac, char **av)
 {
@@ -23,6 +35,11 @@ int main(int ac, char **av)
 	{
 		if (ac < 2)
 			throw std::invalid_argument("No scramble provided");
+
+		if (
+			signal(SIGINT, sig_handler) == SIG_ERR ||
+			signal(SIGTERM, sig_handler) == SIG_ERR
+		)	throw std::runtime_error("Setting signal handlers failed");
 
 		// read scramble from arguments
 		std::list<std::string> scramble;
@@ -34,14 +51,13 @@ int main(int ac, char **av)
 			while(std::getline(iss, buf, ' '))
 			{
 				if (buf.size() != 0) // if the scramble contains consecutives spaces, buf can be empty
-				scramble.push_back(buf);
-		}
+					scramble.push_back(buf);
+			}
 		}
 		if (!scramble.size())
 			throw std::invalid_argument("No scramble provided");
 
-		CubieCube cube(scramble);	// create a cube from the scramble
-		cube.toFacelet().render();	// render the scramble
+		CubieCube cube(scramble); // create a cube from the scramble
 
 		// solve the cube
 		std::time_t start = std::time(&start);
@@ -49,6 +65,7 @@ int main(int ac, char **av)
 		std::time_t end = std::time(&end);
 
 		// print results
+		cube.toFacelet().render(); // render the scramble
 		std::cout << "Solution: ";
 		for (
 			std::list<std::string>::const_iterator it = solution.begin();
@@ -59,8 +76,8 @@ int main(int ac, char **av)
 		std::cout << "TIME: " << std::difftime(end, start) << "s\n";
 
 		// free tables
-		delete mt;
-		delete prun;
+		MoveTables::destroy();
+		PruningTables::destroy();
 
 		return (0);
 	}

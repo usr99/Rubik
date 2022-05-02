@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:13:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 01:20:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 16:16:04 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ class PruningTables : public ATable<int8_t>
 	public:
 
 		static PruningTables*	getInstance(const MoveTables& mt);
+		static void				destroy();
 		virtual ~PruningTables();
 
 	private:

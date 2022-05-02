@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 02:42:28 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 16:16:23 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,13 @@ PruningTables*	PruningTables::getInstance(const MoveTables& mt)
 	if (!_instance)
 		_instance = new PruningTables(mt);
 	return _instance;
+}
+
+void
+PruningTables::destroy()
+{
+	if (_instance)
+		delete _instance;
 }
 
 PruningTables::~PruningTables() {}

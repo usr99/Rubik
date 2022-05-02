@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 01:11:31 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 16:15:54 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class MoveTables : public ATable<u_int16_t>
 		};
 
 		static MoveTables*	getInstance();
+		static void			destroy();
 		virtual ~MoveTables();
 
 	private:

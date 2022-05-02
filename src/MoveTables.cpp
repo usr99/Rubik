@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 02:35:19 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/02 16:15:56 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,13 @@ MoveTables*	MoveTables::getInstance()
 	if (!_instance)
 		_instance = new MoveTables();
 	return _instance;
+}
+
+void
+MoveTables::destroy()
+{
+	if (_instance)
+		delete _instance;
 }
 
 MoveTables::~MoveTables() {}
