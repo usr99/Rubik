@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:31:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/11 01:57:16 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,29 @@
 #include "Solver.hpp"
 #include "Renderer.hpp"
 
-void CleanupExit(int code)
+int main()
 {
+	/* Detach the process from the shell that executed it */
+	pid_t pid = fork();
+	if (pid < 0)
+		return (EXIT_FAILURE); // fork() failed
+	else if (pid)
+		return (EXIT_SUCCESS); // exit the parent process
+
+	/* Only child process remains now */
+	bool error = false;
+	try
+	{
+		GLFWwindow* window = CreateWindow();
+		CreateImGuiContext(window);
+		RenderingLoop(window);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "ERROR: " << e.what() << std::endl;
+		error = true;
+	}
+
 	/* Destroy tables used in the solver */
 	MoveTables::destroy();
 	PruningTables::destroy();
@@ -30,36 +51,5 @@ void CleanupExit(int code)
 	/* Destroy GLFW */
 	glfwTerminate();
 
-	exit(code); // Quit program
-}
-
-void sig_handler(int sig)
-{
-	std::cout	<< "Received signal " << sig
-				<< "\nTerminating...\n";
-	CleanupExit(EXIT_FAILURE);
-}
-
-int main()
-{
-	bool error = false;
-
-	try
-	{
-		/* Set signals handler */
-		if (signal(SIGINT, sig_handler) == SIG_ERR ||
-			signal(SIGTERM, sig_handler) == SIG_ERR)
-				throw std::runtime_error("Setting signal handlers failed");
-
-		GLFWwindow* window = CreateWindow();
-		CreateImGuiContext(window);
-		RenderingLoop(window);
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "ERROR: " << e.what() << std::endl;
-		error = true;
-	}
-
-	CleanupExit(error ? EXIT_FAILURE : EXIT_SUCCESS);
+	return error ? EXIT_FAILURE : EXIT_SUCCESS;
 }
