@@ -6,14 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:11:51 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/11 01:27:15 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <iostream>
-
 #include "Renderer.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
