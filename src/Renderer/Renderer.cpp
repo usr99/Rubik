@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/10 22:08:20 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/11 01:11:51 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,16 @@
 
 #include <iostream>
 
-#include "Renderer/Renderer.hpp"
-#include "Renderer/stb_image/stb_image.h"
+#include "Renderer.hpp"
+#include "Camera.hpp"
+#include "Shader.hpp"
+#include "stb_image/stb_image.h"
+
+void WindowResizeCallback(GLFWwindow* window, int w, int h)
+{
+	(void) window;
+	Camera::updateProjection(w, h);
+}
 
 void GLClearError()
 {
@@ -52,7 +60,7 @@ GLFWwindow* CreateWindow()
 
 	/* Set window icon */
 	GLFWimage icon;
-	icon.pixels = stbi_load("res/icon.png", &icon.width, &icon.height, nullptr, 4);
+	icon.pixels = stbi_load("res/images/icon.png", &icon.width, &icon.height, nullptr, 4);
 	glfwSetWindowIcon(window, 1, &icon);
 	stbi_image_free(icon.pixels);
 
@@ -86,14 +94,20 @@ void CreateImGuiContext(GLFWwindow* window)
 
 void RenderingLoop(GLFWwindow* window)
 {
-	//Renderer renderer;
+	Shader shader("res/shaders/basic");
+	shader.bind();
+
+	/* Update camera when the window is resized */
+	glfwSetWindowSizeCallback(window, &WindowResizeCallback);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
-		/* Render here */
-		//renderer.clear();
+		GLCall(glClearColor(0.1f, 0.1, 0.1, 1.0f)); // dark grey
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+		/* Update camera view */
+		shader.setUniformMat4f("u_Camera", Camera::get());
 
 		/* Create the new ImGui frame */
 		ImGui_ImplOpenGL3_NewFrame();

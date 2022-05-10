@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:00 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/10 19:06:15 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/11 00:03:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,9 @@
 
 # include <csignal>
 
-# define WINDOW_W	800
-# define WINDOW_H 	600
+# define WINDOW_W		800.0f
+# define WINDOW_H 		600.0f
+# define RATIO(x, y)	(static_cast<float>(x) / static_cast<float>(y))
 
 # define ASSERT(x) if (!(x)) raise(SIGTRAP);
 # define GLCall(x) GLClearError();\
