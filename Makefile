@@ -1,33 +1,40 @@
-TARGET	= rubik.out
-INC 	= ./include/
+TARGET	= Rubik
+
+CC		= g++
+CFLAGS	= -Wall -Wextra -Werror --std=c++14
+LINK	= -lglfw3 -limgui -lGLEW -lGLU -lGL -lpthread -ldl
+
+INC 	= `find ./include -type d | sed s/^/-I/`
 SRCDIR	= ./src/
 SRC		= main.cpp ACube.cpp FaceletCube.cpp cubie.cpp \
 			CubieCube.cpp MoveTables.cpp Solver.cpp math_utils.cpp \
-			PruningTables.cpp BaseGenerator.cpp
+			PruningTables.cpp BaseGenerator.cpp \
+			\
+			Renderer.cpp
+
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
-CFLAGS	= -Wall -Wextra -Werror --std=c++14 -g
-LFLAGS	= -Ldeps -lglfw3 -limgui -lGLEW -lGLU -lGL -lpthread -ldl
-CC		= g++
 
-${OBJDIR}%.o:	${SRCDIR}%.cpp
-	${CC} ${CFLAGS} -c $< -o $@
+${OBJDIR}%.o: ${SRCDIR}/%.cpp
+	${CC} ${CFLAGS} ${INC} -c $< -o $@
 
-${TARGET}:		${OBJDIR} ${OBJS} ${INC}
-	${CC} ${CFLAGS} ${OBJS} -I ${INC} -o $@ ${LFLAGS}
+${OBJDIR}%.o: ${SRCDIR}/Renderer/%.cpp
+	${CC} ${CFLAGS} ${INC} -c $< -o $@
+
+${TARGET}: ${OBJDIR} ${OBJS}
+	${CC} ${CFLAGS} ${OBJS} -o $@ -Ldeps ${LINK}
 
 ${OBJDIR}:
 	mkdir -p ${OBJDIR}
 
-all:			${TARGET}
+all: ${TARGET}
 
 clean:
 	rm -rf ${OBJDIR}
 
-fclean:			clean
+fclean: clean
 	rm -rf ${TARGET}
-	rm -rf ./tables
 
-re:				fclean all
+re: fclean all
 
-.PHONY:			all clean fclean re
+.PHONY: all clean fclean re

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/02 15:08:05 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 15:38:52 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/10 15:28:08 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,8 @@ struct CubeStateP2 : public CubeState
 };
 
 # include "Solver.ipp"
+
+std::list<std::string>	solve(const CubieCube& cube);
+std::list<std::string>	solve(const std::list<std::string>& sequence);
 
 #endif
