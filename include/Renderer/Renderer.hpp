@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:00 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:28:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/12 07:03:45 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@
 # include <GLFW/glfw3.h>
 
 # include <csignal>
+
+# include "Shader.hpp"
+# include "CubeModel.hpp"
 
 # define WINDOW_W		800.0f
 # define WINDOW_H 		600.0f
@@ -37,6 +40,6 @@ bool GLLogCall(const char* function, const char* file, int line);
 
 GLFWwindow* CreateWindow();
 void CreateImGuiContext(GLFWwindow* window);
-void RenderingLoop(GLFWwindow* window);
+void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube);
 
 #endif

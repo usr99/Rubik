@@ -6,42 +6,48 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:48:44 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:04:06 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/12 08:26:37 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Renderer.hpp"
 #include "Camera.hpp"
 
-glm::mat4 Camera::_projection(glm::perspective(glm::radians(45.0f), RATIO(WINDOW_W, WINDOW_H), 0.1f, 50.0f));
-glm::mat4 Camera::_view(1.0f);
-
-void
-Camera::updateProjection(int width, int height)
+Camera::Camera(int width, int height, glm::vec3 position)
+	: _Projection(glm::perspective(glm::radians(45.0f), RATIO(WINDOW_W, WINDOW_H), 0.1f, 50.0f)),
+		_Position(position), _Orientation(0.0f, 0.0f, -1.0f), _Up(0.0f, 1.0f, 0.0f),
+		_Width(width), _Height(height)
 {
-	_projection = glm::perspective(glm::radians(45.0f), RATIO(width, height), 0.1f, 50.0f);
+	_View = glm::lookAt(_Position, _Position + _Orientation, _Up);
 }
 
 void
-Camera::rotate(const glm::vec3& axis, float angle)
+Camera::Rotate(const glm::vec2& angles)
 {
-	_view = glm::rotate(_view, glm::radians(angle), axis);
+	_Position = glm::rotate(_Position, glm::radians(angles.x), glm::vec3(-1.0f, 0.0f, 0.0f));
+	_Orientation = glm::rotate(_Orientation, glm::radians(angles.x), glm::vec3(-1.0f, 0.0f, 0.0f));
+	_Up = glm::rotate(_Up, glm::radians(angles.x), glm::vec3(-1.0f, 0.0f, 0.0f));
+
+	_Position = glm::rotate(_Position, glm::radians(angles.y), glm::vec3(0.0f, -1.0f, 0.0f));
+	_Orientation = glm::rotate(_Orientation, glm::radians(angles.y), glm::vec3(0.0f, -1.0f, 0.0f));
+
+	_View = glm::lookAt(_Position, _Position + _Orientation, _Up);
 }
 
 void
-Camera::move(const glm::vec2& direction)
+Camera::Move(const glm::vec2& direction)
 {
-	_view = glm::translate(_view, glm::vec3(direction.x, direction.y, 0.0f));
+	_View = glm::translate(_View, glm::vec3(direction.x, direction.y, 0.0f));
 }
 
 void
-Camera::zoom(float distance)
+Camera::Zoom(float distance)
 {
-	_view = glm::translate(_view, glm::vec3(0.0f, 0.0f, distance));
+	_View = glm::translate(_View, glm::vec3(0.0f, 0.0f, distance));
 }
 
 glm::mat4
-Camera::get()
+Camera::getMatrix() const
 {
-	return _projection * _view;
+	return _Projection * _View;
 }

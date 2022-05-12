@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 01:24:42 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:25:53 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/12 19:18:46 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define TEXTURE_HPP
 
 # include <string>
-# include "Renderer.hpp"
 
 class Texture
 {

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:30:45 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:03:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/12 07:40:46 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,20 @@
 
 # include <glm/glm.hpp>
 # include <glm/gtc/matrix_transform.hpp>
+# include <glm/gtx/vector_angle.hpp>
+# include <glm/gtx/rotate_vector.hpp>
 
 class Camera
 {
 	public:
 
-		static void	updateProjection(int width, int height);
-		static void	rotate(const glm::vec3& axis, float angle);
-		static void	move(const glm::vec2& direction);
-		static void	zoom(float distance);
+		Camera(int width, int height, glm::vec3 position);
 
-		static glm::mat4 get();
+		void	Rotate(const glm::vec2& angles);
+		void	Move(const glm::vec2& direction);
+		void	Zoom(float distance);
+
+		glm::mat4 getMatrix() const;
 
 	private:
 
@@ -33,8 +36,15 @@ class Camera
 		Camera(const Camera& rhs);
 		Camera& operator=(const Camera& rhs);
 
-		static glm::mat4	_projection;
-		static glm::mat4	_view;
+		const glm::mat4	_Projection;
+		glm::mat4		_View;
+
+		glm::vec3		_Position;
+		glm::vec3		_Orientation;
+		glm::vec3		_Up;
+
+		int				_Width;
+		int				_Height;
 };
 
 #endif

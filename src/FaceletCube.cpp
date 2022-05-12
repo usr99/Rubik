@@ -6,15 +6,14 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/04/29 02:51:32 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/11 21:51:18 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/FaceletCube.hpp"
 #include "../include/permutations.hpp"
 
-FaceletCube::FaceletCube(const std::list<std::string>& sequence) :
-	_facelets(FACELET_COUNT)
+FaceletCube::FaceletCube(const std::list<std::string>& sequence)
 {
 	// initialize a solved cube
 	for (int i = 0; i < FACELET_COUNT; i++)
@@ -23,7 +22,7 @@ FaceletCube::FaceletCube(const std::list<std::string>& sequence) :
 	this->scramble(sequence);
 }
 
-FaceletCube::FaceletCube(const std::vector<Facelet>& facelets) :
+FaceletCube::FaceletCube(const std::array<Facelet, FACELET_COUNT>& facelets) :
 	_facelets(facelets) {}
 
 FaceletCube::FaceletCube(const FaceletCube& rhs)
@@ -48,7 +47,7 @@ FaceletCube::move(char face, int factor)
 
 		for (int j = 0; j < factor; j++)
 		{
-			const std::vector<Facelet> copy(_facelets);
+			const std::array<Facelet, FACELET_COUNT> copy(_facelets);
 			for (int i = 0; i < FACELET_COUNT; i++)
 				_facelets[table[i]] = copy[i];
 		}
@@ -93,4 +92,10 @@ FaceletCube::render() const
 		std::cout << "\e[0m\n";
 	}
 	std::cout << "\n";
+}
+
+const std::array<Facelet, FACELET_COUNT>&
+FaceletCube::getFacelets() const
+{
+	return _facelets;
 }

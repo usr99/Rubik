@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/05/02 01:06:06 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/11 22:11:39 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ CubieCube::move(char face, int factor)
 FaceletCube
 CubieCube::toFacelet()
 {
-	std::vector<Facelet>	facelets(FACELET_COUNT);
+	std::array<Facelet, FACELET_COUNT> facelets;
 
 	for (int i = 0; i < FACES_COUNT; i++)
 	{

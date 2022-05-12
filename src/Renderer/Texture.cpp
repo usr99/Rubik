@@ -6,10 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 01:25:13 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:28:23 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/12 19:18:53 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Renderer.hpp"
 #include "Texture.hpp"
 #include "stb_image/stb_image.h"
 
