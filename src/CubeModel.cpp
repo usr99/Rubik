@@ -6,12 +6,69 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/12 19:24:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 01:25:34 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Renderer.hpp"
 #include "CubeModel.hpp"
+
+const std::array<CubeModel::Face::FaceTurnDesc, 6> CubeModel::Face::RotationRules = {
+	{{	// UP
+		.AdjacentFaces = {{
+			{ .face = F,	.row = Top,		.reverse = false },
+			{ .face = L,	.row = Top,		.reverse = false },
+			{ .face = B,	.row = Top,		.reverse = false },
+			{ .face = R,	.row = Top,		.reverse = false }
+		}},
+		.RotationAxis = { 0.0f, -1.0f, 0.0f },
+	},
+	{	// RIGHT
+		.AdjacentFaces = {{
+			{ .face = U,	.row = Right,	.reverse = false },
+			{ .face = B,	.row = Left,	.reverse = true },
+			{ .face = D,	.row = Right,	.reverse = false },
+			{ .face = F,	.row = Right,	.reverse = false }
+		}},
+		.RotationAxis = { -1.0f, 0.0f, 0.0f },
+	},
+	{	// FRONT
+		.AdjacentFaces = {{
+			{ .face = U,	.row = Bottom,	.reverse = false },
+			{ .face = R,	.row = Left,	.reverse = false },
+			{ .face = D,	.row = Top,		.reverse = true },
+			{ .face = L,	.row = Right,	.reverse = true }
+		}},
+		.RotationAxis = { 0.0f, 0.0f, -1.0f },
+	},
+	{	// DOWN
+		.AdjacentFaces = {{
+			{ .face = F,	.row = Bottom,	.reverse = false },
+			{ .face = R,	.row = Bottom,	.reverse = false },
+			{ .face = B,	.row = Bottom,	.reverse = false },
+			{ .face = L,	.row = Bottom,	.reverse = false }
+		}},
+		.RotationAxis = { 0.0f, 1.0f, 0.0f },
+	},
+	{	// LEFT
+		.AdjacentFaces = {{
+			{ .face = U,	.row = Left,	.reverse = false },
+			{ .face = F,	.row = Left,	.reverse = false },
+			{ .face = D,	.row = Left,	.reverse = false },
+			{ .face = B,	.row = Right,	.reverse = true }
+		}},
+		.RotationAxis = { 1.0f, 0.0f, 0.0f },
+	},
+	{	// BACK
+		.AdjacentFaces = {{
+			{ .face = U,	.row = Top,		.reverse = false },
+			{ .face = L,	.row = Left,	.reverse = true },
+			{ .face = D,	.row = Bottom,	.reverse = true },
+			{ .face = R,	.row = Right,	.reverse = false }
+		}},
+		.RotationAxis = { 0.0f, 0.0f, 1.0f },
+	}}
+};
 
 std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 	glm::vec3(1.000f, 1.000f, 1.000f),	// Up:		White
@@ -23,40 +80,40 @@ std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 };
 
 CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
-	: _FaceletTex("res/images/rubik.png"),
+	: _FaceletTex("res/images/facelet.png"),
 		_Updated(true),
-		_Faces({
-			Face(
+		_Faces(new std::array<Face, 6>({
+			Face( // UP
 				rhs.getFacelets().data() + 0 * 9,
 				glm::vec3(-1.0f, 0.0f, 0.0f),
 				90.0f
 			),
-			Face(
+			Face( // RIGHT
 				rhs.getFacelets().data() + 1 * 9,
 				glm::vec3(0.0f, 1.0f, 0.0f),
 				90.0f
 			),
-			Face(
+			Face( // FRONT
 				rhs.getFacelets().data() + 2 * 9,
 				glm::vec3(1.0f, 1.0f, 1.0f),
 				0.0f
 			),
-			Face(
+			Face( // DOWN
 				rhs.getFacelets().data() + 3 * 9,
 				glm::vec3(1.0f, 0.0f, 0.0f),
 				90.0f
 			),
-			Face(
+			Face( // LEFT
 				rhs.getFacelets().data() + 4 * 9,
 				glm::vec3(0.0f, -1.0f, 0.0f),
 				90.0f
 			),
-			Face(
+			Face( // BACK
 				rhs.getFacelets().data() + 5 * 9,
 				glm::vec3(0.0f, 1.0f, 0.0f),
 				180.0f
 			)
-		})
+		}))
 {
 	const Vertex square[] = {
 		{ glm::vec3(-0.15f,  0.15f, 0.0f), glm::vec2(0.0f, 1.0f) }, // upper-left
@@ -97,6 +154,14 @@ CubeModel::Render()
 	_FaceletTex.bind();
 	_FaceletIndices->bind();
 
+	if (_WaitingMoves.size())
+	{
+		Faceturn& ft = _WaitingMoves.front();
+		_TurnFace(ft);
+		if (ft.currentAngle >= ft.finalAngle)
+			_WaitingMoves.pop_front();
+	}
+
 	_UpdateInstances();
 
 	/* Draw 54 instances of the facelet */
@@ -109,6 +174,29 @@ CubeModel::Render()
 	));
 }
 
+CubeModel::Faceturn::Faceturn(int index, float angle) :
+	face(static_cast<Turn>(index)), finalAngle(angle), currentAngle(0.0f),
+	stepAngle(angle >= 0.0f ? 90.0f : -90.0f) {}
+
+void
+CubeModel::PushMove(int index, float angle)
+{
+	_WaitingMoves.emplace_back(index, angle);
+}
+
+void
+CubeModel::_TurnFace(Faceturn& ft)
+{
+	const Face::FaceTurnDesc& turnInfo = Face::RotationRules[ft.face];
+
+	_RotateFaceInstances(ft.face, glm::rotate(glm::mat4(1.0f), glm::radians(ft.stepAngle), turnInfo.RotationAxis));
+	ft.currentAngle += ft.stepAngle;
+
+	if (fmod(ft.currentAngle, 90.0f) == 0)
+		_RotateFaceData(ft.face, (ft.stepAngle >= 0.0f));
+	_Updated = true;
+}
+
 void
 CubeModel::_UpdateInstances()
 {
@@ -116,9 +204,69 @@ CubeModel::_UpdateInstances()
 		return ; // no need to refresh the buffer if the cube hasn't changed
 
 	/* Copy the new facelets data into the instance buffer */
-	for (auto f = _Faces.begin(); f != _Faces.end(); f++)
+	for (auto f = _Faces->begin(); f != _Faces->end(); f++)
 		_FaceletInstances->update(f->offset, f->facelets.data(), 9 * sizeof(Instance));
 	_Updated = false;
+}
+
+void
+CubeModel::_RotateFaceInstances(Turn face, const glm::mat4& rotation)
+{
+	const Face::FaceTurnDesc& turnInfo = Face::RotationRules[face];
+
+	for (auto f = _Faces->at(face).facelets.begin(); f != _Faces->at(face).facelets.end(); f++)
+		f->transform = rotation * f->transform;
+	for (auto f = turnInfo.AdjacentFaces.begin(); f != turnInfo.AdjacentFaces.end(); f++)
+		_RotateRow(_Faces->at(f->face).rows[f->row], rotation);
+}
+
+void
+CubeModel::_RotateFaceData(Turn face, bool clockwise)
+{
+	const Face::FaceTurnDesc&	turnInfo(Face::RotationRules[face]);
+	std::array<Instance, 9>		copy(_Faces->at(face).facelets);
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (clockwise)
+				_Faces->at(face).facelets[i * 3 + j] = copy[((2 - j) * 3) + i];
+			else
+				_Faces->at(face).facelets[((2 - j) * 3) + i] = copy[i * 3 + j];
+		}
+	}
+
+	const Face::FaceRowDesc& start = turnInfo.AdjacentFaces[0];
+	if (clockwise)
+	{
+		for (auto f = turnInfo.AdjacentFaces.begin() + 1; f != turnInfo.AdjacentFaces.end(); f++)
+			_SwapFaceRows(_Faces->at(start.face).rows[start.row], _Faces->at(f->face).rows[f->row], f->reverse);
+	}
+	else
+	{
+		for (auto f = turnInfo.AdjacentFaces.rbegin(); f != turnInfo.AdjacentFaces.rend() - 1; f++)
+			_SwapFaceRows(_Faces->at(start.face).rows[start.row], _Faces->at(f->face).rows[f->row], f->reverse);
+	}
+}
+
+void
+CubeModel::_RotateRow(std::array<Instance*, 3>& row, const glm::mat4& rotation)
+{
+	for (auto sq = row.begin(); sq != row.end(); sq++)
+		(*sq)->transform = rotation * (*sq)->transform;
+}
+
+void
+CubeModel::_SwapFaceRows(const std::array<Instance*, 3>& from, const std::array<Instance*, 3> to, bool reverse)
+{
+	for (unsigned int i = 0; i < 3; i++)
+	{
+		if (reverse)
+			std::swap(*from[i], *to[2 - i]);
+		else
+			std::swap(*from[i], *to[i]);
+	}
 }
 
 CubeModel::Instance::Instance()
@@ -165,9 +313,9 @@ CubeModel::Face::Face(const Facelet* source, const glm::vec3& rotation, float an
 			** edges belong to one row, vertical or horizontal
 			** centers are not part of any row
 			*/
-			if (x != 1) // check for a horizontal row
+			if (x != 1) // check for a vertical row
 				rows[x][y] = facelets.data() + idx;
-			if (y != 1) // check for a vertical row
+			if (y != 1) // check for a horizontal row
 				rows[y + 1][x] = facelets.data() + idx;
 
 			idx++;

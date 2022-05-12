@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/12 19:19:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 01:22:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,18 +34,24 @@ class CubeModel
 		CubeModel(Shader& shader, const FaceletCube& rhs = FaceletCube());
 
 		void Render();
-		void RotateFace(bool clockwise, float angle);
+		void PushMove(int index, float angle);
 
 	private:
 
-		enum Turn { F, B, R, L, U, D };
+		enum Turn { U, R, F, D, L, B };
 
 		struct Vertex;
 		struct Instance;
+		struct Faceturn;
 		struct Face;
-		struct FaceTurnInfo;
 
 		void _UpdateInstances();
+
+		void _TurnFace(Faceturn& ft);
+		void _RotateFaceInstances(Turn face, const glm::mat4& rotation);
+		void _RotateFaceData(Turn face, bool clockwise);
+
+		void _RotateRow(std::array<Instance*, 3>& row, const glm::mat4& rotation);
 		void _SwapFaceRows(const std::array<Instance*, 3>& from, const std::array<Instance*, 3> to, bool reverse);
 
 		VertexArray						_VAO;
@@ -55,9 +61,11 @@ class CubeModel
 		std::unique_ptr<VertexBuffer>	_FaceletInstances;
 		std::unique_ptr<IndexBuffer>	_FaceletIndices;
 		
+		std::list<Faceturn>				_WaitingMoves;
+
 		bool							_Updated;
 
-		std::vector<Face>				_Faces;
+		std::array<Face, 6>* _Faces;
 
 		static std::array<glm::vec3, 6>	ColorScheme;
 };
@@ -85,6 +93,19 @@ struct CubeModel::Face
 		Top	 = 1, Bottom = 3
 	};
 
+	struct FaceRowDesc
+	{
+		Turn face;
+		Row	 row;
+		bool reverse;
+	};
+
+	struct FaceTurnDesc
+	{
+		std::array<FaceRowDesc, 4>	AdjacentFaces;
+		glm::vec3					RotationAxis;
+	};
+
 	Face(const Facelet* source, const glm::vec3& rotation, float angle);
 
 	void RotateFaceletsData();
@@ -94,14 +115,18 @@ struct CubeModel::Face
 	std::array<std::array<Instance*, 3>, 4>	rows;
 	unsigned int							offset;
 
-	private: static unsigned int NextOffset;
+	static unsigned int NextOffset;
+	static const std::array<FaceTurnDesc, 6> RotationRules;
 };
 
-struct CubeModel::FaceTurnInfo
+struct CubeModel::Faceturn
 {
-	std::array<std::pair<Turn, Face::Row>, 4>	FacesModified;
-	glm::vec3									axis;
-	int											ClockwiseFactor;
+	Faceturn(int index, float angle);
+
+	Turn	face;
+	float	finalAngle;
+	float	currentAngle;
+	float	stepAngle;
 };
 
 #endif

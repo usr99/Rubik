@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/12 19:06:37 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 00:43:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 {
 	/* Set ModelViewProjection matrices */
 	const glm::mat4 projection = glm::perspective(glm::radians(45.0f), RATIO(WINDOW_W, WINDOW_H), 0.1f, 50.0f);
-	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
+	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -8.0f));
 	const glm::mat4 CameraMatrix = projection * view;
 	glm::mat4 ModelMatrix(1.0f);
 
@@ -169,6 +169,28 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		ImGui::Begin("Moves");
+		const char letter[] = { 'U', 'R', 'F', 'D', 'L', 'B' };
+		const char modifier[] = { '\0', '2', '\'' };
+
+		for (int y = 0; y < 3; y++)
+		{
+			for (int x = 0; x < 6; x++)
+        	{
+        	    if (x > 0)
+        	        ImGui::SameLine();
+
+        	    if (ImGui::Selectable((std::string(1, letter[x]) + modifier[y]).c_str(), false, 0, ImVec2(50, 50)))
+				{
+					if (y != 2)
+						cube.PushMove(x, 90.0f * (y + 1));
+					else
+						cube.PushMove(x, -90.0f);
+				}
+        	}
+		}
+		ImGui::End();
 
 		/* Render dear imgui into screen */
 		ImGui::Render();
