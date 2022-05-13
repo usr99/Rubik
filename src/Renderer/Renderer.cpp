@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 00:43:40 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 01:51:47 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,10 +170,10 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		/* Show a grid to apply face turns to the cube */
 		ImGui::Begin("Moves");
 		const char letter[] = { 'U', 'R', 'F', 'D', 'L', 'B' };
 		const char modifier[] = { '\0', '2', '\'' };
-
 		for (int y = 0; y < 3; y++)
 		{
 			for (int x = 0; x < 6; x++)
@@ -190,6 +190,13 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 				}
         	}
 		}
+		ImGui::End();
+
+		/* Show a small panel to toggle animations */
+		ImGui::Begin("Animation Panel");
+		ImGui::Checkbox("Toggle animations", &cube.AnimEnabled);
+		if (cube.AnimEnabled)
+			ImGui::SliderFloat("Speed", &cube.AnimSpeed, 0.1f, 5.0f);
 		ImGui::End();
 
 		/* Render dear imgui into screen */

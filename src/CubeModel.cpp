@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 01:25:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 02:07:07 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,8 @@ std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 };
 
 CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
-	: _FaceletTex("res/images/facelet.png"),
+	: AnimEnabled(true), AnimSpeed(1.0f),
+		_FaceletTex("res/images/facelet.png"),
 		_Updated(true),
 		_Faces(new std::array<Face, 6>({
 			Face( // UP
@@ -157,7 +158,21 @@ CubeModel::Render()
 	if (_WaitingMoves.size())
 	{
 		Faceturn& ft = _WaitingMoves.front();
-		_TurnFace(ft);
+
+		if (AnimEnabled)
+		{
+			static std::clock_t last_clock = std::clock();
+
+			std::clock_t diff = std::clock() - last_clock;
+			if ((double)diff / (double)CLOCKS_PER_SEC > 0.01 / (double)AnimSpeed)
+			{
+				_TurnFace(ft);
+				last_clock = std::clock();
+			}
+		}
+		else
+			_TurnFace(ft);
+		
 		if (ft.currentAngle >= ft.finalAngle)
 			_WaitingMoves.pop_front();
 	}
@@ -174,26 +189,30 @@ CubeModel::Render()
 	));
 }
 
-CubeModel::Faceturn::Faceturn(int index, float angle) :
-	face(static_cast<Turn>(index)), finalAngle(angle), currentAngle(0.0f),
-	stepAngle(angle >= 0.0f ? 90.0f : -90.0f) {}
+CubeModel::Faceturn::Faceturn(int index, float angle)
+: face(static_cast<Turn>(index)), finalAngle(angle), currentAngle(0.0f), clockwise(finalAngle >= 0.0) {}
 
 void
 CubeModel::PushMove(int index, float angle)
 {
-	_WaitingMoves.emplace_back(index, angle);
+	if (!_WaitingMoves.size())
+		_WaitingMoves.emplace_back(index, angle);
 }
 
 void
 CubeModel::_TurnFace(Faceturn& ft)
 {
 	const Face::FaceTurnDesc& turnInfo = Face::RotationRules[ft.face];
+	float stepAngle = AnimEnabled ? 2.0f : 90.0f;
 
-	_RotateFaceInstances(ft.face, glm::rotate(glm::mat4(1.0f), glm::radians(ft.stepAngle), turnInfo.RotationAxis));
-	ft.currentAngle += ft.stepAngle;
+	if (!ft.clockwise)
+		stepAngle = -stepAngle;
+
+	_RotateFaceInstances(ft.face, glm::rotate(glm::mat4(1.0f), glm::radians(stepAngle), turnInfo.RotationAxis));
+	ft.currentAngle += stepAngle;
 
 	if (fmod(ft.currentAngle, 90.0f) == 0)
-		_RotateFaceData(ft.face, (ft.stepAngle >= 0.0f));
+		_RotateFaceData(ft.face, ft.clockwise);
 	_Updated = true;
 }
 

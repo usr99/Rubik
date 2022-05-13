@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 01:22:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 01:58:53 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # define GLM_ENABLE_EXPERIMENTAL
 
+# include <ctime>
 # include <memory>
 # include <array>
 # include <glm/glm.hpp>
@@ -35,6 +36,9 @@ class CubeModel
 
 		void Render();
 		void PushMove(int index, float angle);
+
+		bool	AnimEnabled;
+		float	AnimSpeed;
 
 	private:
 
@@ -65,7 +69,7 @@ class CubeModel
 
 		bool							_Updated;
 
-		std::array<Face, 6>* _Faces;
+		std::array<Face, 6>*			_Faces;
 
 		static std::array<glm::vec3, 6>	ColorScheme;
 };
@@ -126,7 +130,7 @@ struct CubeModel::Faceturn
 	Turn	face;
 	float	finalAngle;
 	float	currentAngle;
-	float	stepAngle;
+	bool	clockwise;
 };
 
 #endif
