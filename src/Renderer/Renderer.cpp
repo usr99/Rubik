@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 01:51:47 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 17:51:47 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "Camera.hpp"
 #include "Shader.hpp"
 #include "CubeModel.hpp"
+#include "Solver.hpp"
 
 void GLClearError()
 {
@@ -138,7 +139,7 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 {
 	/* Set ModelViewProjection matrices */
 	const glm::mat4 projection = glm::perspective(glm::radians(45.0f), RATIO(WINDOW_W, WINDOW_H), 0.1f, 50.0f);
-	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -8.0f));
+	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f));
 	const glm::mat4 CameraMatrix = projection * view;
 	glm::mat4 ModelMatrix(1.0f);
 
@@ -181,7 +182,7 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
         	    if (x > 0)
         	        ImGui::SameLine();
 
-        	    if (ImGui::Selectable((std::string(1, letter[x]) + modifier[y]).c_str(), false, 0, ImVec2(50, 50)))
+        	    if (ImGui::Selectable((std::string(1, letter[x]) + modifier[y]).c_str(), false, 0, ImVec2(25, 25)))
 				{
 					if (y != 2)
 						cube.PushMove(x, 90.0f * (y + 1));
@@ -195,8 +196,61 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		/* Show a small panel to toggle animations */
 		ImGui::Begin("Animation Panel");
 		ImGui::Checkbox("Toggle animations", &cube.AnimEnabled);
-		if (cube.AnimEnabled)
-			ImGui::SliderFloat("Speed", &cube.AnimSpeed, 0.1f, 5.0f);
+		ImGui::SliderFloat("Speed", &cube.Delay, 0.1f, 5.0f);
+		ImGui::End();
+
+		/* Show the scramble panel */
+		ImGui::Begin("Solver");
+		struct TextFilters
+		{
+			// Return 0 (pass) if the character is 'i' or 'm' or 'g' or 'u' or 'i'
+			static int FilterImGuiLetters(ImGuiInputTextCallbackData *data)
+			{
+				if (data->EventChar < 256 && strchr(" FRUBLD2\'", (char)data->EventChar))
+					return 0;
+				return 1;
+			}
+		};
+
+		static char input[500] = { '\0' };
+		ImGui::InputText("Sequence", input, 500, ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterImGuiLetters);
+		if (ImGui::Button("Generate a scramble"))
+		{
+			std::list<std::string> scramble = generateScramble();
+			std::string sequence;
+
+			for (auto m = scramble.begin(); m != scramble.end(); m++)
+			{
+				sequence.append(*m);
+				sequence.push_back(' ');
+			}
+			size_t len = sequence.copy(input, 499);
+			input[len] = '\0';
+		}
+		if (ImGui::Button("Generate the solution"))
+		{
+			std::list<std::string> solution = solve(cube.toCubieCube());
+			std::string sequence;
+
+			for (auto m = solution.begin(); m != solution.end(); m++)
+			{
+				sequence.append(*m);
+				sequence.push_back(' ');
+			}
+			size_t len = sequence.copy(input, 499);
+			input[len] = '\0';
+		}
+		if (ImGui::Button("Apply"))
+		{
+			char* tmp = input;
+			try {
+				cube.ApplySequence(parseScramble(&tmp, 1));
+			} catch (const std::exception& e) {
+				std::cout << "OPEN POPUP\n";
+			}
+			input[0] = '\0';
+		}
+
 		ImGui::End();
 
 		/* Render dear imgui into screen */

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:52:27 by user42            #+#    #+#             */
-/*   Updated: 2022/05/11 22:11:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 17:55:28 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,11 @@ CubieCube::CubieCube(const std::list<std::string>& sequence)
 
 	this->scramble(sequence);
 }
+
+CubieCube::CubieCube(
+	const std::array<CornerCubie, CORNER_COUNT>& c,
+	const std::array<EdgeCubie, EDGE_COUNT>& e
+)	: _corners(c), _edges(e) {}
 
 CubieCube::CubieCube(const CubieCube& rhs)
 {

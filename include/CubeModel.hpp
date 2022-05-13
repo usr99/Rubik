@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 01:58:53 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 15:51:31 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include "IndexBuffer.hpp"
 # include "Shader.hpp"
 # include "Texture.hpp"
+# include "CubieCube.hpp"
 
 class CubeModel
 {
@@ -34,11 +35,13 @@ class CubeModel
 
 		CubeModel(Shader& shader, const FaceletCube& rhs = FaceletCube());
 
-		void Render();
-		void PushMove(int index, float angle);
+		void		Render();
+		void		PushMove(int index, float angle);
+		void		ApplySequence(const std::list<std::string>& seq);
+		CubieCube	toCubieCube() const;
 
 		bool	AnimEnabled;
-		float	AnimSpeed;
+		float	Delay;
 
 	private:
 

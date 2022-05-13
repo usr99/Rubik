@@ -6,23 +6,26 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/05/02 01:06:13 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 17:56:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUBIECUBE_HPP
 # define CUBIECUBE_HPP
 
+# include <memory>
 # include "FaceletCube.hpp"
 # include "cubie.hpp"
 
 class CubieCube : public ACube
 {
-    public:
+	public:
 
 		// constructor
-        CubieCube(const std::list<std::string>& sequence = {});	// default
-        CubieCube(const CubieCube& rhs);						// copy
+		CubieCube(const std::list<std::string>& sequence = {});			// default
+		CubieCube(const std::array<CornerCubie, CORNER_COUNT>& c,		// init
+			const std::array<EdgeCubie, EDGE_COUNT>& e);
+		CubieCube(const CubieCube& rhs);								// copy
 
 		// destructor
 		~CubieCube();
@@ -50,10 +53,10 @@ class CubieCube : public ACube
 		void		setPhase2EdgePermCoord(u_int16_t coordinate);
 		void		setPhase2UDSliceCoord(u_int16_t coordinate);
 		
-    private:
+	private:
 
-		CornerCubie	_corners[CORNER_COUNT];
-		EdgeCubie	_edges[EDGE_COUNT];
+		std::array<CornerCubie, CORNER_COUNT>	_corners;
+		std::array<EdgeCubie, EDGE_COUNT>		_edges;
 };
 
 #endif

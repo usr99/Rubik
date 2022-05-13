@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 02:07:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 17:56:51 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 };
 
 CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
-	: AnimEnabled(true), AnimSpeed(1.0f),
+	: AnimEnabled(true), Delay(1.0f),
 		_FaceletTex("res/images/facelet.png"),
 		_Updated(true),
 		_Faces(new std::array<Face, 6>({
@@ -157,24 +157,19 @@ CubeModel::Render()
 
 	if (_WaitingMoves.size())
 	{
-		Faceturn& ft = _WaitingMoves.front();
-
-		if (AnimEnabled)
-		{
-			static std::clock_t last_clock = std::clock();
-
-			std::clock_t diff = std::clock() - last_clock;
-			if ((double)diff / (double)CLOCKS_PER_SEC > 0.01 / (double)AnimSpeed)
-			{
-				_TurnFace(ft);
-				last_clock = std::clock();
-			}
-		}
-		else
-			_TurnFace(ft);
+		static std::clock_t last_clock = std::clock();
+		std::clock_t diff = std::clock() - last_clock;
 		
-		if (ft.currentAngle >= ft.finalAngle)
-			_WaitingMoves.pop_front();
+		if ((double)diff / (double)CLOCKS_PER_SEC > 0.01 / (double)Delay)
+		{
+			Faceturn& ft = _WaitingMoves.front();
+			
+			_TurnFace(ft);
+			last_clock = std::clock();
+
+			if (ft.currentAngle == ft.finalAngle)
+				_WaitingMoves.pop_front();
+		}
 	}
 
 	_UpdateInstances();
@@ -197,6 +192,151 @@ CubeModel::PushMove(int index, float angle)
 {
 	if (!_WaitingMoves.size())
 		_WaitingMoves.emplace_back(index, angle);
+}
+
+void
+CubeModel::ApplySequence(const std::list<std::string>& seq)
+{
+	for (
+		std::list<std::string>::const_iterator it = seq.begin();
+		it != seq.end();
+		it++
+	) {
+		try {
+			const char singmaster = it->at(0);
+			float angle = 90.0f;
+
+			if (it->length() == 2)
+			{
+				if (it->at(1) == '2')
+					angle = 180.0f; // half-turn
+				else if (it->at(1) == '\'')
+					angle = -90.0f; // counter clockwise
+				else
+					throw std::exception(); // not an existing move
+			}
+			else if (it->length() != 1)
+				throw std::exception(); // not an existing move
+
+			int idx = 0;
+			while (Rubik::Faces[idx] != singmaster)
+				idx++;
+			_WaitingMoves.emplace_back(idx, angle);
+		} catch (const std::exception& e) {
+			_WaitingMoves.clear();
+			throw std::invalid_argument("Scramble is not valid.");
+		}
+	}
+}
+
+bool
+CompareCorners(int src, int facelets[3], int& orientation)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		bool found = false;
+		for (int j = 0; j < 3; j++ && !found)
+		{
+			if (Rubik::CornerFacelets[src][i] / 9 == facelets[j])
+			{
+				found = true;
+
+				if (i == 0)
+					orientation = j;
+			}
+		}
+		if (!found)
+			return false;
+	}
+	return true;
+}
+
+bool
+CompareEdges(int src, int facelets[2], int& orientation)
+{
+	for (int i = 0; i < 2; i++)
+	{
+		bool found = false;
+		for (int j = 0; j < 2; j++ && !found)
+		{
+			if (Rubik::EdgeFacelets[src][i] / 9 == facelets[j])
+			{
+				found = true;
+
+				if (i == 0)
+					orientation = j;
+			}
+		}
+		if (!found)
+			return false;
+	}
+	return true;
+}
+
+CubieCube
+CubeModel::toCubieCube() const
+{
+	std::array<CornerCubie, CORNER_COUNT>	corners;
+	std::array<EdgeCubie, EDGE_COUNT>		edges;
+
+	for (int i = 0; i < CORNER_COUNT; i++)
+	{
+		const int ref[3] = {
+			Rubik::CornerFacelets[i][0],
+			Rubik::CornerFacelets[i][1],
+			Rubik::CornerFacelets[i][2]
+		};
+
+		int facelets[3];
+		for (int j = 0; j < 3; j++)
+		{
+			const int faceIdx = ref[j] / 9;
+			const int faceletIdx = ref[j] % 9;
+
+			int k = 0;
+			while (_Faces->at(faceIdx).facelets[faceletIdx].color != ColorScheme[k])
+				k++;
+			facelets[j] = k;
+		}
+
+		int j = 0;
+		int o = 0;
+		while (!CompareCorners(j, facelets, o))
+			j++;
+
+		corners[i].c = static_cast<Corner>(j);
+		corners[i].o = o;
+	}
+
+	for (int i = 0; i < EDGE_COUNT; i++)
+	{
+		const int ref[2] = {
+			Rubik::EdgeFacelets[i][0],
+			Rubik::EdgeFacelets[i][1]
+		};
+
+		int facelets[2];
+		for (int j = 0; j < 2; j++)
+		{
+			const int faceIdx = ref[j] / 9;
+			const int faceletIdx = ref[j] % 9;
+
+			int k = 0;
+			while (_Faces->at(faceIdx).facelets[faceletIdx].color != ColorScheme[k])
+				k++;
+			facelets[j] = k;
+		}
+
+		int j = 0;
+		int o = 0;
+		while (!CompareEdges(j, facelets, o))
+			j++;
+
+		edges[i].e = static_cast<Edge>(j);
+		edges[i].o = o;
+	}
+
+	return CubieCube(corners, edges);
 }
 
 void

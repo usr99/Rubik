@@ -29,21 +29,7 @@ int main(int ac, char **av)
 	bool error = false;
 	try
 	{
-		/* Parse scramble from arguments */
-		std::list<std::string> scramble;
-		for (int i = 1; i < ac; i++)
-		{
-			std::istringstream iss(av[i]);
-			std::string buf;
-
-			while (std::getline(iss, buf, ' '))
-			{
-				if (buf.size() != 0)
-					scramble.push_back(buf);
-			}
-		}
-		if (!scramble.size())
-			throw std::invalid_argument("No scramble provided");
+		std::list<std::string> scramble = parseScramble(av + 1, ac - 1);
 
 		GLFWwindow* window = CreateWindow();
 		CreateImGuiContext(window);

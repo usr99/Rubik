@@ -6,10 +6,12 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/02 15:34:59 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/10 15:27:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 18:12:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <ctime>
+#include <random>
 #include "../include/Solver.hpp"
 
 template <>
@@ -107,6 +109,9 @@ std::list<std::string> solve(const CubieCube& cube)
 	Solver<CubeStateP2>		solverP2;
 	std::list<std::string>	tmp = solverP2.solve(CubeStateP2(copy));
 
+	if (!solution.size())
+		return solution;
+
 	// Modify the moves transitioning between the two phases if they're on the same face
 	if (solution.back().front() == tmp.front().front())
 	{
@@ -136,4 +141,62 @@ std::list<std::string> solve(const CubieCube& cube)
 std::list<std::string>	solve(const std::list<std::string>& sequence)
 {
 	return solve(CubieCube(sequence));
+}
+
+std::list<std::string>	parseScramble(char** sequences, int count)
+{
+	std::list<std::string> scramble;
+	for (int i = 0; i < count; i++)
+	{
+		std::istringstream iss(sequences[i]);
+		std::string buf;
+
+		while (std::getline(iss, buf, ' '))
+		{
+			if (buf.size() != 0)
+				scramble.push_back(buf);
+		}
+	}
+	return scramble;
+}
+
+std::list<std::string>	generateScramble(int length)
+{
+	/* Setup random number generator */
+	std::seed_seq seed({ std::time(nullptr) });
+	std::default_random_engine gen(seed);
+	std::uniform_int_distribution<> distr_move(0, 3);
+	std::uniform_int_distribution<> distr_modifiers(0, 2);
+
+	/* Initiliaze possible moves and modifiers */
+	std::array<bool, 6>	allowedMoves;
+	const char			modifiers[] = { '2', '\'' };
+
+	allowedMoves.fill(true);
+	std::list<std::string> scramble;
+	for (int i = 0; i < length; i++)
+	{
+		int rand = distr_move(gen) + 1;
+		int n = -1;
+
+		/* Push the rand-th allowed move */
+		while (rand)
+		{
+			n++;
+			if (allowedMoves[n])
+				rand--;
+		}
+		scramble.push_back(std::string(1, Rubik::Faces[n]));
+
+		/* Randomly add a modifier character to the move */
+		int modIndex = distr_modifiers(gen);
+		if (modIndex != 2)
+			scramble.back().push_back(modifiers[modIndex]);
+
+		/* Prevent the next move to be on the same face or the opposite one */
+		allowedMoves.fill(true);
+		allowedMoves[n] = false;
+		allowedMoves[(n + 3) % 6] = false;
+	}
+	return scramble;
 }
