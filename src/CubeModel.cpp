@@ -6,69 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 17:56:51 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/14 00:25:37 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Renderer.hpp"
 #include "CubeModel.hpp"
-
-const std::array<CubeModel::Face::FaceTurnDesc, 6> CubeModel::Face::RotationRules = {
-	{{	// UP
-		.AdjacentFaces = {{
-			{ .face = F,	.row = Top,		.reverse = false },
-			{ .face = L,	.row = Top,		.reverse = false },
-			{ .face = B,	.row = Top,		.reverse = false },
-			{ .face = R,	.row = Top,		.reverse = false }
-		}},
-		.RotationAxis = { 0.0f, -1.0f, 0.0f },
-	},
-	{	// RIGHT
-		.AdjacentFaces = {{
-			{ .face = U,	.row = Right,	.reverse = false },
-			{ .face = B,	.row = Left,	.reverse = true },
-			{ .face = D,	.row = Right,	.reverse = false },
-			{ .face = F,	.row = Right,	.reverse = false }
-		}},
-		.RotationAxis = { -1.0f, 0.0f, 0.0f },
-	},
-	{	// FRONT
-		.AdjacentFaces = {{
-			{ .face = U,	.row = Bottom,	.reverse = false },
-			{ .face = R,	.row = Left,	.reverse = false },
-			{ .face = D,	.row = Top,		.reverse = true },
-			{ .face = L,	.row = Right,	.reverse = true }
-		}},
-		.RotationAxis = { 0.0f, 0.0f, -1.0f },
-	},
-	{	// DOWN
-		.AdjacentFaces = {{
-			{ .face = F,	.row = Bottom,	.reverse = false },
-			{ .face = R,	.row = Bottom,	.reverse = false },
-			{ .face = B,	.row = Bottom,	.reverse = false },
-			{ .face = L,	.row = Bottom,	.reverse = false }
-		}},
-		.RotationAxis = { 0.0f, 1.0f, 0.0f },
-	},
-	{	// LEFT
-		.AdjacentFaces = {{
-			{ .face = U,	.row = Left,	.reverse = false },
-			{ .face = F,	.row = Left,	.reverse = false },
-			{ .face = D,	.row = Left,	.reverse = false },
-			{ .face = B,	.row = Right,	.reverse = true }
-		}},
-		.RotationAxis = { 1.0f, 0.0f, 0.0f },
-	},
-	{	// BACK
-		.AdjacentFaces = {{
-			{ .face = U,	.row = Top,		.reverse = false },
-			{ .face = L,	.row = Left,	.reverse = true },
-			{ .face = D,	.row = Bottom,	.reverse = true },
-			{ .face = R,	.row = Right,	.reverse = false }
-		}},
-		.RotationAxis = { 0.0f, 0.0f, 1.0f },
-	}}
-};
+#include "cubemodel_utils.hpp"
 
 std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 	glm::vec3(1.000f, 1.000f, 1.000f),	// Up:		White
@@ -82,7 +26,6 @@ std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 	: AnimEnabled(true), Delay(1.0f),
 		_FaceletTex("res/images/facelet.png"),
-		_Updated(true),
 		_Faces(new std::array<Face, 6>({
 			Face( // UP
 				rhs.getFacelets().data() + 0 * 9,
@@ -120,7 +63,7 @@ CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 		{ glm::vec3(-0.15f,  0.15f, 0.0f), glm::vec2(0.0f, 1.0f) }, // upper-left
 		{ glm::vec3( 0.15f,  0.15f, 0.0f), glm::vec2(1.0f, 1.0f) }, // upper-right
 		{ glm::vec3(-0.15f, -0.15f, 0.0f), glm::vec2(0.0f, 0.0f) }, // bottom-left
-		{ glm::vec3( 0.15f, -0.15f, 0.0f), glm::vec2(1.0f, 0.0f) }	 // bottom-right
+		{ glm::vec3( 0.15f, -0.15f, 0.0f), glm::vec2(1.0f, 0.0f) }	// bottom-right
 	};
 
 	const unsigned int indices[] = {
@@ -136,7 +79,7 @@ CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 
 	/* Create the buffer describing all facelet instances */
 	VertexBufferLayout InstancesLayout;
-	_FaceletInstances = std::make_unique<VertexBuffer>(nullptr, 6 * 9 * sizeof(Instance));
+	_FaceletInstances = std::make_unique<VertexBuffer>(nullptr, 6 * 9 * (sizeof(glm::vec3) + sizeof(glm::mat4)));
 	InstancesLayout.push<float>(3);		// color
 	InstancesLayout.push<glm::mat4>(1);	// transformation matrix
 	_VAO.addBuffer(*_FaceletInstances, InstancesLayout, 2, true);
@@ -155,6 +98,7 @@ CubeModel::Render()
 	_FaceletTex.bind();
 	_FaceletIndices->bind();
 
+	/* Handle moves and animations */
 	if (_WaitingMoves.size())
 	{
 		static std::clock_t last_clock = std::clock();
@@ -162,17 +106,26 @@ CubeModel::Render()
 		
 		if ((double)diff / (double)CLOCKS_PER_SEC > 0.01 / (double)Delay)
 		{
-			Faceturn& ft = _WaitingMoves.front();
+			Faceturn& ft = _WaitingMoves.front(); // get first move in queue
 			
-			_TurnFace(ft);
-			last_clock = std::clock();
-
+			_TurnFace(ft); // apply the move
 			if (ft.currentAngle == ft.finalAngle)
-				_WaitingMoves.pop_front();
+				_WaitingMoves.pop_front(); // the turn is complete, move is deleted
+			last_clock = std::clock();
 		}
 	}
 
-	_UpdateInstances();
+	/* Copy all instances into the instance buffer */
+	for (auto f = _Faces->begin(); f != _Faces->end(); f++)
+	{
+		std::array<std::pair<glm::vec3, glm::mat4>, 9> tmp;
+		for (unsigned int i = 0; i < 9; i++)
+		{
+			tmp[i].first  = *(f->facelets[i].color);
+			tmp[i].second = f->facelets[i].transform;
+		}
+		_FaceletInstances->update(f->offset, tmp.data(), 9 * (sizeof(glm::vec3) + sizeof(glm::mat4)));
+	}
 
 	/* Draw 54 instances of the facelet */
 	GLCall(glDrawElementsInstanced(
@@ -197,6 +150,8 @@ CubeModel::PushMove(int index, float angle)
 void
 CubeModel::ApplySequence(const std::list<std::string>& seq)
 {
+	std::list<Faceturn> newMoves;
+
 	for (
 		std::list<std::string>::const_iterator it = seq.begin();
 		it != seq.end();
@@ -221,122 +176,21 @@ CubeModel::ApplySequence(const std::list<std::string>& seq)
 			int idx = 0;
 			while (Rubik::Faces[idx] != singmaster)
 				idx++;
-			_WaitingMoves.emplace_back(idx, angle);
+			newMoves.emplace_back(idx, angle);
 		} catch (const std::exception& e) {
-			_WaitingMoves.clear();
 			throw std::invalid_argument("Scramble is not valid.");
 		}
 	}
-}
-
-bool
-CompareCorners(int src, int facelets[3], int& orientation)
-{
-	for (int i = 0; i < 3; i++)
-	{
-		bool found = false;
-		for (int j = 0; j < 3; j++ && !found)
-		{
-			if (Rubik::CornerFacelets[src][i] / 9 == facelets[j])
-			{
-				found = true;
-
-				if (i == 0)
-					orientation = j;
-			}
-		}
-		if (!found)
-			return false;
-	}
-	return true;
-}
-
-bool
-CompareEdges(int src, int facelets[2], int& orientation)
-{
-	for (int i = 0; i < 2; i++)
-	{
-		bool found = false;
-		for (int j = 0; j < 2; j++ && !found)
-		{
-			if (Rubik::EdgeFacelets[src][i] / 9 == facelets[j])
-			{
-				found = true;
-
-				if (i == 0)
-					orientation = j;
-			}
-		}
-		if (!found)
-			return false;
-	}
-	return true;
+	_WaitingMoves.insert(_WaitingMoves.end(), newMoves.begin(), newMoves.end());
 }
 
 CubieCube
 CubeModel::toCubieCube() const
 {
-	std::array<CornerCubie, CORNER_COUNT>	corners;
-	std::array<EdgeCubie, EDGE_COUNT>		edges;
-
-	for (int i = 0; i < CORNER_COUNT; i++)
-	{
-		const int ref[3] = {
-			Rubik::CornerFacelets[i][0],
-			Rubik::CornerFacelets[i][1],
-			Rubik::CornerFacelets[i][2]
-		};
-
-		int facelets[3];
-		for (int j = 0; j < 3; j++)
-		{
-			const int faceIdx = ref[j] / 9;
-			const int faceletIdx = ref[j] % 9;
-
-			int k = 0;
-			while (_Faces->at(faceIdx).facelets[faceletIdx].color != ColorScheme[k])
-				k++;
-			facelets[j] = k;
-		}
-
-		int j = 0;
-		int o = 0;
-		while (!CompareCorners(j, facelets, o))
-			j++;
-
-		corners[i].c = static_cast<Corner>(j);
-		corners[i].o = o;
-	}
-
-	for (int i = 0; i < EDGE_COUNT; i++)
-	{
-		const int ref[2] = {
-			Rubik::EdgeFacelets[i][0],
-			Rubik::EdgeFacelets[i][1]
-		};
-
-		int facelets[2];
-		for (int j = 0; j < 2; j++)
-		{
-			const int faceIdx = ref[j] / 9;
-			const int faceletIdx = ref[j] % 9;
-
-			int k = 0;
-			while (_Faces->at(faceIdx).facelets[faceletIdx].color != ColorScheme[k])
-				k++;
-			facelets[j] = k;
-		}
-
-		int j = 0;
-		int o = 0;
-		while (!CompareEdges(j, facelets, o))
-			j++;
-
-		edges[i].e = static_cast<Edge>(j);
-		edges[i].o = o;
-	}
-
-	return CubieCube(corners, edges);
+	return CubieCube(
+		_ConvertCubies<CornerCubie, Corner, CORNER_COUNT, 3>(Rubik::CornerFacelets),
+		_ConvertCubies<EdgeCubie, Edge, EDGE_COUNT, 2>(Rubik::EdgeFacelets)
+	);
 }
 
 void
@@ -348,24 +202,20 @@ CubeModel::_TurnFace(Faceturn& ft)
 	if (!ft.clockwise)
 		stepAngle = -stepAngle;
 
+	/*
+	** Apply the rotation to instances affected by the move
+	** This is purely visual, it only mutates facelet instances
+	*/
 	_RotateFaceInstances(ft.face, glm::rotate(glm::mat4(1.0f), glm::radians(stepAngle), turnInfo.RotationAxis));
 	ft.currentAngle += stepAngle;
 
+	/*
+	** Reassign facelet data between the faces after each quarter-turn
+	** Facelet instances are not mutated, their content is just copied to another face
+	** The purpose is to sync the internal cube state with what the user sees on screen
+	*/
 	if (fmod(ft.currentAngle, 90.0f) == 0)
 		_RotateFaceData(ft.face, ft.clockwise);
-	_Updated = true;
-}
-
-void
-CubeModel::_UpdateInstances()
-{
-	if (!_Updated)
-		return ; // no need to refresh the buffer if the cube hasn't changed
-
-	/* Copy the new facelets data into the instance buffer */
-	for (auto f = _Faces->begin(); f != _Faces->end(); f++)
-		_FaceletInstances->update(f->offset, f->facelets.data(), 9 * sizeof(Instance));
-	_Updated = false;
 }
 
 void
@@ -373,8 +223,10 @@ CubeModel::_RotateFaceInstances(Turn face, const glm::mat4& rotation)
 {
 	const Face::FaceTurnDesc& turnInfo = Face::RotationRules[face];
 
+	/* Compute the new transformation matrix of each facelet of the turning face */
 	for (auto f = _Faces->at(face).facelets.begin(); f != _Faces->at(face).facelets.end(); f++)
 		f->transform = rotation * f->transform;
+	/* Compute the new transformation matrix of adjacent facelets on other faces */
 	for (auto f = turnInfo.AdjacentFaces.begin(); f != turnInfo.AdjacentFaces.end(); f++)
 		_RotateRow(_Faces->at(f->face).rows[f->row], rotation);
 }
@@ -385,6 +237,7 @@ CubeModel::_RotateFaceData(Turn face, bool clockwise)
 	const Face::FaceTurnDesc&	turnInfo(Face::RotationRules[face]);
 	std::array<Instance, 9>		copy(_Faces->at(face).facelets);
 
+	/* Reassign facelets of the turning face to simulate a rotation */
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -396,6 +249,7 @@ CubeModel::_RotateFaceData(Turn face, bool clockwise)
 		}
 	}
 
+	/* Swap facelets between rows of adjacent faces */
 	const Face::FaceRowDesc& start = turnInfo.AdjacentFaces[0];
 	if (clockwise)
 	{
@@ -428,64 +282,53 @@ CubeModel::_SwapFaceRows(const std::array<Instance*, 3>& from, const std::array<
 	}
 }
 
-CubeModel::Instance::Instance()
-	: color(0.0f, 0.0f, 0.0f), transform(1.0f) {}
-
-void
-CubeModel::Instance::init(
-	const glm::vec3& color,
-	const glm::vec3& rot,
-	glm::vec3 translation,
-	float angle
-) {
-	/* Create the transformation matrix from the translation and rotation arguments */
-	if (angle)
-	{
-		translation	= glm::rotate(translation, glm::radians(angle), rot);
-		transform	= glm::translate(transform, translation);
-		transform	= glm::rotate(transform, glm::radians(angle), rot);
-	}
-	else
-		transform = glm::translate(transform, translation);
-	this->color = color;
-}
-
-unsigned int CubeModel::Face::NextOffset = 0;
-CubeModel::Face::Face(const Facelet* source, const glm::vec3& rotation, float angle)
+template <typename T, typename U, unsigned int count, unsigned int stickers_count>
+std::array<T, count> CubeModel::_ConvertCubies(const Facelet reference[count][stickers_count]) const
 {
-	glm::vec3 pos(-0.30f, 0.30f, 0.45f);
-	int idx = 0;
+	std::array<T, count> cubies;
 
-	/*
-	** Initialize 9 instances of the same color and placed in a way to create a 3x3 grid
-	** starting from the upper-left facelet
-	*/
-	for (int y = 0; y < 3; y++)
+	for (unsigned int i = 0; i < count; i++)
 	{
-		for (int x = 0; x < 3; x++)
+		/* Find the color of the facelets composing the cubie */
+		std::array<Facelet, stickers_count> cubie;
+		for (unsigned int j = 0; j < stickers_count; j++)
 		{
-			facelets[idx].init(CubeModel::ColorScheme[*source / 9], rotation, pos, angle);
+			const int faceIdx = reference[i][j] / 9;
+			const int faceletIdx = reference[i][j] % 9;
+			glm::vec3* color = _Faces->at(faceIdx).facelets[faceletIdx].color;
 
-			/*
-			** Save pointer to the current facelet if it belongs to a row
-			** corners belong to one vertical and one horizontal rows
-			** edges belong to one row, vertical or horizontal
-			** centers are not part of any row
-			*/
-			if (x != 1) // check for a vertical row
-				rows[x][y] = facelets.data() + idx;
-			if (y != 1) // check for a horizontal row
-				rows[y + 1][x] = facelets.data() + idx;
-
-			idx++;
-			pos.x += 0.30f;
-			source++;
+			cubie[j] = static_cast<Facelet>(color - ColorScheme.data());
 		}
-		pos.x = -0.30f;
-		pos.y -= 0.30f;
-	}
 
-	/* Keep the offset from where this face's data begins in the instance buffer */
-	offset = Face::NextOffset;
-	Face::NextOffset += facelets.size() * sizeof(Instance);
+		/* Find the name of the cubie having the same colors */
+		int name;
+		char orientation;
+		for (unsigned int n = 0; n < count; n++)
+		{
+			/* Compare each reference facelet to each facelet */
+			unsigned int matching = 0;
+			for (unsigned int i = 0; i < stickers_count; i++)
+			{
+				for (unsigned int j = 0; j < stickers_count; j++)
+				{
+					if (reference[n][i] / 9 == cubie[j])
+					{
+						if (i == 0)
+							orientation = j;
+						matching++;
+						break ;
+					}
+				}
+			}
+
+			/* All facelets match ! Cubie found ! */
+			if (matching == stickers_count)
+			{
+				name = n;
+				break ;
+			}
+		}
+		cubies[i] = { static_cast<U>(name), orientation };
+	}
+	return cubies;
 }

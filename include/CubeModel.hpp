@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 15:51:31 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/14 00:22:26 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,14 +45,35 @@ class CubeModel
 
 	private:
 
-		enum Turn { U, R, F, D, L, B };
-
-		struct Vertex;
-		struct Instance;
-		struct Faceturn;
 		struct Face;
 
-		void _UpdateInstances();
+		enum Turn { U, R, F, D, L, B };
+
+		struct Vertex
+		{
+			glm::vec3 pos;
+			glm::vec2 tex;
+		};
+
+		struct Instance
+		{
+			Instance();
+
+			void init(glm::vec3 *color, const glm::vec3 &rot, glm::vec3 translation, float angle);
+
+			glm::vec3 *color;
+			glm::mat4 transform;
+		};
+
+		struct Faceturn
+		{
+			Faceturn(int index, float angle);
+
+			Turn face;
+			float finalAngle;
+			float currentAngle;
+			bool clockwise;
+		};
 
 		void _TurnFace(Faceturn& ft);
 		void _RotateFaceInstances(Turn face, const glm::mat4& rotation);
@@ -60,6 +81,9 @@ class CubeModel
 
 		void _RotateRow(std::array<Instance*, 3>& row, const glm::mat4& rotation);
 		void _SwapFaceRows(const std::array<Instance*, 3>& from, const std::array<Instance*, 3> to, bool reverse);
+
+		template <typename T, typename U, unsigned int count, unsigned int stickers_count>
+		std::array<T, count> _ConvertCubies(const Facelet reference[count][stickers_count]) const;
 
 		VertexArray						_VAO;
 		Texture							_FaceletTex;
@@ -69,71 +93,9 @@ class CubeModel
 		std::unique_ptr<IndexBuffer>	_FaceletIndices;
 		
 		std::list<Faceturn>				_WaitingMoves;
-
-		bool							_Updated;
-
 		std::array<Face, 6>*			_Faces;
 
 		static std::array<glm::vec3, 6>	ColorScheme;
-};
-
-struct CubeModel::Vertex
-{
-	glm::vec3 pos;
-	glm::vec2 tex;
-};
-
-struct CubeModel::Instance
-{
-	Instance();
-
-	void init(const glm::vec3& color, const glm::vec3& rot, glm::vec3 translation, float angle);
-
-	glm::vec3 color;
-	glm::mat4 transform;
-};
-
-struct CubeModel::Face
-{
-	enum Row {
-		Left = 0, Right	 = 2,
-		Top	 = 1, Bottom = 3
-	};
-
-	struct FaceRowDesc
-	{
-		Turn face;
-		Row	 row;
-		bool reverse;
-	};
-
-	struct FaceTurnDesc
-	{
-		std::array<FaceRowDesc, 4>	AdjacentFaces;
-		glm::vec3					RotationAxis;
-	};
-
-	Face(const Facelet* source, const glm::vec3& rotation, float angle);
-
-	void RotateFaceletsData();
-	void RotateRow(Row index, const glm::mat4& RotationMatrix);
-
-	std::array<Instance, 9>					facelets;
-	std::array<std::array<Instance*, 3>, 4>	rows;
-	unsigned int							offset;
-
-	static unsigned int NextOffset;
-	static const std::array<FaceTurnDesc, 6> RotationRules;
-};
-
-struct CubeModel::Faceturn
-{
-	Faceturn(int index, float angle);
-
-	Turn	face;
-	float	finalAngle;
-	float	currentAngle;
-	bool	clockwise;
 };
 
 #endif

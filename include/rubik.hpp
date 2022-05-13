@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 17:05:11 by user42            #+#    #+#             */
-/*   Updated: 2022/05/02 15:32:36 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/13 23:57:23 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ namespace Rubik {
 	};
 
 	// Map an edge to their facelets
-	static const Facelet EdgeFacelets[EDGE_COUNT][3] = {
+	static const Facelet EdgeFacelets[EDGE_COUNT][2] = {
 		{ U6, R2 }, { U8, F2 }, { U4, L2 },
 		{ U2, B2 }, { D6, R8 }, { D2, F8 },
 		{ D4, L8 }, { D8, B8 }, { F6, R4 },
