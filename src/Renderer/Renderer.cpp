@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 00:18:47 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/14 18:19:45 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include "Renderer.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
-#include "CubeModel.hpp"
+#include "Menu.hpp"
 #include "Solver.hpp"
 
 void GLClearError()
@@ -143,6 +143,12 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 	const glm::mat4 CameraMatrix = projection * view;
 	glm::mat4 ModelMatrix(1.0f);
 
+	MainMenu menu(cube);
+	menu.push(new MovesMenu());
+	menu.push(new AnimationMenu());
+	menu.push(new FaceletColorMenu(cube.ColorScheme.data()));
+	menu.push(new SolverMenu());
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -152,8 +158,6 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		/* Update the view */
 		shader.bind();
 		shader.setUniformMat4f("u_MVP", CameraMatrix * ModelMatrix);
-
-		cube.Render();
 
 		/* Handle mouse inputs for cube controls */
 		ImGuiIO& io = ImGui::GetIO();
@@ -171,87 +175,8 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		/* Show a grid to apply face turns to the cube */
-		ImGui::Begin("Moves");
-		const char letter[] = { 'U', 'R', 'F', 'D', 'L', 'B' };
-		const char modifier[] = { '\0', '2', '\'' };
-		for (int y = 0; y < 3; y++)
-		{
-			for (int x = 0; x < 6; x++)
-        	{
-        	    if (x > 0)
-        	        ImGui::SameLine();
-
-        	    if (ImGui::Selectable((std::string(1, letter[x]) + modifier[y]).c_str(), false, 0, ImVec2(25, 25)))
-				{
-					if (y != 2)
-						cube.PushMove(x, 90.0f * (y + 1));
-					else
-						cube.PushMove(x, -90.0f);
-				}
-        	}
-		}
-		ImGui::End();
-
-		/* Show a small panel to toggle animations */
-		ImGui::Begin("Animation Panel");
-		ImGui::Checkbox("Toggle animations", &cube.AnimEnabled);
-		ImGui::SliderFloat("Speed", &cube.Delay, 0.1f, 5.0f);
-		ImGui::End();
-
-		/* Show the scramble panel */
-		ImGui::Begin("Solver");
-		struct TextFilters
-		{
-			// Return 0 (pass) if the character is 'i' or 'm' or 'g' or 'u' or 'i'
-			static int FilterImGuiLetters(ImGuiInputTextCallbackData *data)
-			{
-				if (data->EventChar < 256 && strchr(" FRUBLD2\'", (char)data->EventChar))
-					return 0;
-				return 1;
-			}
-		};
-
-		static char input[500] = { '\0' };
-		ImGui::InputText("Sequence", input, 500, ImGuiInputTextFlags_CallbackCharFilter, TextFilters::FilterImGuiLetters);
-		if (ImGui::Button("Generate a scramble"))
-		{
-			std::list<std::string> scramble = generateScramble();
-			std::string sequence;
-
-			for (auto m = scramble.begin(); m != scramble.end(); m++)
-			{
-				sequence.append(*m);
-				sequence.push_back(' ');
-			}
-			size_t len = sequence.copy(input, 499);
-			input[len] = '\0';
-		}
-		if (ImGui::Button("Generate the solution"))
-		{
-			std::list<std::string> solution = solve(cube.toCubieCube());
-			std::string sequence;
-
-			for (auto m = solution.begin(); m != solution.end(); m++)
-			{
-				sequence.append(*m);
-				sequence.push_back(' ');
-			}
-			size_t len = sequence.copy(input, 499);
-			input[len] = '\0';
-		}
-		if (ImGui::Button("Apply"))
-		{
-			char* tmp = input;
-			try {
-				cube.ApplySequence(parseScramble(&tmp, 1));
-			} catch (const std::exception& e) {
-				std::cout << "OPEN POPUP\n";
-			}
-			input[0] = '\0';
-		}
-
-		ImGui::End();
+		menu.render();
+		cube.Render();
 
 		/* Render dear imgui into screen */
 		ImGui::Render();

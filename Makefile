@@ -12,7 +12,7 @@ SRC		= main.cpp ACube.cpp FaceletCube.cpp cubie.cpp \
 			\
 			Renderer.cpp Camera.cpp Shader.cpp \
 			VertexArray.cpp VertexBuffer.cpp VertexBufferLayout.cpp IndexBuffer.cpp Texture.cpp \
-			CubeModel.cpp cubemodel_utils.cpp
+			CubeModel.cpp cubemodel_utils.cpp Menu.cpp
 
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 00:22:26 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/14 02:00:20 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ class CubeModel
 
 		bool	AnimEnabled;
 		float	Delay;
+
+		static std::array<glm::vec3, 6>	ColorScheme;
 
 	private:
 
@@ -94,8 +96,6 @@ class CubeModel
 		
 		std::list<Faceturn>				_WaitingMoves;
 		std::array<Face, 6>*			_Faces;
-
-		static std::array<glm::vec3, 6>	ColorScheme;
 };
 
 #endif

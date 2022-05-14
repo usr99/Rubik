@@ -6,12 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/12 19:21:17 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/14 03:29:03 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ctime>
-#include <csignal>
 
 #include "Solver.hpp"
 #include "Renderer.hpp"
