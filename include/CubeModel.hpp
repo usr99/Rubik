@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 02:00:20 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 01:36:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@
 # include "Shader.hpp"
 # include "Texture.hpp"
 # include "CubieCube.hpp"
+
+# define SIZEOF_INSTANCE (sizeof(glm::vec3) + sizeof(glm::mat4))
 
 class CubeModel
 {
@@ -77,7 +79,10 @@ class CubeModel
 			bool clockwise;
 		};
 
+		void _CreateBlackFaces(const Faceturn& ft);
+		void _UpdateBlackFaceInstance(unsigned int idx);
 		void _TurnFace(Faceturn& ft);
+
 		void _RotateFaceInstances(Turn face, const glm::mat4& rotation);
 		void _RotateFaceData(Turn face, bool clockwise);
 
@@ -96,6 +101,8 @@ class CubeModel
 		
 		std::list<Faceturn>				_WaitingMoves;
 		std::array<Face, 6>*			_Faces;
+
+		std::array<Instance, 2>			_InsideFaces;
 };
 
 #endif

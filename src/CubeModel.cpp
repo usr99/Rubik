@@ -6,13 +6,14 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 00:25:37 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 01:41:07 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Renderer.hpp"
 #include "CubeModel.hpp"
 #include "cubemodel_utils.hpp"
+#include <glm/gtx/matrix_decompose.hpp>
 
 std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 	glm::vec3(1.000f, 1.000f, 1.000f),	// Up:		White
@@ -79,7 +80,7 @@ CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 
 	/* Create the buffer describing all facelet instances */
 	VertexBufferLayout InstancesLayout;
-	_FaceletInstances = std::make_unique<VertexBuffer>(nullptr, 6 * 9 * (sizeof(glm::vec3) + sizeof(glm::mat4)));
+	_FaceletInstances = std::make_unique<VertexBuffer>(nullptr, (6 * 9 + 2) * SIZEOF_INSTANCE);
 	InstancesLayout.push<float>(3);		// color
 	InstancesLayout.push<glm::mat4>(1);	// transformation matrix
 	_VAO.addBuffer(*_FaceletInstances, InstancesLayout, 2, true);
@@ -107,8 +108,14 @@ CubeModel::Render()
 		if ((double)diff / (double)CLOCKS_PER_SEC > 0.01 / (double)Delay)
 		{
 			Faceturn& ft = _WaitingMoves.front(); // get first move in queue
-			
+
+			/* Before starting the rotation, create the black faces that will hide the inside of the cube */
+			if (ft.currentAngle == 0.0f)
+				_CreateBlackFaces(ft);
+
 			_TurnFace(ft); // apply the move
+			_UpdateBlackFaceInstance(0); // update the black face that rotates along the move
+
 			if (ft.currentAngle == ft.finalAngle)
 				_WaitingMoves.pop_front(); // the turn is complete, move is deleted
 			last_clock = std::clock();
@@ -124,16 +131,16 @@ CubeModel::Render()
 			tmp[i].first  = *(f->facelets[i].color);
 			tmp[i].second = f->facelets[i].transform;
 		}
-		_FaceletInstances->update(f->offset, tmp.data(), 9 * (sizeof(glm::vec3) + sizeof(glm::mat4)));
+		_FaceletInstances->update(f->offset, tmp.data(), 9 * SIZEOF_INSTANCE);
 	}
 
-	/* Draw 54 instances of the facelet */
+	/* Draw 54 instances of the facelet and 2 black faces */
 	GLCall(glDrawElementsInstanced(
 		GL_TRIANGLES,
 		_FaceletIndices->getCount(),
 		GL_UNSIGNED_INT,
 		nullptr,
-		6 * 9
+		6 * 9 + 2
 	));
 }
 
@@ -194,6 +201,35 @@ CubeModel::toCubieCube() const
 }
 
 void
+CubeModel::_CreateBlackFaces(const Faceturn& ft)
+{
+	/*
+	** Retrieve the translation vector from the transformation matrix
+	** of the center facelet of the turning face
+	** Then create a translation matrix equal to 2/3 of the opposite vector 
+	*/
+	glm::vec3 translation(_Faces->at(ft.face).facelets[4].transform[3]);
+	glm::mat4 translateMatrix(glm::translate(glm::mat4(1.0f), -translation / 1.5f));
+	glm::vec3 scale(3.0f, 3.0f, 0.0f);
+
+	/* Create two black faces to hide the inside of the cube during the faceturn */
+	_InsideFaces[0].transform = glm::scale(translateMatrix * _Faces->at(ft.face).facelets[4].transform, scale);
+	_InsideFaces[0].color = nullptr;
+	_InsideFaces[1] = _InsideFaces[0];
+
+	_UpdateBlackFaceInstance(1);
+}
+
+void
+CubeModel::_UpdateBlackFaceInstance(unsigned int idx)
+{
+	unsigned int offset = Face::NextOffset + SIZEOF_INSTANCE * idx;
+
+	auto data = std::make_pair(glm::vec3(0.0f, 0.0f, 0.0f), _InsideFaces[idx].transform);
+	_FaceletInstances->update(offset, &data, SIZEOF_INSTANCE);
+}
+
+void
 CubeModel::_TurnFace(Faceturn& ft)
 {
 	const Face::FaceTurnDesc& turnInfo = Face::RotationRules[ft.face];
@@ -226,6 +262,9 @@ CubeModel::_RotateFaceInstances(Turn face, const glm::mat4& rotation)
 	/* Compute the new transformation matrix of each facelet of the turning face */
 	for (auto f = _Faces->at(face).facelets.begin(); f != _Faces->at(face).facelets.end(); f++)
 		f->transform = rotation * f->transform;
+	/* Apply the same rotation to the black square */
+	_InsideFaces[0].transform = rotation *_InsideFaces[0].transform;
+	
 	/* Compute the new transformation matrix of adjacent facelets on other faces */
 	for (auto f = turnInfo.AdjacentFaces.begin(); f != turnInfo.AdjacentFaces.end(); f++)
 		_RotateRow(_Faces->at(f->face).rows[f->row], rotation);
