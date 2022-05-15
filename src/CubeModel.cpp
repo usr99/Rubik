@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 01:41:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 02:16:56 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,7 +233,17 @@ void
 CubeModel::_TurnFace(Faceturn& ft)
 {
 	const Face::FaceTurnDesc& turnInfo = Face::RotationRules[ft.face];
-	float stepAngle = AnimEnabled ? 2.0f : 90.0f;
+	float stepAngle = AnimEnabled ? 2.0f : 90.0f - ft.currentAngle;
+
+	if (AnimEnabled)
+		stepAngle = 2.0f;
+	else
+	{
+		if (ft.finalAngle == 180.0f && ft.currentAngle >= 90.0f)
+			stepAngle = 180.0f - ft.currentAngle;
+		else
+			stepAngle = 90.0f - abs(ft.currentAngle);
+	}
 
 	if (!ft.clockwise)
 		stepAngle = -stepAngle;
