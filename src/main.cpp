@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 17:31:12 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 02:07:00 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ std::list<std::string> solve(const CubieCube& cube)
 	std::list<std::string>	tmp = solverP2.solve(CubeStateP2(copy));
 
 	// Modify the moves transitioning between the two phases if they're on the same face
-	if (solution.back().front() == tmp.front().front())
+	if (solution.size() && solution.back().front() == tmp.front().front())
 	{
 		const std::vector<char>	values	= { '\0', '2', '\'' };
 		char						v1		= 1;
