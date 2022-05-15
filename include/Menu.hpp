@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/14 00:52:57 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 17:37:15 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 21:40:41 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ class MainMenu
 
 		void push(Menu *element);
 		void render();
-		void renderSubMenus();
 
 	private:
 
@@ -82,6 +81,30 @@ class FaceletColorMenu : public Menu
 		std::array<std::string, 6>	_Labels;
 };
 
+class ScrambleMenu : public Menu
+{
+	public:
+
+		ScrambleMenu();
+		virtual void render(CubeModel& cube);
+
+	private:
+
+		struct Filter
+		{
+			// Return 0 (pass) if the character is found in the string " frubldFRUBLD2'"
+			static int FilterSingmasterNotation(ImGuiInputTextCallbackData *data)
+			{
+				if (data->EventChar < 256 && strchr(" frubldFRUBLD2\'", (char)data->EventChar))
+					return 0;
+				return 1;
+			}
+		};
+
+		int	 _ScrambleSize;
+		char _Input[200];
+};
+
 class SolverMenu : public Menu
 {
 	public:
@@ -91,19 +114,9 @@ class SolverMenu : public Menu
 
 	private:
 
-		struct Filter
-		{
-			// Return 0 (pass) if the character is found in the string " FRUBLD2'"
-			static int FilterSingmasterNotation(ImGuiInputTextCallbackData *data)
-			{
-				if (data->EventChar < 256 && strchr(" FRUBLD2\'", (char)data->EventChar))
-					return 0;
-				return 1;
-			}
-		};
-
-		int		_ScrambleSize;
-		char	_Input[500];
+		bool					_SolverLaunched;
+		std::list<std::string>	_Solution;
+		std::string				_SolutionStr;
 };
 
 #endif

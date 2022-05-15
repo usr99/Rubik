@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 18:19:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 18:53:52 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,10 +144,11 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 	glm::mat4 ModelMatrix(1.0f);
 
 	MainMenu menu(cube);
+	menu.push(new ScrambleMenu());
+	menu.push(new SolverMenu());
 	menu.push(new MovesMenu());
 	menu.push(new AnimationMenu());
 	menu.push(new FaceletColorMenu(cube.ColorScheme.data()));
-	menu.push(new SolverMenu());
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))

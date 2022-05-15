@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 15:59:21 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 19:36:43 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 	shader.setUniform1i("u_Texture", 0);
 }
 
+CubeModel::~CubeModel() { delete _Faces; }
+
 void
 CubeModel::Render()
 {
@@ -164,29 +166,25 @@ CubeModel::ApplySequence(const std::list<std::string>& seq)
 		it != seq.end();
 		it++
 	) {
-		try {
-			const char singmaster = it->at(0);
-			float angle = 90.0f;
+		const char singmaster = it->at(0);
+		float angle = 90.0f;
 
-			if (it->length() == 2)
-			{
-				if (it->at(1) == '2')
-					angle = 180.0f; // half-turn
-				else if (it->at(1) == '\'')
-					angle = -90.0f; // counter clockwise
-				else
-					throw std::exception(); // not an existing move
-			}
-			else if (it->length() != 1)
+		if (it->length() == 2)
+		{
+			if (it->at(1) == '2')
+				angle = 180.0f; // half-turn
+			else if (it->at(1) == '\'')
+				angle = -90.0f; // counter clockwise
+			else
 				throw std::exception(); // not an existing move
-
-			int idx = 0;
-			while (Rubik::Faces[idx] != singmaster)
-				idx++;
-			newMoves.emplace_back(idx, angle);
-		} catch (const std::exception& e) {
-			throw std::invalid_argument("Scramble is not valid.");
 		}
+		else if (it->length() != 1)
+			throw std::exception(); // not an existing move
+
+		int idx = 0;
+		while (Rubik::Faces[idx] != singmaster)
+			idx++;
+		newMoves.emplace_back(idx, angle);
 	}
 	_WaitingMoves.insert(_WaitingMoves.end(), newMoves.begin(), newMoves.end());
 }

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 15:58:43 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 16:19:19 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class CubeModel
 	public:
 
 		CubeModel(Shader& shader, const FaceletCube& rhs = FaceletCube());
+		~CubeModel();
 
 		void		Render();
 		void		PushMove(int index, float angle);
@@ -99,9 +100,9 @@ class CubeModel
 		std::unique_ptr<VertexBuffer>	_FaceletInstances;
 		std::unique_ptr<IndexBuffer>	_FaceletIndices;
 		
-		std::list<Faceturn>					 _WaitingMoves;
-		std::unique_ptr<std::array<Face, 6>> _Faces;
-		std::array<Instance, 2>				 _InsideFaces;
+		std::list<Faceturn>				_WaitingMoves;
+		std::array<Face, 6>*			_Faces;
+		std::array<Instance, 2>			_InsideFaces;
 };
 
 #endif
