@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/14 01:12:01 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 18:03:04 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/15 22:07:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,6 @@ MainMenu::render()
 	});
 }
 
-void
-MainMenu::renderSubMenus()
-{
-
-}
-
 MovesMenu::MovesMenu() : Menu("Moves"), _Modifiers({ '\0', '2', '\'' }) {}
 
 void
@@ -92,7 +86,7 @@ AnimationMenu::render(CubeModel& cube)
 	ImGui::SetNextWindowSize(ImVec2(158.0f, 77.0f));
 	ImGui::Begin(name.c_str(), &enabled, ImGuiWindowFlags_NoResize);
 	ImGui::Checkbox("Toggle animations", &cube.AnimEnabled);
-	ImGui::SliderFloat("Speed", &cube.Delay, 0.1f, 5.0f);
+	ImGui::SliderFloat("Speed", &cube.Delay, 0.3f, 5.0f);
 	ImGui::End();
 }
 
@@ -120,16 +114,17 @@ FaceletColorMenu::render(CubeModel& cube)
 	ImGui::End();
 }
 
-SolverMenu::SolverMenu() : Menu("Solver"), _ScrambleSize(21), _Input{'\0'} {}
+ScrambleMenu::ScrambleMenu() : Menu("Scramble"), _ScrambleSize(21), _Input{'\0'} {}
 
 void
-SolverMenu::render(CubeModel& cube)
+ScrambleMenu::render(CubeModel& cube)
 {
-	//ImGui::SetNextWindowSize(ImVec2(207.0f, 207.0f));
-	ImGui::Begin(name.c_str(), &enabled);
+	ImGui::SetNextWindowSize(ImVec2(359.0f, 100.0f));
+	ImGui::Begin(name.c_str(), &enabled, ImGuiWindowFlags_NoResize);
 
-	ImGui::InputText("Sequence", _Input, 500, ImGuiInputTextFlags_CallbackCharFilter, Filter::FilterSingmasterNotation);
-	if (ImGui::Button("Generate a scramble"))
+	ImGui::InputText("Sequence", _Input, 200, ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CallbackCharFilter, Filter::FilterSingmasterNotation);
+	ImGui::SliderInt("Scramble length", &_ScrambleSize, 1, 50);
+	if (ImGui::Button("Generate"))
 	{
 		std::list<std::string> scramble = generateScramble(_ScrambleSize);
 		std::string sequence;
@@ -142,19 +137,7 @@ SolverMenu::render(CubeModel& cube)
 		size_t len = sequence.copy(_Input, 499);
 		_Input[len] = '\0';
 	}
-	if (ImGui::Button("Generate the solution"))
-	{
-		std::list<std::string> solution = solve(cube.toCubieCube());
-		std::string sequence;
-
-		for (auto m = solution.begin(); m != solution.end(); m++)
-		{
-			sequence.append(*m);
-			sequence.push_back(' ');
-		}
-		size_t len = sequence.copy(_Input, 499);
-		_Input[len] = '\0';
-	}
+	ImGui::SameLine();
 	if (ImGui::Button("Apply"))
 	{
 		char *tmp = _Input;
@@ -164,11 +147,72 @@ SolverMenu::render(CubeModel& cube)
 		}
 		catch (const std::exception &e)
 		{
-			std::cout << "OPEN POPUP\n";
+			ImGui::OpenPopup("Error");
 		}
 		_Input[0] = '\0';
 	}
-	ImGui::SliderInt("Scramble length", &_ScrambleSize, 1, 50);
+
+	/* Modal window showed when the input sequence is invalid */
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("The sequence you've entered is not valid.\n");
+		if (ImGui::Button("OK"))
+			ImGui::CloseCurrentPopup();
+		ImGui::EndPopup();
+	}
+	ImGui::End();
+}
+
+SolverMenu::SolverMenu() : Menu("Solver"), _SolverLaunched(false) {}
+
+void
+SolverMenu::render(CubeModel& cube)
+{
+	ImGui::SetNextWindowSize(ImVec2(275.0f, 0.0f));
+	ImGui::Begin(name.c_str(), &enabled, ImGuiWindowFlags_AlwaysAutoResize);
+
+	/* Generate solution and save a copy as a string */
+	if (_SolverLaunched)
+	{
+		_Solution = solve(cube.toCubieCube());
+		_SolutionStr.clear();
+		for (auto move = _Solution.begin(); move != _Solution.end(); move++)
+			_SolutionStr += *move + ' ';
+		_SolverLaunched = false;
+	}
+
+	static ImVec4 labelColor(0.51f, 0.51f, 1.0f, 1.0f);
+
+	/* Print solution if any */
+	ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - 5.0f);
+	ImGui::TextColored(labelColor, "Solution:\n");
+	ImGui::SameLine();
+	if (ImGui::Button("Generate"))
+	{
+		_SolutionStr = "Generating solution... please wait...";
+		_SolverLaunched = true;
+	}
+	if (_Solution.size() || _SolverLaunched)
+		ImGui::Text("%s", _SolutionStr.c_str());
+	else
+		ImGui::Text("(none)");
+	
+	/* Print moves count if any */
+	ImGui::Spacing();
+	ImGui::TextColored(labelColor, "Moves:");
+	ImGui::SameLine();
+	ImGui::Text("%ld", _Solution.size());
+    ImGui::PopTextWrapPos();
+
+	/* Solve the cube and clear the text fields */
+	if (ImGui::Button("Apply solution"))
+	{
+		cube.ApplySequence(_Solution);
+		_Solution.clear();
+		_SolutionStr.clear();
+	}
 
 	ImGui::End();
 }
