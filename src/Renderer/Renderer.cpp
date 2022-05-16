@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 11:20:04 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 17:10:58 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,9 @@ void* LoadTables(void* arg)
 	}
 	catch (const std::exception& e)
 	{
+		pthread_mutex_lock(&info->mutex);
+		info->error = true;
+		pthread_mutex_unlock(&info->mutex);
 		return nullptr;
 	}
 	pthread_mutex_lock(&info->mutex);
@@ -157,6 +160,9 @@ bool RenderLoadingScreen(LoadingInfo* state, Camera& camera, CubeModel& cube)
 {
 	if (pthread_mutex_trylock(&state->mutex) != EBUSY)
 	{
+		if (state->error)
+			throw std::runtime_error("Tables loading failed");
+
 		if (!state->done) // Animate the screen while the tables load
 		{
 			/* Print filepath currently being loaded */
@@ -214,8 +220,10 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 
 	/* Launch tables loading process into a separate thread */
 	loadingState.done = false;
-	pthread_mutex_init(&loadingState.mutex, nullptr);
-	pthread_create(&loaderth, nullptr, &LoadTables, &loadingState);
+	loadingState.error = false;
+
+	if (pthread_mutex_init(&loadingState.mutex, nullptr) || pthread_create(&loaderth, nullptr, &LoadTables, &loadingState))
+		throw std::runtime_error("Couldn't create a new thread");
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))

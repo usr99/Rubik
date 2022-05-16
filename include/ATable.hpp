@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 17:42:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 10:32:28 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 17:09:07 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ struct LoadingInfo
 	std::string		message;
 	bool			done;
 	pthread_mutex_t	mutex;
+	bool			error;
 };	
 
 template <class T>
