@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/14 03:29:03 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 11:15:17 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,28 +15,26 @@
 #include "Solver.hpp"
 #include "Renderer.hpp"
 
-int main(int ac, char **av)
+int main()
 {
 	/* Detach the process from the shell that executed it */
-	pid_t pid = fork();
-	if (pid < 0)
-		return (EXIT_FAILURE); // fork() failed
-	else if (pid)
-		return (EXIT_SUCCESS); // exit the parent process
+	// pid_t pid = fork();
+	// if (pid < 0)
+	// 	return (EXIT_FAILURE); // fork() failed
+	// else if (pid)
+	// 	return (EXIT_SUCCESS); // exit the parent process
 
 	/* Only child process remains now */
 	bool error = false;
 	try
 	{
-		std::list<std::string> scramble = parseScramble(av + 1, ac - 1);
-
 		GLFWwindow* window = CreateWindow();
 		CreateImGuiContext(window);
 
 		Shader shader("res/shaders/basic");
 		shader.bind();
 
-		CubeModel cube(shader, CubieCube(scramble).toFacelet());
+		CubeModel cube(shader, FaceletCube());
 		RenderingLoop(window, shader, cube);
 	}
 	catch (const std::exception& e)

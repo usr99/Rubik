@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 16:16:23 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 07:23:35 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ PruningTables::Generator::Generator(
 	unsigned int mt2
 ) : BaseGenerator(name, size), allowedMoves(allowedMoves), mtIndex1(mt1), mtIndex2(mt2) {}
 
-PruningTables::PruningTables(const MoveTables& mt) :
+PruningTables::PruningTables(const MoveTables& mt, LoadingInfo* info) :
 	ATable(std::vector<BaseGenerator*>({
 		new Generator(
 			std::string("orientation.prune"),
@@ -55,14 +55,14 @@ PruningTables::PruningTables(const MoveTables& mt) :
 	})), _mt(mt)
 {
 	for (size_t i = 0; i < _generators.size(); i++) {
-		_create(i);
+		_create(i, info);
 	}
 }
 
-PruningTables*	PruningTables::getInstance(const MoveTables& mt)
+PruningTables*	PruningTables::getInstance(const MoveTables& mt, LoadingInfo* info)
 {
 	if (!_instance)
-		_instance = new PruningTables(mt);
+		_instance = new PruningTables(mt, info);
 	return _instance;
 }
 

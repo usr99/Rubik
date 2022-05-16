@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:00 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/12 07:03:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 11:04:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 
 # include "Shader.hpp"
 # include "CubeModel.hpp"
+# include "ATable.hpp"
 
 # define WINDOW_W		800.0f
 # define WINDOW_H 		600.0f
@@ -38,8 +39,18 @@
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
 
+struct Camera
+{
+	inline glm::mat4	getMatrix() const { return projection * view; }
+
+	const glm::mat4		projection;
+	glm::mat4			view;
+};
+
 GLFWwindow* CreateWindow();
 void CreateImGuiContext(GLFWwindow* window);
+bool RenderLoadingScreen(LoadingInfo* state, Camera& camera, CubeModel& cube);
+void* LoadTables(void* arg);
 void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube);
 
 #endif

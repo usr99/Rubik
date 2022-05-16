@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 22:07:16 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 11:23:40 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 };
 
 CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
-	: AnimEnabled(true), Delay(1.0f),
+	: AnimEnabled(true), Delay(2.0f),
 		_FaceletTex("res/images/facelet.png"),
 		_Faces(new std::array<Face, 6>({
 			Face( // UP
@@ -199,6 +199,21 @@ CubeModel::toCubieCube() const
 }
 
 void
+CubeModel::setState(const FaceletCube& from)
+{
+	auto reference = from.getFacelets().begin();
+
+	for (int i = 0; i < 6; i++)
+	{
+		for (auto facelet = _Faces->at(i).facelets.begin(); facelet != _Faces->at(i).facelets.end(); facelet++)
+		{
+			facelet->color = ColorScheme.data() + *reference / 9;
+			reference++;
+		}
+	}
+}
+
+void
 CubeModel::_CreateBlackFaces(const Faceturn& ft)
 {
 	/*
@@ -234,7 +249,7 @@ CubeModel::_TurnFace(Faceturn& ft)
 	float stepAngle;
 
 	if (AnimEnabled)
-		stepAngle = 5.0f;
+		stepAngle = 3.0f;
 	else
 	{
 		if (ft.finalAngle == 180.0f && ft.currentAngle >= 90.0f)

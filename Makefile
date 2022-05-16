@@ -1,7 +1,7 @@
 TARGET	= Rubik
 
 CC		= g++
-CFLAGS	= -Wall -Wextra -Werror --std=c++14 -g
+CFLAGS	= -Wall -Wextra #-Werror --std=c++14 -g
 LINK	= -lglfw3 -limgui -lGLEW -lGLU -lGL -lpthread -ldl
 
 INC 	= `find ./include -type d | sed s/^/-I/`
@@ -10,7 +10,7 @@ SRC		= main.cpp ACube.cpp FaceletCube.cpp cubie.cpp \
 			CubieCube.cpp MoveTables.cpp Solver.cpp math_utils.cpp \
 			PruningTables.cpp BaseGenerator.cpp \
 			\
-			Renderer.cpp Camera.cpp Shader.cpp \
+			Renderer.cpp Shader.cpp \
 			VertexArray.cpp VertexBuffer.cpp VertexBufferLayout.cpp IndexBuffer.cpp Texture.cpp \
 			CubeModel.cpp cubemodel_utils.cpp Menu.cpp
 

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 17:42:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 00:52:11 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 10:32:28 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,13 @@
 
 # include "BaseGenerator.hpp"
 
+struct LoadingInfo
+{
+	std::string		message;
+	bool			done;
+	pthread_mutex_t	mutex;
+};	
+
 template <class T>
 class ATable
 {
@@ -32,7 +39,7 @@ class ATable
 
 	protected:
 
-		void			_create(int index);
+		void			_create(int index, LoadingInfo* info);
 		virtual void	_load(int index, int fd) = 0;
 		virtual void	_generate(int index, int fd) = 0;
 

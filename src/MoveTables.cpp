@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 16:15:56 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 07:23:43 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ MoveTables::Generator::Generator(
 	u_int16_t (CubieCube::*get)(void) const
 ) : BaseGenerator(name, size), set(set), get(get) {}
 
-MoveTables::MoveTables() :
+MoveTables::MoveTables(LoadingInfo* info) :
 	ATable(std::vector<BaseGenerator*>({
 		new Generator(
 			std::string("corner_ori.move"),
@@ -63,14 +63,14 @@ MoveTables::MoveTables() :
 {
 	for (size_t i = 0; i < _generators.size(); i++) {
 		_tables[i].resize(_generators[i]->size);
-		_create(i);
+		_create(i, info);
 	}
 }
 
-MoveTables*	MoveTables::getInstance()
+MoveTables*	MoveTables::getInstance(LoadingInfo* info)
 {
 	if (!_instance)
-		_instance = new MoveTables();
+		_instance = new MoveTables(info);
 	return _instance;
 }
 

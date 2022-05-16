@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:13:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 16:16:04 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 07:28:23 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class PruningTables : public ATable<int8_t>
 {
 	public:
 
-		static PruningTables*	getInstance(const MoveTables& mt);
+		static PruningTables*	getInstance(const MoveTables& mt, LoadingInfo* info = nullptr);
 		static void				destroy();
 		virtual ~PruningTables();
 
@@ -29,7 +29,7 @@ class PruningTables : public ATable<int8_t>
 
 		struct Generator;
 
-		PruningTables(const MoveTables& mt);
+		PruningTables(const MoveTables& mt, LoadingInfo* info);
 
 		virtual void			_load(int index, int fd);
 		virtual void			_generate(int index, int fd);

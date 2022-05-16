@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 16:19:19 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 11:17:23 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class CubeModel
 		void		PushMove(int index, float angle);
 		void		ApplySequence(const std::list<std::string>& seq);
 		CubieCube	toCubieCube() const;
+		void		setState(const FaceletCube& from);
 
 		bool	AnimEnabled;
 		float	Delay;

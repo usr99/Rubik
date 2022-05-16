@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 18:53:52 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 11:20:04 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 
 #include "stb_image/stb_image.h"
 #include "Renderer.hpp"
-#include "Camera.hpp"
 #include "Shader.hpp"
 #include "Menu.hpp"
 #include "Solver.hpp"
@@ -135,13 +134,72 @@ void RotateModel(glm::mat4& ModelMatrix, const glm::mat4& ViewMatrix, const ImVe
 	ModelMatrix = glm::rotate(ModelMatrix, angle, ObjAxis);
 }
 
+void* LoadTables(void* arg)
+{
+	LoadingInfo* info = (LoadingInfo*)arg;
+
+	try
+	{
+		MoveTables* mt = MoveTables::getInstance(info);
+		PruningTables::getInstance(*mt, info);
+	}
+	catch (const std::exception& e)
+	{
+		return nullptr;
+	}
+	pthread_mutex_lock(&info->mutex);
+	info->done = true;
+	pthread_mutex_unlock(&info->mutex);
+	return info;
+}
+
+bool RenderLoadingScreen(LoadingInfo* state, Camera& camera, CubeModel& cube)
+{
+	if (pthread_mutex_trylock(&state->mutex) != EBUSY)
+	{
+		if (!state->done) // Animate the screen while the tables load
+		{
+			/* Print filepath currently being loaded */
+			ImGui::Begin("Loading", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground);
+			ImGui::Text("%s", state->message.c_str());
+			ImVec2 pos(ImGui::GetMainViewport()->Size.x / 2 - ImGui::GetWindowWidth() / 2, ImGui::GetWindowPos().y);
+			ImGui::SetWindowPos(pos);
+			ImGui::End();
+
+			/* Make a random move on the cube */
+			const float angles[] = {-90.0f, 90.0f, 180.0f};
+			cube.PushMove(std::rand() % 6, angles[std::rand() % 3]);
+		}
+		else // Replace the cube at the center of the screen before showing UI
+		{
+			static double last = glfwGetTime();
+			double now = glfwGetTime();
+			if (now - last >= 0.01)
+			{
+				last = now;
+				camera.view = glm::translate(camera.view, glm::vec3(0.0f, -0.02f, 0.05f));
+				if (camera.view[3].z >= -4.0f)
+				{
+					cube.setState(FaceletCube());
+					pthread_mutex_destroy(&state->mutex);
+					return true;
+				}
+			}
+		}
+		pthread_mutex_unlock(&state->mutex);
+	}
+	return false;
+}
+
 void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 {
 	/* Set ModelViewProjection matrices */
-	const glm::mat4 projection = glm::perspective(glm::radians(45.0f), RATIO(WINDOW_W, WINDOW_H), 0.1f, 50.0f);
-	const glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f));
-	const glm::mat4 CameraMatrix = projection * view;
-	glm::mat4 ModelMatrix(1.0f);
+	Camera camera = {
+		glm::perspective(glm::radians(45.0f), RATIO(WINDOW_W, WINDOW_H), 0.1f, 50.0f),
+		glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.75f, -6.0f))
+	};
+	glm::mat4 ModelMatrix(glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+	ModelMatrix = glm::rotate(ModelMatrix, glm::radians(45.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 
 	MainMenu menu(cube);
 	menu.push(new ScrambleMenu());
@@ -149,6 +207,15 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 	menu.push(new MovesMenu());
 	menu.push(new AnimationMenu());
 	menu.push(new FaceletColorMenu(cube.ColorScheme.data()));
+
+	LoadingInfo loadingState;
+	pthread_t	loaderth;
+	bool		programCanStart = false;
+
+	/* Launch tables loading process into a separate thread */
+	loadingState.done = false;
+	pthread_mutex_init(&loadingState.mutex, nullptr);
+	pthread_create(&loaderth, nullptr, &LoadTables, &loadingState);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -158,7 +225,7 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 
 		/* Update the view */
 		shader.bind();
-		shader.setUniformMat4f("u_MVP", CameraMatrix * ModelMatrix);
+		shader.setUniformMat4f("u_MVP", camera.getMatrix() * ModelMatrix);
 
 		/* Handle mouse inputs for cube controls */
 		ImGuiIO& io = ImGui::GetIO();
@@ -166,7 +233,7 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		{
 			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 			{
-				RotateModel(ModelMatrix, view, io.MousePos, ImGui::GetMouseDragDelta(ImGuiMouseButton_Left));
+				RotateModel(ModelMatrix, camera.view, io.MousePos, ImGui::GetMouseDragDelta(ImGuiMouseButton_Left));
 				ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			}
 		}
@@ -176,7 +243,10 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		menu.render();
+		if (!programCanStart)
+			programCanStart = RenderLoadingScreen(&loadingState, camera, cube);
+		else
+			menu.render();
 		cube.Render();
 
 		/* Render dear imgui into screen */

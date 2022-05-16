@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 16:15:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 07:28:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class MoveTables : public ATable<u_int16_t>
 			CORNER_PERM, EDGE_P2, UD_SLICE_P2
 		};
 
-		static MoveTables*	getInstance();
+		static MoveTables*	getInstance(LoadingInfo* info = nullptr);
 		static void			destroy();
 		virtual ~MoveTables();
 
@@ -33,7 +33,7 @@ class MoveTables : public ATable<u_int16_t>
 
 		struct Generator;
 
-		MoveTables();
+		MoveTables(LoadingInfo* info);
 
 		virtual void		_load(int index, int fd);
 		virtual void		_generate(int index, int fd);

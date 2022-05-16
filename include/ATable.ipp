@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 18:19:13 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/02 02:26:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 10:41:10 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ ATable<T>::ATable(const std::vector<BaseGenerator*>& gen) :
 	{
 		if (errno == ENOENT) // folder not found
 		{
-			std::cout << "Creating tables folder...\n";
 			if (mkdir("./tables", S_IRWXU | S_IRWXG | S_IROTH) == -1)
 				throw std::runtime_error("Could not create ./tables folder");
 		}
@@ -56,7 +55,7 @@ ATable<T>::~ATable()
 */
 template <class T>
 void
-ATable<T>::_create(int index)
+ATable<T>::_create(int index, LoadingInfo* info)
 {
 	const std::string	path("./tables/" + _generators[index]->name);
 	struct stat			st;
@@ -70,7 +69,12 @@ ATable<T>::_create(int index)
 			try {
 				if ((fd = open(path.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IROTH)) == -1)
 					throw std::exception();
-				std::cout << "Generating " + path + " ...\n";
+				if (info)
+				{
+					pthread_mutex_lock(&info->mutex);
+					info->message = "Generating " + path + " ...";
+					pthread_mutex_unlock(&info->mutex);
+				}
 				_generate(index, fd); // call sub-class generation function
 			} catch (const std::exception& e) {
 				close(fd);
@@ -88,7 +92,12 @@ ATable<T>::_create(int index)
 	try { // load data from the table
 		if ((fd = open(path.c_str(), O_RDONLY)) == -1)
 			throw std::exception();
-		std::cout << "Loading " + path + " ...\n";
+		if (info)
+		{
+			pthread_mutex_lock(&info->mutex);
+			info->message = "Loading " + path + " ...";
+			pthread_mutex_unlock(&info->mutex);
+		}
 		_load(index, fd); // call sub-class loading function
 	} catch (const std::exception& e) {
 		close(fd);
