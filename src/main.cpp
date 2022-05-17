@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 11:15:17 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/16 11:29:14 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,6 @@
 
 int main()
 {
-	/* Detach the process from the shell that executed it */
-	// pid_t pid = fork();
-	// if (pid < 0)
-	// 	return (EXIT_FAILURE); // fork() failed
-	// else if (pid)
-	// 	return (EXIT_SUCCESS); // exit the parent process
-
 	/* Only child process remains now */
 	bool error = false;
 	try

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 11:17:23 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/17 01:34:18 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,6 @@
 # include "Shader.hpp"
 # include "Texture.hpp"
 # include "CubieCube.hpp"
-
-# define SIZEOF_INSTANCE (sizeof(glm::vec3) + sizeof(glm::mat4))
 
 class CubeModel
 {
@@ -67,8 +65,19 @@ class CubeModel
 
 			void init(glm::vec3 *color, const glm::vec3 &rot, glm::vec3 translation, float angle);
 
-			glm::vec3 *color;
-			glm::mat4 transform;
+			glm::vec3 		*color;
+			glm::mat4 		transform;
+		};
+
+		struct InstanceData
+		{
+			InstanceData();
+			InstanceData(const Instance& rhs);
+
+			void init(const Instance& rhs);
+
+			glm::vec3 		color;
+			glm::mat4 		transform;
 		};
 
 		struct Faceturn
@@ -96,6 +105,7 @@ class CubeModel
 
 		VertexArray						_VAO;
 		Texture							_FaceletTex;
+		Texture							_42IconTex;
 
 		std::unique_ptr<VertexBuffer>	_FaceletVertices;
 		std::unique_ptr<VertexBuffer>	_FaceletInstances;

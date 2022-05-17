@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/13 21:48:07 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/13 23:32:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/17 01:34:42 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,18 @@ CubeModel::Instance::init(
 	this->color = color;
 }
 
+CubeModel::InstanceData::InstanceData() {}
+
+CubeModel::InstanceData::InstanceData(const Instance& rhs)
+	: color(rhs.color ? *rhs.color : glm::vec3(0.0f, 0.0f, 0.0f)), transform(rhs.transform) {}
+
+void
+CubeModel::InstanceData::init(const Instance& rhs)
+{
+	color = *rhs.color;
+	transform = rhs.transform;
+}
+
 unsigned int CubeModel::Face::NextOffset = 0;
 CubeModel::Face::Face(const Facelet* source, const glm::vec3& rotation, float angle)
 {
@@ -128,5 +140,5 @@ CubeModel::Face::Face(const Facelet* source, const glm::vec3& rotation, float an
 
 	/* Keep the offset from where this face's data begins in the instance buffer */
 	offset = Face::NextOffset;
-	Face::NextOffset += facelets.size() * (sizeof(glm::vec3) + sizeof(glm::mat4));
+	Face::NextOffset += facelets.size() * sizeof(InstanceData);
 }

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 11:23:40 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/17 01:35:58 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 	: AnimEnabled(true), Delay(2.0f),
 		_FaceletTex("res/images/facelet.png"),
+		_42IconTex("res/images/42.png"),
 		_Faces(new std::array<Face, 6>({
 			Face( // UP
 				rhs.getFacelets().data() + 0 * 9,
@@ -80,7 +81,7 @@ CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 
 	/* Create the buffer describing all facelet instances */
 	VertexBufferLayout InstancesLayout;
-	_FaceletInstances = std::make_unique<VertexBuffer>(nullptr, (6 * 9 + 2) * SIZEOF_INSTANCE);
+	_FaceletInstances = std::make_unique<VertexBuffer>(nullptr, (6 * 9 + 2) * sizeof(InstanceData));
 	InstancesLayout.push<float>(3);		// color
 	InstancesLayout.push<glm::mat4>(1);	// transformation matrix
 	_VAO.addBuffer(*_FaceletInstances, InstancesLayout, 2, true);
@@ -89,7 +90,10 @@ CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
 
 	/* Set the texture used for the facelet borders */
 	shader.bind();
+	_FaceletTex.bind(0);
 	shader.setUniform1i("u_Texture", 0);
+	_42IconTex.bind(1);
+	shader.setUniform1i("u_LogoTexture", 1);
 }
 
 CubeModel::~CubeModel() { delete _Faces; }
@@ -98,7 +102,8 @@ void
 CubeModel::Render()
 {
 	_VAO.bind();
-	_FaceletTex.bind();
+	_FaceletTex.bind(0);
+	_42IconTex.bind(1);
 	_FaceletIndices->bind();
 
 	/* Handle moves and animations */
@@ -127,13 +132,10 @@ CubeModel::Render()
 	/* Copy all instances into the instance buffer */
 	for (auto f = _Faces->begin(); f != _Faces->end(); f++)
 	{
-		std::array<std::pair<glm::vec3, glm::mat4>, 9> tmp;
+		std::array<InstanceData, 9> tmp;
 		for (unsigned int i = 0; i < 9; i++)
-		{
-			tmp[i].first  = *(f->facelets[i].color);
-			tmp[i].second = f->facelets[i].transform;
-		}
-		_FaceletInstances->update(f->offset, tmp.data(), 9 * SIZEOF_INSTANCE);
+			tmp[i].init(f->facelets[i]);
+		_FaceletInstances->update(f->offset, tmp.data(), 9 * sizeof(InstanceData));
 	}
 
 	/* Draw 54 instances of the facelet and 2 black faces */
@@ -236,10 +238,10 @@ CubeModel::_CreateBlackFaces(const Faceturn& ft)
 void
 CubeModel::_UpdateBlackFaceInstance(unsigned int idx)
 {
-	unsigned int offset = Face::NextOffset + SIZEOF_INSTANCE * idx;
+	unsigned int offset = Face::NextOffset + sizeof(InstanceData) * idx;
 
-	auto data = std::make_pair(glm::vec3(0.0f, 0.0f, 0.0f), _InsideFaces[idx].transform);
-	_FaceletInstances->update(offset, &data, SIZEOF_INSTANCE);
+	InstanceData data(_InsideFaces[idx]);
+	_FaceletInstances->update(offset, &data, sizeof(InstanceData));
 }
 
 void

@@ -1,7 +1,7 @@
 TARGET	= Rubik
 
 CC		= g++
-CFLAGS	= -Wall -Wextra #-Werror --std=c++14 -g
+CFLAGS	= -Wall -Wextra -Werror --std=c++14 -g
 LINK	= -lglfw3 -limgui -lGLEW -lGLU -lGL -lpthread -ldl
 
 INC 	= `find ./include -type d | sed s/^/-I/`
