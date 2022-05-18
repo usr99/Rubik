@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/17 01:35:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 23:06:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,12 +191,34 @@ CubeModel::ApplySequence(const std::list<std::string>& seq)
 	_WaitingMoves.insert(_WaitingMoves.end(), newMoves.begin(), newMoves.end());
 }
 
+FaceletCube
+CubeModel::toFaceletCube() const
+{
+	std::array<Facelet, 54> faceletsArray;
+
+	int index = 0;
+	for (int i = 0; i < 6; i++)
+	{
+		for (auto f = _Faces->at(i).facelets.begin(); f != _Faces->at(i).facelets.end(); f++)
+		{
+			faceletsArray[index] = static_cast<Facelet>((f->color - ColorScheme.data()) * 9);
+			index++;
+		}
+	}
+	return FaceletCube(faceletsArray);
+}
+
 CubieCube
 CubeModel::toCubieCube() const
 {
+	auto cube = toFaceletCube();
+
+	cube.getCornerCubies();
+	cube.getEdgeCubies();
+
 	return CubieCube(
-		_ConvertCubies<CornerCubie, Corner, CORNER_COUNT, 3>(Rubik::CornerFacelets),
-		_ConvertCubies<EdgeCubie, Edge, EDGE_COUNT, 2>(Rubik::EdgeFacelets)
+		cube.getCornerCubies(),
+		cube.getEdgeCubies()
 	);
 }
 
@@ -344,55 +366,4 @@ CubeModel::_SwapFaceRows(const std::array<Instance*, 3>& from, const std::array<
 		else
 			std::swap(*from[i], *to[i]);
 	}
-}
-
-template <typename T, typename U, unsigned int count, unsigned int stickers_count>
-std::array<T, count> CubeModel::_ConvertCubies(const Facelet reference[count][stickers_count]) const
-{
-	std::array<T, count> cubies;
-
-	for (unsigned int i = 0; i < count; i++)
-	{
-		/* Find the color of the facelets composing the cubie */
-		std::array<Facelet, stickers_count> cubie;
-		for (unsigned int j = 0; j < stickers_count; j++)
-		{
-			const int faceIdx = reference[i][j] / 9;
-			const int faceletIdx = reference[i][j] % 9;
-			glm::vec3* color = _Faces->at(faceIdx).facelets[faceletIdx].color;
-
-			cubie[j] = static_cast<Facelet>(color - ColorScheme.data());
-		}
-
-		/* Find the name of the cubie having the same colors */
-		int name;
-		char orientation;
-		for (unsigned int n = 0; n < count; n++)
-		{
-			/* Compare each reference facelet to each facelet */
-			unsigned int matching = 0;
-			for (unsigned int i = 0; i < stickers_count; i++)
-			{
-				for (unsigned int j = 0; j < stickers_count; j++)
-				{
-					if (reference[n][i] / 9 == cubie[j])
-					{
-						if (i == 0)
-							orientation = j;
-						matching++;
-						break ;
-					}
-				}
-			}
-
-			/* All facelets match ! Cubie found ! */
-			if (matching == stickers_count)
-			{
-				name = n;
-				break ;
-			}
-		}
-		cubies[i] = { static_cast<U>(name), orientation };
-	}
-	return cubies;
 }

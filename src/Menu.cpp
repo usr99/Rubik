@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/14 01:12:01 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 22:07:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 22:13:53 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ void
 MainMenu::render()
 {
 	/* Render a checkbox list to enable menus */
-	ImGui::Begin(_Name.c_str());
+	ImGui::SetNextWindowSize(ImVec2(180.0f, 169.0f));
+	ImGui::Begin(_Name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
 	std::for_each(_Menus.begin(), _Menus.end(), [](Menu* m) {
 		ImGui::Checkbox(m->name.c_str(), &m->enabled);
 	});	
@@ -215,4 +216,211 @@ SolverMenu::render(CubeModel& cube)
 	}
 
 	ImGui::End();
+}
+
+FaceletEditorMenu::FaceletEditorMenu() : Menu("Facelet Editor"),
+	_NewlineLayout({ 2, 5, 8, 20, 32, 44, 47, 50 }), _SelectedColor(0)
+{
+	_Init();
+
+	/* Create the layout that describe where each facelet is drawn on the window */
+	for (int i = 0; i < 9; i++)
+	{
+		/* White face is at the top */
+		_FaceletsLayout[0 + i] = _Facelets[0 * 9 + i]; 
+		/* Orange face is the first in the middle layer */
+		_FaceletsLayout[9 + i / 3 * 12 + i % 3] = _Facelets[4 * 9 + i];
+		/* Green face is the second in the middle layer */
+		_FaceletsLayout[12 + i / 3 * 12 + i % 3] = _Facelets[2 * 9 + i];
+		/* Red face is the third in the middle layer */
+		_FaceletsLayout[15 + i / 3 * 12 + i % 3] = _Facelets[1 * 9 + i];
+		/* Blue face is the fourth in the middle layer */
+		_FaceletsLayout[18 + i / 3 * 12 + i % 3] = _Facelets[5 * 9 + i];
+		/* Yellow face is at the bottom */
+		_FaceletsLayout[45 + i] = _Facelets[3 * 9 + i];
+	}	
+}
+
+void
+FaceletEditorMenu::render(CubeModel& cube)
+{
+	ImGui::SetNextWindowSize(ImVec2(206.0f, 243.0f));
+	ImGui::Begin(name.c_str(), &enabled, ImGuiWindowFlags_NoResize);
+
+	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, {
+		cube.ColorScheme[_SelectedColor].x,
+		cube.ColorScheme[_SelectedColor].y,
+		cube.ColorScheme[_SelectedColor].z,
+		1.0f
+	});
+
+	int nlIndex = 0;
+	ImGui::Indent(9);
+	for (int i = 0; i < 54; i++)
+	{
+		glm::vec3 color = cube.ColorScheme[_Facelets[_FaceletsLayout[i]] / 9];
+		ImGui::PushStyleColor(ImGuiCol_Header, {
+			color.x,
+			color.y,
+			color.z,
+			1.0f
+		});
+
+		if (i == 0 || i == 45)
+			ImGui::Indent(45);
+		else if (i == 9)
+			ImGui::Unindent(45);
+
+		std::string id = "##" + std::to_string(i + 1);
+		if (ImGui::Selectable(id.c_str(), true, ImGuiSelectableFlags_AllowItemOverlap, ImVec2(7, 10)) && _FaceletsLayout[i] % 9 != 4)
+			_Facelets[_FaceletsLayout[i]] = static_cast<Facelet>(_SelectedColor * 9);
+		ImGui::PopStyleColor();
+
+		ImGui::SameLine();
+
+		if (_NewlineLayout[nlIndex] == i)
+		{
+			ImGui::NewLine();
+			nlIndex++;
+		}
+	}
+
+	ImGui::PopStyleColor();
+	ImGui::Unindent(54);
+	ImGui::NewLine();
+	ImGui::Separator();
+
+	for (int face = 0; face < 6; face++)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, {
+			cube.ColorScheme[face].x,
+			cube.ColorScheme[face].y,
+			cube.ColorScheme[face].z,
+			1.0f
+		});
+
+		std::string id = "##" + std::to_string(-face);
+		if (ImGui::Button(id.c_str(), { 25.0f, 25.0f }))
+			_SelectedColor = face;
+		ImGui::PopStyleColor();
+		ImGui::SameLine();
+	}
+
+	static std::string errMessage;
+
+	ImGui::NewLine();
+	ImGui::Separator();
+	float width = ImGui::GetWindowWidth() - ImGui::GetStyle().IndentSpacing * 0.75f;
+	if (ImGui::Button("Validate", { width, 20.0f }))
+	{
+		try
+		{
+			FaceletCube newCube(_Facelets);
+			_CheckStateValidity(newCube);
+			cube.setState(newCube);
+		}
+		catch (const std::exception& e)
+		{
+			errMessage = e.what();
+			ImGui::OpenPopup("Error");
+		}
+	}
+
+			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+			if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::Text("%s\n", errMessage.c_str());
+				if (ImGui::Button("OK"))
+					ImGui::CloseCurrentPopup();
+				ImGui::EndPopup();
+			}
+
+
+	if (ImGui::Button("Reset", { width, 20.0f }))
+		_Init();
+
+	ImGui::End();
+}
+
+void
+FaceletEditorMenu::_Init()
+{
+	for (unsigned int i = 0; i != _Facelets.size(); i++)
+		_Facelets[i] = static_cast<Facelet>(i);
+}
+
+void
+FaceletEditorMenu::_CheckStateValidity(const FaceletCube& state)
+{
+	/*
+	** Check cubies validity and orientation
+	** Validity = not having any cubie in double,
+	** no same colors cubies, no opposite colors cubies, etc.
+	** Oriention = the sum of the corners orientation must be a multiple of 3
+	** and a multiple of 2 for the edges
+	*/
+	auto corners = state.getCornerCubies();
+	auto edges = state.getEdgeCubies();
+
+	/*
+	** Check cubies permutation
+	** corners permutation and edges permutations parities must be equal,
+	** both odd or even
+	*/
+	std::vector<std::vector<Corner>> cCycles;
+	std::vector<Corner> cRemaining({URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB});
+	std::vector<Corner>::iterator cEndIterator = cRemaining.end();
+
+	std::vector<std::vector<Edge>> eCycles;
+	std::vector<Edge> eRemaining({UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR});
+	std::vector<Edge>::iterator eEndIterator = eRemaining.end();
+
+	for (int i = 0; i < CORNER_COUNT; i++)
+	{
+		if (corners[i].c != i && std::find(cRemaining.begin(), cEndIterator, i) != cEndIterator)
+		{
+			int next = corners[i].c;
+
+			cCycles.push_back(std::vector<Corner>());
+			cCycles.back().push_back(static_cast<Corner>(i));
+			cEndIterator = std::remove(cRemaining.begin(), cEndIterator, i);
+
+			while (corners[next].c != corners[i].c)
+			{
+				cCycles.back().push_back(static_cast<Corner>(next));
+				cEndIterator = std::remove(cRemaining.begin(), cEndIterator, next);
+				next = corners[next].c;
+			}
+		}
+	}
+
+	for (int i = 0; i < EDGE_COUNT; i++)
+	{
+		if (edges[i].e != i && std::find(eRemaining.begin(), eEndIterator, i) != eEndIterator)
+		{
+			int next = edges[i].e;
+
+			eCycles.push_back(std::vector<Edge>());
+			eCycles.back().push_back(static_cast<Edge>(i));
+			eEndIterator = std::remove(eRemaining.begin(), eEndIterator, i);
+
+			while (edges[next].e != edges[i].e)
+			{
+				eCycles.back().push_back(static_cast<Edge>(next));
+				eEndIterator = std::remove(eRemaining.begin(), eEndIterator, next);
+				next = edges[next].e;
+			}
+		}
+	}
+
+	int cParity = 0;
+	int eParity = 0;
+
+	for (auto cycle = cCycles.begin(); cycle != cCycles.end(); cycle++)
+		cParity += cycle->size() - 1;
+	for (auto cycle = eCycles.begin(); cycle != eCycles.end(); cycle++)
+		eParity += cycle->size() - 1;
+	if (cParity % 2 != eParity % 2)
+		throw std::runtime_error("Permutation parity is not valid");
 }

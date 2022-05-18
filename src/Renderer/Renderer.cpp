@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 17:10:58 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 23:29:34 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,6 +212,7 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 	menu.push(new SolverMenu());
 	menu.push(new MovesMenu());
 	menu.push(new AnimationMenu());
+	menu.push(new FaceletEditorMenu());
 	menu.push(new FaceletColorMenu(cube.ColorScheme.data()));
 
 	LoadingInfo loadingState;

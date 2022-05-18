@@ -6,11 +6,12 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/05/11 21:51:18 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 23:24:20 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/FaceletCube.hpp"
+#include "../include/CubieCube.hpp"
 #include "../include/permutations.hpp"
 
 FaceletCube::FaceletCube(const std::list<std::string>& sequence)
@@ -94,8 +95,94 @@ FaceletCube::render() const
 	std::cout << "\n";
 }
 
+std::array<CornerCubie, CORNER_COUNT>
+FaceletCube::getCornerCubies() const
+{
+	return _ConvertCubies<CornerCubie, Corner, CORNER_COUNT, 3>(Rubik::CornerFacelets);
+}
+
+std::array<EdgeCubie, EDGE_COUNT>
+FaceletCube::getEdgeCubies() const
+{
+	return _ConvertCubies<EdgeCubie, Edge, EDGE_COUNT, 2>(Rubik::EdgeFacelets);
+}
+
 const std::array<Facelet, FACELET_COUNT>&
 FaceletCube::getFacelets() const
 {
 	return _facelets;
+}
+
+template <typename T, typename U, unsigned int count, unsigned int stickers_count>
+std::array<T, count>
+FaceletCube::_ConvertCubies(const Facelet reference[count][stickers_count]) const
+{
+	std::array<T, count> cubies;
+	std::vector<bool>	 cubieFound(count, false);
+
+	for (unsigned int i = 0; i < count; i++)
+	{
+		/* Find the color of the facelets composing the cubie */
+		std::array<Facelet, stickers_count> cubie;
+		for (unsigned int j = 0; j < stickers_count; j++)
+		{
+			const int faceIdx = reference[i][j] / 9;
+			const int faceletIdx = reference[i][j] % 9;
+			cubie[j] = static_cast<Facelet>(_facelets[faceIdx * 9 + faceletIdx] / 9);
+		}
+
+		/* Find the name of the cubie having the same colors */
+		int name = -1;
+		char orientation;
+		for (unsigned int n = 0; n < count; n++)
+		{
+			/* Search for the facelet that matches the first facelet of the reference cubie */
+			unsigned int faceletIdx = 0;
+			while (reference[n][0] / 9 != cubie[faceletIdx] && faceletIdx < stickers_count)
+				faceletIdx++;
+
+			/* One facelet match ! */
+			if (faceletIdx != stickers_count)
+			{
+				unsigned int matching = 1;
+				unsigned int refIdx = 1;
+				orientation = faceletIdx;
+
+				/* Count the number of following facelets that also match */
+				faceletIdx = (faceletIdx + 1) % stickers_count;
+				while (reference[n][refIdx] / 9 == cubie[faceletIdx] && refIdx < stickers_count)
+				{
+					matching++;
+					refIdx++;
+					faceletIdx = (faceletIdx + 1) % stickers_count;
+				}
+
+				/* All facelets match ! Cubie found ! */
+				if (matching == stickers_count)
+				{
+					name = n;
+					cubieFound[n] = true;
+					break ;
+				}
+			}
+		}
+
+		if (name == -1)
+			throw std::runtime_error("Invalid cubie found");
+
+		cubies[i] = { static_cast<U>(name), orientation };
+	}
+
+	/* Check that each cubie is unique */
+	if (std::find(cubieFound.begin(), cubieFound.end(), false) != cubieFound.end())
+		throw std::runtime_error("Duplicate cubies found");
+
+	/* Check the orientation */
+	int sum = 0;
+	for (auto cubie = cubies.begin(); cubie != cubies.end(); cubie++) 
+		sum += cubie->o;
+	if (sum % stickers_count != 0)
+		throw std::runtime_error("Cubies orientation is not valid");
+
+	return cubies;
 }

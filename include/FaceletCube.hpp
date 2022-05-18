@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:05:33 by user42            #+#    #+#             */
-/*   Updated: 2022/05/11 21:51:29 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 15:06:55 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define FACELETCUBE_HPP
 
 # include "ACube.hpp"
+# include "cubie.hpp"
+
+class CubieCube;
 
 class FaceletCube : public ACube
 {
@@ -35,8 +38,13 @@ class FaceletCube : public ACube
 		void			render() const;
 
 		const std::array<Facelet, FACELET_COUNT>& getFacelets() const;
+		std::array<CornerCubie, CORNER_COUNT>	  getCornerCubies() const;
+		std::array<EdgeCubie, EDGE_COUNT>		  getEdgeCubies() const;
 
 	private:
+
+		template <typename T, typename U, unsigned int count, unsigned int stickers_count>
+		std::array<T, count> _ConvertCubies(const Facelet reference[count][stickers_count]) const;
 
 		std::array<Facelet, FACELET_COUNT>	_facelets;
 };

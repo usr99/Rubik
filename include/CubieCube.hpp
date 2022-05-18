@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/05/13 17:56:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 03:37:57 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class CubieCube : public ACube
 		u_int16_t	getCornerOriCoord() const;
 		u_int16_t	getEdgeOriCoord() const;
 		u_int16_t	getCornerPermCoord() const;
+		u_int16_t	getEdgePermCoord() const;
 		u_int16_t	getUDSliceCoord() const;
 		u_int16_t	getPhase2EdgePermCoord() const;
 		u_int16_t	getPhase2UDSliceCoord() const;

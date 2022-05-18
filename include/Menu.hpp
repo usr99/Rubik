@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/14 00:52:57 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 21:40:41 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 19:36:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <string>
 # include <vector>
+# include <memory>
 
 # include "CubeModel.hpp"
 
@@ -117,6 +118,24 @@ class SolverMenu : public Menu
 		bool					_SolverLaunched;
 		std::list<std::string>	_Solution;
 		std::string				_SolutionStr;
+};
+
+class FaceletEditorMenu : public Menu
+{
+	public:
+
+		FaceletEditorMenu();
+		virtual void render(CubeModel& cube);
+
+	private:
+
+		void _Init();
+		void _CheckStateValidity(const FaceletCube& state); 
+
+		std::array<Facelet, 54>	_Facelets;
+		std::array<Facelet, 54>	_FaceletsLayout;
+		std::array<int, 8>		_NewlineLayout;
+		int						_SelectedColor;
 };
 
 #endif
