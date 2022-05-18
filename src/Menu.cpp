@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/14 01:12:01 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/18 22:13:53 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 01:24:49 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,6 +247,7 @@ FaceletEditorMenu::render(CubeModel& cube)
 	ImGui::SetNextWindowSize(ImVec2(206.0f, 243.0f));
 	ImGui::Begin(name.c_str(), &enabled, ImGuiWindowFlags_NoResize);
 
+	/* Show selected color when the facelets are mouse hovered */
 	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, {
 		cube.ColorScheme[_SelectedColor].x,
 		cube.ColorScheme[_SelectedColor].y,
@@ -255,9 +256,11 @@ FaceletEditorMenu::render(CubeModel& cube)
 	});
 
 	int nlIndex = 0;
-	ImGui::Indent(9);
+	ImGui::Indent(9); // center the grid of facelets
+	/* Print the 54 facelets based on the layout */
 	for (int i = 0; i < 54; i++)
 	{
+		/* Set facelet color */
 		glm::vec3 color = cube.ColorScheme[_Facelets[_FaceletsLayout[i]] / 9];
 		ImGui::PushStyleColor(ImGuiCol_Header, {
 			color.x,
@@ -266,30 +269,38 @@ FaceletEditorMenu::render(CubeModel& cube)
 			1.0f
 		});
 
+		/* Indent the up and down faces to form the T-shape */
 		if (i == 0 || i == 45)
 			ImGui::Indent(45);
 		else if (i == 9)
 			ImGui::Unindent(45);
 
+		/*
+		** Print the facelet, clicking on it set its color to be the currently selected color
+		** center facelets cannot be modified
+		*/
 		std::string id = "##" + std::to_string(i + 1);
-		if (ImGui::Selectable(id.c_str(), true, ImGuiSelectableFlags_AllowItemOverlap, ImVec2(7, 10)) && _FaceletsLayout[i] % 9 != 4)
+		if (ImGui::Selectable(id.c_str(), true, 0, ImVec2(7, 10)) && _FaceletsLayout[i] % 9 != 4)
 			_Facelets[_FaceletsLayout[i]] = static_cast<Facelet>(_SelectedColor * 9);
 		ImGui::PopStyleColor();
 
+		/*
+		** Facelets are printed on the same line by default
+		** print newlines only when the "newlines layout" says so
+		*/
 		ImGui::SameLine();
-
 		if (_NewlineLayout[nlIndex] == i)
 		{
 			ImGui::NewLine();
 			nlIndex++;
 		}
 	}
-
 	ImGui::PopStyleColor();
 	ImGui::Unindent(54);
+
+	/* Color palette */
 	ImGui::NewLine();
 	ImGui::Separator();
-
 	for (int face = 0; face < 6; face++)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Button, {
@@ -306,8 +317,7 @@ FaceletEditorMenu::render(CubeModel& cube)
 		ImGui::SameLine();
 	}
 
-	static std::string errMessage;
-
+	/* Button to apply the colored facelets to the 3D cube */
 	ImGui::NewLine();
 	ImGui::Separator();
 	float width = ImGui::GetWindowWidth() - ImGui::GetStyle().IndentSpacing * 0.75f;
@@ -316,29 +326,29 @@ FaceletEditorMenu::render(CubeModel& cube)
 		try
 		{
 			FaceletCube newCube(_Facelets);
-			_CheckStateValidity(newCube);
+			_CheckStateValidity(newCube); // check if the cube is solveable
 			cube.setState(newCube);
 		}
 		catch (const std::exception& e)
 		{
-			errMessage = e.what();
+			_ErrorMessage = e.what();
 			ImGui::OpenPopup("Error");
 		}
 	}
 
-			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-			ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-			if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				ImGui::Text("%s\n", errMessage.c_str());
-				if (ImGui::Button("OK"))
-					ImGui::CloseCurrentPopup();
-				ImGui::EndPopup();
-			}
-
-
 	if (ImGui::Button("Reset", { width, 20.0f }))
 		_Init();
+
+	/* Popup window showed when the cube is not solveable */
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("%s\n", _ErrorMessage.c_str());
+		if (ImGui::Button("OK"))
+			ImGui::CloseCurrentPopup();
+		ImGui::EndPopup();
+	}
 
 	ImGui::End();
 }
@@ -368,59 +378,74 @@ FaceletEditorMenu::_CheckStateValidity(const FaceletCube& state)
 	** corners permutation and edges permutations parities must be equal,
 	** both odd or even
 	*/
-	std::vector<std::vector<Corner>> cCycles;
-	std::vector<Corner> cRemaining({URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB});
-	std::vector<Corner>::iterator cEndIterator = cRemaining.end();
+	int cParity = _GetPermutationParity<CornerCubie, Corner, CORNER_COUNT>(corners);
+	int eParity = _GetPermutationParity<EdgeCubie, Edge, EDGE_COUNT>(edges);
 
-	std::vector<std::vector<Edge>> eCycles;
-	std::vector<Edge> eRemaining({UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR});
-	std::vector<Edge>::iterator eEndIterator = eRemaining.end();
-
-	for (int i = 0; i < CORNER_COUNT; i++)
-	{
-		if (corners[i].c != i && std::find(cRemaining.begin(), cEndIterator, i) != cEndIterator)
-		{
-			int next = corners[i].c;
-
-			cCycles.push_back(std::vector<Corner>());
-			cCycles.back().push_back(static_cast<Corner>(i));
-			cEndIterator = std::remove(cRemaining.begin(), cEndIterator, i);
-
-			while (corners[next].c != corners[i].c)
-			{
-				cCycles.back().push_back(static_cast<Corner>(next));
-				cEndIterator = std::remove(cRemaining.begin(), cEndIterator, next);
-				next = corners[next].c;
-			}
-		}
-	}
-
-	for (int i = 0; i < EDGE_COUNT; i++)
-	{
-		if (edges[i].e != i && std::find(eRemaining.begin(), eEndIterator, i) != eEndIterator)
-		{
-			int next = edges[i].e;
-
-			eCycles.push_back(std::vector<Edge>());
-			eCycles.back().push_back(static_cast<Edge>(i));
-			eEndIterator = std::remove(eRemaining.begin(), eEndIterator, i);
-
-			while (edges[next].e != edges[i].e)
-			{
-				eCycles.back().push_back(static_cast<Edge>(next));
-				eEndIterator = std::remove(eRemaining.begin(), eEndIterator, next);
-				next = edges[next].e;
-			}
-		}
-	}
-
-	int cParity = 0;
-	int eParity = 0;
-
-	for (auto cycle = cCycles.begin(); cycle != cCycles.end(); cycle++)
-		cParity += cycle->size() - 1;
-	for (auto cycle = eCycles.begin(); cycle != eCycles.end(); cycle++)
-		eParity += cycle->size() - 1;
 	if (cParity % 2 != eParity % 2)
 		throw std::runtime_error("Permutation parity is not valid");
+}
+
+template <typename T, typename U, unsigned int size>
+int	
+FaceletEditorMenu::_GetPermutationParity(const std::array<T, size>& cubies)
+{
+	std::vector<std::vector<U>>				cycles;
+	std::array<U, size>						remaining;
+	typename std::array<U, size>::iterator	endIterator(remaining.end());
+
+	/* Fill the array with the values of all different cubies */
+	for (unsigned int i = 0; i < size; i++)
+		remaining[i] = static_cast<U>(i);
+
+	/*
+	** Create a vector describing the cycles of permutations
+	**
+	** We will take the following permutation as an exemple
+	** 1 2 3 4 5 6 7 8 ===> 4 2 5 1 6 3 8 7
+	**
+	** 1 and 4 swapped, this is a 2-cycle
+	** 3, 5 and 6 swapped, this is a 3-cycle
+	** 7 and 8 swapped, this is another 2-cycle
+	** 2 didn't move so it isn't part of any cycle
+	**
+	** With this example the vector would contains :
+	** 1, 2
+	** 3, 5, 6
+	** 7, 8
+	*/
+	for (unsigned int i = 0; i < size; i++)
+	{
+		/*
+		** A cubie is not in the right position
+		** because in a solved cube, cubie[i] == i
+		*/
+		if (cubies[i].get() != i && std::find(remaining.begin(), endIterator, i) != endIterator)
+		{
+			/* Create a new cycle */
+			cycles.push_back(std::vector<U>());
+			/* Add the first cubie */
+			cycles.back().push_back(static_cast<U>(i));
+			endIterator = std::remove(remaining.begin(), endIterator, i);
+
+			/* Save the cubie that took its place */
+			int next = cubies[i].get();
+
+			/* Add the next cubie until we go back to the cubie that began the cycle */
+			while (cubies[next].get() != cubies[i].get())
+			{
+				cycles.back().push_back(static_cast<U>(next));
+				endIterator = std::remove(remaining.begin(), endIterator, next);
+				next = cubies[next].get();
+			}
+		}
+	}
+
+	/*
+	** Compute the sum of the parities from all the cycles
+	** a n-cycle has a parity of n - 1
+	*/
+	int sum = 0;
+	for (auto swap = cycles.begin(); swap != cycles.end(); swap++)
+		sum += swap->size() - 1;
+	return sum;
 }

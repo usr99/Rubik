@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/14 00:52:57 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/18 19:36:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 00:42:05 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,13 +129,17 @@ class FaceletEditorMenu : public Menu
 
 	private:
 
-		void _Init();
-		void _CheckStateValidity(const FaceletCube& state); 
+		void	_Init();
+		void	_CheckStateValidity(const FaceletCube& state);
+
+		template <typename T, typename U, unsigned int size>
+		int		_GetPermutationParity(const std::array<T, size>& cubies);
 
 		std::array<Facelet, 54>	_Facelets;
 		std::array<Facelet, 54>	_FaceletsLayout;
 		std::array<int, 8>		_NewlineLayout;
 		int						_SelectedColor;
+		std::string				_ErrorMessage;
 };
 
 #endif

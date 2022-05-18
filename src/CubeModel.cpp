@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/18 23:55:22 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 00:17:05 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,9 +212,6 @@ CubieCube
 CubeModel::toCubieCube() const
 {
 	auto cube = toFaceletCube();
-
-	cube.getCornerCubies();
-	cube.getEdgeCubies();
 
 	return CubieCube(
 		cube.getCornerCubies(),
