@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/18 23:06:11 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/18 23:55:22 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,6 +235,10 @@ CubeModel::setState(const FaceletCube& from)
 			reference++;
 		}
 	}
+
+	/* Reset the up face center facelet so that the 42 sticker is well oriented */
+	_Faces->at(0).facelets[4].transform = glm::mat4(1.0f);
+	_Faces->at(0).facelets[4].init(ColorScheme.data(), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.45f), 90.0f);
 }
 
 void
