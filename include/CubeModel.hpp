@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:23:24 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/18 03:32:47 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 02:22:30 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ class CubeModel
 
 		void _CreateBlackFaces(const Faceturn& ft);
 		void _UpdateBlackFaceInstance(unsigned int idx);
-		void _TurnFace(Faceturn& ft);
+		void _TurnFace(Faceturn& ft, double& time);
 
 		void _RotateFaceInstances(Turn face, const glm::mat4& rotation);
 		void _RotateFaceData(Turn face, bool clockwise);

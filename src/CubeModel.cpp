@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/19 00:17:05 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 02:53:19 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ std::array<glm::vec3, 6> CubeModel::ColorScheme = {
 };
 
 CubeModel::CubeModel(Shader& shader, const FaceletCube& rhs)
-	: AnimEnabled(true), Delay(2.0f),
+	: AnimEnabled(true), Delay(1.0f),
 		_FaceletTex("res/images/facelet.png"),
 		_42IconTex("res/images/42.png"),
 		_Faces(new std::array<Face, 6>({
@@ -101,6 +101,8 @@ CubeModel::~CubeModel() { delete _Faces; }
 void
 CubeModel::Render()
 {
+	static double time;
+
 	_VAO.bind();
 	_FaceletTex.bind(0);
 	_42IconTex.bind(1);
@@ -118,9 +120,13 @@ CubeModel::Render()
 
 			/* Before starting the rotation, create the black faces that will hide the inside of the cube */
 			if (ft.currentAngle == 0.0f)
+			{
+				if (AnimEnabled)
+					time = glfwGetTime();
 				_CreateBlackFaces(ft);
+			}
 
-			_TurnFace(ft); // apply the move
+			_TurnFace(ft, time); // apply the move
 			_UpdateBlackFaceInstance(0); // update the black face that rotates along the move
 
 			if (ft.currentAngle == ft.finalAngle)
@@ -268,20 +274,27 @@ CubeModel::_UpdateBlackFaceInstance(unsigned int idx)
 }
 
 void
-CubeModel::_TurnFace(Faceturn& ft)
+CubeModel::_TurnFace(Faceturn& ft, double& time)
 {
 	const Face::FaceTurnDesc& turnInfo = Face::RotationRules[ft.face];
+	double newTime = glfwGetTime();
 	float stepAngle;
 
 	if (AnimEnabled)
-		stepAngle = 3.0f;
+		stepAngle = static_cast<float>((newTime - time) * 90.0 / 0.25 * Delay);
 	else
 	{
-		if (ft.finalAngle == 180.0f && ft.currentAngle >= 90.0f)
-			stepAngle = 180.0f - ft.currentAngle;
-		else
-			stepAngle = 90.0f - abs(ft.currentAngle);
+		if (newTime - time < 0.10 / Delay)
+			return ;
+		stepAngle = ft.finalAngle;
 	}
+	time = newTime;
+
+	/* Avoid the case where rotating by stepAngle would go further than finalAngle */
+	if (ft.finalAngle == 180.0f && ft.currentAngle >= 90.0f)
+		stepAngle = std::min(stepAngle, 180.0f - ft.currentAngle);
+	else
+		stepAngle = std::min(abs(stepAngle), 90.0f - abs(ft.currentAngle));
 
 	if (!ft.clockwise)
 		stepAngle = -stepAngle;
