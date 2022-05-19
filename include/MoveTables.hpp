@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:15:41 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 07:28:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 17:50:47 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ class MoveTables : public ATable<u_int16_t>
 
 		MoveTables(LoadingInfo* info);
 
-		virtual void		_load(int index, int fd);
-		virtual void		_generate(int index, int fd);
+		virtual void		_load(int index, FILE* file);
+		virtual void		_generate(int index, FILE* file);
 
 		static MoveTables*	_instance;
 };

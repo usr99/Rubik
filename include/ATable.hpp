@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 17:42:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 17:09:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 17:27:44 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include <sys/stat.h>
 # include <cstring>
 # include <fcntl.h>
-# include <unistd.h>
+# include <cstdio>
 
 # include "BaseGenerator.hpp"
 
@@ -41,8 +41,8 @@ class ATable
 	protected:
 
 		void			_create(int index, LoadingInfo* info);
-		virtual void	_load(int index, int fd) = 0;
-		virtual void	_generate(int index, int fd) = 0;
+		virtual void	_load(int index, FILE* file) = 0;
+		virtual void	_generate(int index, FILE* file) = 0;
 
 		std::vector<std::vector<std::vector<T>>>	_tables;
 		std::vector<BaseGenerator*>					_generators;

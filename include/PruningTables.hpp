@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:13:26 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 07:28:23 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 18:09:43 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ class PruningTables : public ATable<int8_t>
 
 		PruningTables(const MoveTables& mt, LoadingInfo* info);
 
-		virtual void			_load(int index, int fd);
-		virtual void			_generate(int index, int fd);
+		virtual void			_load(int index, FILE* file);
+		virtual void			_generate(int index, FILE* file);
 
 		static PruningTables*	_instance;
 

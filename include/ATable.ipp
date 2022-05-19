@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 18:19:13 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 10:41:10 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 18:11:34 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ ATable<T>::_create(int index, LoadingInfo* info)
 {
 	const std::string	path("./tables/" + _generators[index]->name);
 	struct stat			st;
-	int					fd;
+	FILE*				file;
 	
 	// create table file if it doesn't already exist
 	if (stat(path.c_str(), &st) == -1)
@@ -67,21 +67,24 @@ ATable<T>::_create(int index, LoadingInfo* info)
 		if (errno == ENOENT) // table not found
 		{
 			try {
-				if ((fd = open(path.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IROTH)) == -1)
+
+				file = fopen(path.c_str(), "w");
+				if (!file)
 					throw std::exception();
+
 				if (info)
 				{
 					pthread_mutex_lock(&info->mutex);
 					info->message = "Generating " + path + " ...";
 					pthread_mutex_unlock(&info->mutex);
 				}
-				_generate(index, fd); // call sub-class generation function
+				_generate(index, file); // call sub-class generation function
 			} catch (const std::exception& e) {
-				close(fd);
+				fclose(file);
 				remove(path.c_str()); // remove file to force regeneration next time
 				throw std::runtime_error("Could not generate " + _generators[index]->name);
 			}
-			close(fd);
+			fclose(file);
 			return ;
 		}
 		else {
@@ -90,19 +93,22 @@ ATable<T>::_create(int index, LoadingInfo* info)
 	}
 
 	try { // load data from the table
-		if ((fd = open(path.c_str(), O_RDONLY)) == -1)
+
+		file = fopen(path.c_str(), "r");
+		if (!file)
 			throw std::exception();
+
 		if (info)
 		{
 			pthread_mutex_lock(&info->mutex);
 			info->message = "Loading " + path + " ...";
 			pthread_mutex_unlock(&info->mutex);
 		}
-		_load(index, fd); // call sub-class loading function
+		_load(index, file); // call sub-class loading function
 	} catch (const std::exception& e) {
-		close(fd);
+		fclose(file);
 		remove(path.c_str()); // remove file to force regeneration next time
 		throw std::runtime_error(std::string("Could not load ") + path);
 	}
-	close(fd);
+	fclose(file);
 }

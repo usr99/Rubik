@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 07:23:35 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 18:10:27 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ PruningTables::destroy()
 PruningTables::~PruningTables() {}
 
 void
-PruningTables::_load(int index, int fd)
+PruningTables::_load(int index, FILE* file)
 {
 	Generator*	gen			= reinterpret_cast<Generator*>(_generators[index]);
 	size_t		mtSizes[2]	= { _mt[gen->mtIndex1].capacity(), _mt[gen->mtIndex2].capacity() };
@@ -89,7 +89,7 @@ PruningTables::_load(int index, int fd)
 		_tables[index][i].reserve(mtSizes[1]);
 		for (u_int j = 0; j < mtSizes[1]; j++)
 		{
-			if (read(fd, &buf, sizeof(int8_t)) != sizeof(int8_t))
+			if (fread(&buf, sizeof(int8_t), 1, file) != 1)
 				throw std::exception();
 			_tables[index][i][j] = buf;
 		}
@@ -97,7 +97,7 @@ PruningTables::_load(int index, int fd)
 }
 
 void
-PruningTables::_generate(int index, int fd)
+PruningTables::_generate(int index, FILE* file)
 {
 	Generator*							gen			= reinterpret_cast<Generator*>(_generators[index]);
 	size_t								mtSizes[2]	= { _mt[gen->mtIndex1].capacity(), _mt[gen->mtIndex2].capacity() };
@@ -174,7 +174,7 @@ PruningTables::_generate(int index, int fd)
 	{
 		for (u_int j = 0; j < mtSizes[1]; j++)
 		{
-			if (write(fd, table[i].data() + j, sizeof(int8_t)) != sizeof(int8_t))
+			if (fwrite(table[i].data() + j, sizeof(int8_t), 1, file) != 1)
 				throw std::exception();
 		}
 	}

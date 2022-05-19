@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 22:30:54 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 07:23:43 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/19 17:55:32 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ MoveTables::destroy()
 MoveTables::~MoveTables() {}
 
 void
-MoveTables::_load(int index, int fd)
+MoveTables::_load(int index, FILE* file)
 {
 	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
 	u_int16_t	buf;
@@ -94,7 +94,7 @@ MoveTables::_load(int index, int fd)
 		_tables[index][i].reserve(MOVES_COUNT);
 		for (int j = 0; j < MOVES_COUNT ; j++)
 		{
-			if (read(fd, &buf, sizeof(u_int16_t)) != sizeof(u_int16_t))
+			if (fread(&buf, sizeof(u_int16_t), 1, file) != 1)
 				throw std::exception();
 			_tables[index][i][j] = buf;
 		}
@@ -102,7 +102,7 @@ MoveTables::_load(int index, int fd)
 }
 
 void
-MoveTables::_generate(int index, int fd)
+MoveTables::_generate(int index, FILE* file)
 {
 	Generator*	gen = reinterpret_cast<Generator*>(_generators[index]);
 	CubieCube	cube;
@@ -124,7 +124,7 @@ MoveTables::_generate(int index, int fd)
 				if (k != 3) // k == 3 restores the initial state
 				{
 					// write it in the table
-					if (write(fd, &newCoord, sizeof(u_int16_t)) != sizeof(u_int16_t))
+					if (fwrite(&newCoord, sizeof(u_int16_t), 1, file) != 1)
 						throw std::exception();
 					_tables[index][i][f * 3 + k] = newCoord;
 				}
