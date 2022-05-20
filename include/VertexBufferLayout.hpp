@@ -6,14 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 01:25:01 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/11 01:25:03 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/21 00:55:11 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VERTEX_BUFFER_LAYOUT_HPP
 # define VERTEX_BUFFER_LAYOUT_HPP
 
-# include <GL/glew.h>
 # include <vector>
 # include <assert.h>
 
@@ -24,7 +23,7 @@ struct VertexBufferElement
 {
 	unsigned int	type;
 	unsigned int	count;
-	GLboolean		normalized;
+	unsigned char	normalized;
 
 	static unsigned int GetSizeOfType(unsigned int type);
 };
