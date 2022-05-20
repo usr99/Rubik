@@ -1,7 +1,7 @@
 TARGET	= Rubik.out
 
 CC		= g++
-CFLAGS	= -Wall -Wextra -Werror --std=c++14 -g
+CFLAGS	= -Wall -Wextra -Werror --std=c++14
 
 INC 	= -I ./include				\
 			-I ./deps				\
@@ -20,19 +20,22 @@ OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 
 GLFW_B	= deps/GLFW/build
-GLFW	= deps/GLFW/build/src/libglfw3.a
+GLFW	= ${GLFW_B}/src/libglfw3.a
 
 GLEW_B	= deps/GLEW
-GLEW	= deps/GLEW/lib/libGLEW.a
+GLEW	= ${GLEW_B}/lib/libGLEW.a
 
-DEPS	= -L${GLFW_B}/src -lglfw3 -Ldeps -limgui -L${GLEW_B}/lib -lGLEW -lGLU -lGL -lpthread -ldl -lX11
+IMGUI_B	= deps/imgui/
+IMGUI	= ${IMGUI_B}/libimgui.a
+
+DEPS	= -L${GLFW_B}/src -lglfw3 -L${IMGUI_B} -limgui -L${GLEW_B}/lib -lGLEW -lGL -lpthread -ldl -lX11
 
 # Compile sources
 ${OBJDIR}%.o: ${SRCDIR}/%.cpp
 	${CC} ${CFLAGS} ${INC} -c $< -o $@
 
 # Link project
-${TARGET}: ${OBJDIR} ${OBJS} ${GLFW} ${GLEW}
+${TARGET}: ${OBJDIR} ${OBJS} ${GLFW} ${GLEW} ${IMGUI}
 	${CC} ${CFLAGS} ${OBJS} -o $@ ${DEPS}
 
 # Create object directories
@@ -53,6 +56,10 @@ ${GLEW}:
 	${MAKE} glew.lib -C ${GLEW_B}
 	rm -rf ${GLEW_B}/lib/libGLEW.so
 
+# Compile Dear ImGui from sources
+${IMGUI}:
+	${MAKE} -C ${IMGUI_B}
+
 # Usual rules
 all: ${TARGET}
 
@@ -60,10 +67,12 @@ clean:
 	rm -rf ${OBJDIR}
 	${MAKE} clean -C ${GLFW_B}
 	${MAKE} clean -C ${GLEW_B}
+	${MAKE} clean -C ${IMGUI_B}
 
 fclean: clean
 	rm -rf ${TARGET}
 	rm -rf ${GLFW_B}
+	${MAKE} fclean -C ${IMGUI_B}
 
 re: fclean all
 
