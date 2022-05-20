@@ -2,7 +2,6 @@ TARGET	= Rubik.out
 
 CC		= g++
 CFLAGS	= -Wall -Wextra -Werror --std=c++14 -g
-LINK	= -lglfw3 -limgui -lGLEW -lGLU -lGL -lpthread -ldl
 
 INC 	= -I ./include -I ./deps
 SRCDIR	= ./src
@@ -20,13 +19,15 @@ OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 GLFW_B	= deps/GLFW/build
 GLFW	= deps/GLFW/build/src/libglfw3.a
 
+DEPS	= -L${GLFW_B}/src -lglfw3 -Ldeps -limgui -lGLEW -lGL -lpthread -ldl -lX11
+
 # Compile sources
 ${OBJDIR}%.o: ${SRCDIR}/%.cpp
 	${CC} ${CFLAGS} ${INC} -c $< -o $@
 
 # Link project
 ${TARGET}: ${OBJDIR} ${OBJS} ${GLFW}
-	${CC} ${CFLAGS} ${OBJS} -o $@ -Ldeps ${LINK}
+	${CC} ${CFLAGS} ${OBJS} -o $@ ${DEPS}
 
 # Create object directories
 ${OBJDIR}:
@@ -35,19 +36,21 @@ ${OBJDIR}:
 # Compile GLFW from sources
 ${GLFW}: ${GLFW_B}
 	${MAKE} -C ${GLFW_B}
+
 ${GLFW_B}:
-	mkdir deps/GLFW/build
-	cmake -B deps/GLFW/build -S deps/GLFW
+	mkdir ${GLFW_B}
+	cd ${GLFW_B} && cmake ..
 
 # Usual rules
 all: ${TARGET}
 
 clean:
 	rm -rf ${OBJDIR}
-	${MAKE} -C clean ${GLFW_B}
+	${MAKE} clean -C ${GLFW_B}
 
 fclean: clean
 	rm -rf ${TARGET}
+	rm -rf ${GLFW_B}
 
 re: fclean all
 
