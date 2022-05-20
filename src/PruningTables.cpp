@@ -6,11 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/27 22:21:48 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/19 18:10:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 23:35:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/PruningTables.hpp"
+#include "PruningTables.hpp"
 
 PruningTables* PruningTables::_instance = NULL;
 

@@ -6,11 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/23 17:53:09 by mamartin          #+#    #+#             */
-/*   Updated: 2022/04/26 03:11:29 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 23:35:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/rubik.hpp"
+#include "rubik.hpp"
 
 unsigned int factorial(unsigned int n)
 {

@@ -6,13 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/02 15:34:59 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/15 02:05:35 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 23:35:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ctime>
 #include <random>
-#include "../include/Solver.hpp"
+#include "Solver.hpp"
 
 template <>
 int Solver<CubeStateP1>::_estimateCost(const CubeStateP1& st)

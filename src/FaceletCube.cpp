@@ -6,13 +6,13 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/05/18 23:24:20 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 23:35:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/FaceletCube.hpp"
-#include "../include/CubieCube.hpp"
-#include "../include/permutations.hpp"
+#include "FaceletCube.hpp"
+#include "CubieCube.hpp"
+#include "permutations.hpp"
 
 FaceletCube::FaceletCube(const std::list<std::string>& sequence)
 {

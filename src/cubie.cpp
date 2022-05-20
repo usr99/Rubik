@@ -6,11 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 16:02:36 by user42            #+#    #+#             */
-/*   Updated: 2022/05/19 00:56:45 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 23:35:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/cubie.hpp"
+#include "cubie.hpp"
 
 CornerCubie::CornerCubie() {}
 CornerCubie::CornerCubie(const Corner c, const char o) :

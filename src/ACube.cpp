@@ -6,11 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/22 23:23:27 by user42            #+#    #+#             */
-/*   Updated: 2022/04/24 22:53:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 23:35:48 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/ACube.hpp"
+#include "ACube.hpp"
 
 void
 ACube::scramble(const std::list<std::string>& sequence)

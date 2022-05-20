@@ -6,11 +6,11 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/29 18:19:13 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/19 18:11:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 23:36:09 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/ATable.hpp"
+#include "ATable.hpp"
 
 template <class T>
 ATable<T>::ATable(const std::vector<BaseGenerator*>& gen) :
