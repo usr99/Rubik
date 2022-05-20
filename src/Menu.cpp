@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/14 01:12:01 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/19 01:24:49 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/05/20 17:05:36 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ ScrambleMenu::render(CubeModel& cube)
 			sequence.append(*m);
 			sequence.push_back(' ');
 		}
-		size_t len = sequence.copy(_Input, 499);
+		size_t len = sequence.copy(_Input, 199);
 		_Input[len] = '\0';
 	}
 	ImGui::SameLine();
