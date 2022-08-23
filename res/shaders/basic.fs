@@ -23,4 +23,4 @@ void main()
 	{
 		color = Color;
 	}
-};
+}

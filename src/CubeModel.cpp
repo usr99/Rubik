@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/11 18:36:46 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/20 23:38:39 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 12:31:51 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -294,7 +294,7 @@ CubeModel::_TurnFace(Faceturn& ft, double& time)
 	if (ft.finalAngle == 180.0f && ft.currentAngle >= 90.0f)
 		stepAngle = std::min(stepAngle, 180.0f - ft.currentAngle);
 	else
-		stepAngle = static_cast<float>(std::min(fabs(stepAngle), 90.0 - fabs(ft.currentAngle)));
+		stepAngle = static_cast<float>(std::min(fabs(stepAngle), 90.0f - fabs(ft.currentAngle)));
 
 	if (!ft.clockwise)
 		stepAngle = -stepAngle;

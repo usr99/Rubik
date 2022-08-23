@@ -19,4 +19,4 @@ void main()
     v_TexCoord = aTexCoord;
 
 	InstanceID = gl_InstanceID;
-};
+}

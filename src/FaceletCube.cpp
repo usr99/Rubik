@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:09:54 by user42            #+#    #+#             */
-/*   Updated: 2022/05/20 23:35:48 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 12:30:03 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void
 FaceletCube::render() const
 {
 	int		faceletIndex		= 0;
-	int		map[9][12]			= {0};
+	int		map[9][12]			= {{ 0 }};
 	int		coordinates[6][2]	= {	// coordinates of the upper-left corner of each face on the map
 			{ 3, 0 }, // UP
 			{ 6, 3 }, // RIGHT

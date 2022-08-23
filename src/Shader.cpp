@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 23:37:56 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/10 23:47:33 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 12:39:56 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,11 @@ std::string
 Shader::_parseShader(const std::string &filepath)
 {
 	std::ifstream stream(filepath);
+	if (stream.fail())
+		throw std::runtime_error("Failed to load shader: " + filepath);
+	
 	std::string line;
 	std::stringstream ss;
-
 	while (getline(stream, line))
 		ss << line << '\n';
 	stream.close();

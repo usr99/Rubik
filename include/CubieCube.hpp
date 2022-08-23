@@ -6,14 +6,16 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:29:37 by user42            #+#    #+#             */
-/*   Updated: 2022/05/18 03:37:57 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 12:28:45 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUBIECUBE_HPP
 # define CUBIECUBE_HPP
 
+# include <array>
 # include <memory>
+
 # include "FaceletCube.hpp"
 # include "cubie.hpp"
 

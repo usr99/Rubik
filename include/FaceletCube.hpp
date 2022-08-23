@@ -6,12 +6,14 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 15:05:33 by user42            #+#    #+#             */
-/*   Updated: 2022/05/18 15:06:55 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/08/23 12:28:33 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FACELETCUBE_HPP
 # define FACELETCUBE_HPP
+
+# include <array>
 
 # include "ACube.hpp"
 # include "cubie.hpp"
