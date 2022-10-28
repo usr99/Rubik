@@ -3,7 +3,7 @@ TARGET	= Rubik.out
 CC		= g++
 CFLAGS	= -Wall -Wextra -Werror --std=c++14
 
-INC 	= -I ./include -I ./deps
+INC 	= -I ./include -I ./deps -I /usr/include/opencv4
 SRCDIR	= ./src
 SRC		= main.cpp ACube.cpp FaceletCube.cpp cubie.cpp \
 			CubieCube.cpp MoveTables.cpp Solver.cpp math_utils.cpp \
@@ -19,7 +19,7 @@ OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
 IMGUI_B	= deps/imgui/
 IMGUI	= ${IMGUI_B}/libimgui.a
 
-DEPS	= -L${IMGUI_B} -limgui -lglfw -lGLEW -lGL -lpthread -ldl -lX11
+DEPS	= -L${IMGUI_B} -limgui -lglfw -lGLEW -lGL -lpthread -ldl -lX11 -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_imgproc 
 
 # Compile sources
 ${OBJDIR}%.o: ${SRCDIR}/%.cpp

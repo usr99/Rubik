@@ -6,14 +6,17 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/08 17:03:58 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/16 11:29:14 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/10/27 18:48:37 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ctime>
+#include <opencv2/opencv.hpp>
 
 #include "Solver.hpp"
 #include "Renderer.hpp"
+
+
 
 int main()
 {
@@ -28,6 +31,8 @@ int main()
 		shader.bind();
 
 		CubeModel cube(shader, FaceletCube());
+
+
 		RenderingLoop(window, shader, cube);
 	}
 	catch (const std::exception& e)

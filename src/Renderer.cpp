@@ -6,13 +6,14 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/10 15:52:11 by mamartin          #+#    #+#             */
-/*   Updated: 2022/05/18 23:29:34 by mamartin         ###   ########.fr       */
+/*   Updated: 2022/10/27 18:53:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <iostream>
+#include <opencv2/opencv.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 #include "stb_image/stb_image.h"
@@ -197,6 +198,48 @@ bool RenderLoadingScreen(LoadingInfo* state, Camera& camera, CubeModel& cube)
 	return false;
 }
 
+
+// don't forget to include related head files
+static void BindCVMat2GLTexture(cv::Mat& image, GLuint& imageTexture)
+{
+	if (image.empty())
+		std::cout << "image empty" << std::endl;
+	else
+	{
+		// glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glGenTextures(1, &imageTexture);
+		glBindTexture(GL_TEXTURE_2D, imageTexture);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Set texture clamping method
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+		cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
+
+		glTexImage2D(GL_TEXTURE_2D,	   // Type of texture
+					 0,				   // Pyramid level (for mip-mapping) - 0 is the top level
+					 GL_RGB,		   // Internal colour format to convert to
+					 image.cols,	   // Image width  i.e. 640 for Kinect in standard mode
+					 image.rows,	   // Image height i.e. 480 for Kinect in standard mode
+					 0,				   // Border width in pixels (can either be 1 or 0)
+					 GL_RGB,		   // Input image format (i.e. GL_RGB, GL_RGBA, GL_BGR etc.)
+					 GL_UNSIGNED_BYTE, // Image data type
+					 image.ptr());	   // The actual image data itself
+	}
+} 
+
+static cv::VideoCapture captureVideo(const char* address)
+{
+	cv::VideoCapture cap(address);
+	if (!cap.isOpened())
+		throw std::runtime_error("Cannot open camera");
+	return cap;
+}
+
 void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 {
 	/* Set ModelViewProjection matrices */
@@ -225,6 +268,10 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 
 	if (pthread_mutex_init(&loadingState.mutex, nullptr) || pthread_create(&loaderth, nullptr, &LoadTables, &loadingState))
 		throw std::runtime_error("Couldn't create a new thread");
+
+	cv::VideoCapture cap = captureVideo("udp://172.25.54.176:5120");
+	cv::Mat img;
+	GLuint texId;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -255,7 +302,18 @@ void RenderingLoop(GLFWwindow* window, Shader& shader, CubeModel& cube)
 		if (!programCanStart)
 			programCanStart = RenderLoadingScreen(&loadingState, camera, cube);
 		else
+		{
+			cap >> img;
+			BindCVMat2GLTexture(img, texId);
+
+			ImGui::SetNextWindowSize(ImVec2(500, 500));
+			ImGui::Begin("Camera test");
+			ImGui::Image((void*)(intptr_t)texId, ImVec2(img.cols, img.rows));
+			ImGui::End();
+
+	    	cv::waitKey(25);
 			menu.render();
+		}
 		cube.Render();
 
 		/* Render dear imgui into screen */
