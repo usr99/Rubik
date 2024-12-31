@@ -6,7 +6,7 @@ SRC		= main.cpp ACube.cpp FaceletCube.cpp cubie.cpp \
 			PruningTables.cpp BaseGenerator.cpp
 OBJDIR	= ./objs/
 OBJS	= ${addprefix ${OBJDIR}, ${SRC:.cpp=.o}}
-CFLAGS	= -Wall -Wextra -Werror --std=c++11 -g
+CFLAGS	= -Wall -Wextra -Werror --std=c++11
 CC		= g++
 
 ${OBJDIR}%.o:	${SRCDIR}%.cpp
