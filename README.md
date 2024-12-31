@@ -1,12 +1,22 @@
 # Rubik
+
 Another solver for the original 3x3 Rubik's cube
 
 ## Installation
-clone the repo and run `make`
+```
+# Make sure build dependencies are installed
+pacman -S glew glfw
+
+git clone https://github.com/usr99/Rubik
+cd Rubik/
+make
+```
 
 ## Usage
-`./rubik.out [scramble]`
-The scramble argument is mandatory, it must be written according to the Singmaster notation (https://rubiks.fandom.com/wiki/Notation#Standard_3.C3.973.C3.973_notation)
+
+`./rubik [scramble]`
+
+The scramble argument is optional, it must be written according to the Singmaster notation (https://rubiks.fandom.com/wiki/Notation#Standard_3.C3.973.C3.973_notation)
 Slice moves and cube rotations are not accepted.
 
 ## How the cube is solved ?
@@ -19,3 +29,4 @@ The next times it will only loads these tables so this is much faster and the so
 
 ## Screenshot
 ![Capture](https://user-images.githubusercontent.com/61255495/166245991-1c72cbd0-db27-46f3-8d85-0dd677180b00.PNG)
+

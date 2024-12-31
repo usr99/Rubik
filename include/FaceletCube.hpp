@@ -13,6 +13,8 @@
 #ifndef FACELETCUBE_HPP
 # define FACELETCUBE_HPP
 
+# include <array>
+
 # include "ACube.hpp"
 # include "cubie.hpp"
 

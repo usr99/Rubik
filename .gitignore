@@ -33,6 +33,6 @@
 
 # Other
 .vscode
-./tables
+tables
 *.ini
-Rubik
+rubik
